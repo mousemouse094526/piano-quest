@@ -43,6 +43,7 @@ question; the full entry is in the feature's decisions.md.
 | แก้จาก red team: เวลา deadline ปุ่มที่ไม่นับ focus เสียง สัญญาณที่ไม่พึ่งสี | [note-name-quiz](features/note-name-quiz/decisions.md) | D20 | — | [0002](adr/0002-settings-in-url.md) | active |
 | มือถือใช้ปุ่มแตะ 7 ปุ่ม | [note-name-quiz](features/note-name-quiz/decisions.md) | D6 | — | — | active |
 | เสียงโน้ตสังเคราะห์เมื่อตอบถูก เปิดปิดได้ ค่าเริ่มต้นปิด | [note-name-quiz](features/note-name-quiz/decisions.md) | D5 | — | — | active |
+| `X` บนปุ่มที่ผิดจนกว่าจะตอบข้อถัดไป ตัวเล่นเสียงตัวเดียวทั้งแอป ปุ่มแตะเป็น grid 7 ช่อง | [note-name-quiz](features/note-name-quiz/decisions.md) | D29 | — | — | active |
 
 ## เนื้อหาดนตรี
 
@@ -59,6 +60,7 @@ question; the full entry is in the feature's decisions.md.
 | Seam สองจุด: game engine กับ e2e หนึ่ง flow | [note-name-quiz](features/note-name-quiz/decisions.md) | D18 | — | [0005](adr/0005-pure-game-engine.md) | active |
 | Vitest Playwright Biome code-based route npm | [note-name-quiz](features/note-name-quiz/decisions.md) | D21 | — | [0005](adr/0005-pure-game-engine.md) | active |
 | Conventions web app ใน `.claude/skills/vite-react-web/` | [note-name-quiz](features/note-name-quiz/decisions.md) | D23 | — | — | active |
+| Playwright: `Desktop Chrome` กับ `iPhone 15` build ใหม่ทุกครั้งที่ port 4317 CI รันก่อน build | [note-name-quiz](features/note-name-quiz/decisions.md) | D28 | — | — | active |
 
 ## เนื้อหาจากภายนอก
 

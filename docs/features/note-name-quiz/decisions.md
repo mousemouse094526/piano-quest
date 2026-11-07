@@ -374,6 +374,37 @@
 
 **From:** build ticket 02 · **Status:** active
 
+## D28: ตั้ง Playwright
+
+**Chosen:** project `chromium` (`Desktop Chrome`) และ `iphone` (`iPhone 15` บน WebKit) ; `webServer` build แล้ว `vite preview` ที่ port 4317 ไม่ reuse server ที่รันอยู่ ; CI ติดตั้ง `chromium webkit` แล้วรัน `npm run e2e` ก่อน build และเก็บ `playwright-report` เป็น artifact
+
+**Why:** port 4173 ของ Vite มักมี preview เก่าค้างอยู่ (ตอน build ticket นี้ test ผ่านกับ build เก่าโดยไม่รู้ตัว) จึงแยก port และ build ใหม่ทุกครั้ง ; `iPhone 15` (393 px) เป็น device ที่มีใน Playwright 1.65 ส่วน 375 px ตรวจแยกด้วย `setViewportSize`
+
+**Rejected:**
+- `reuseExistingServer` ตอนรันในเครื่อง — เร็วกว่าแต่เสี่ยงผ่านกับ code เก่า
+
+**Details:**
+- e2e หา Answer ที่ถูกจากข้อความ Prompt กับตาราง `NOTES` ของ engine และกดผ่าน `page.keyboard` จริงเท่านั้น
+- ก่อนกดปุ่มแรกต้องรอ Prompt ขึ้น — ปุ่มที่กดก่อน listener ติดจะหายไป
+
+**From:** build ticket 03 · **Status:** active
+
+## D29: `X` บนปุ่มที่ผิด และตัวเล่นเสียง
+
+**Chosen:** `useRound` รัน reducer ล่วงหน้ากับ event ตอบเพื่อรู้ผลทันที: ผิด → เก็บ `missMark` (โน้ตที่กด) ให้ปุ่มนั้นขึ้น `X` 600 ms แล้วจาง จนกว่าจะมีคำตอบที่นับครั้งถัดไป ; ถูก → เรียก `onCorrect` ซึ่งเล่นเสียงถ้า `sound=on` ; ตัวเล่นเสียงเป็นตัวเดียวทั้งแอป (`notePlayer`) คลื่น triangle 0.41 วินาที ; ปุ่มแตะเรียงเป็น grid 7 ช่องเต็มกว้าง
+
+**Why:** เสียงต้องเล่นใน gesture เดียวกับที่ตอบ (iOS) และหลัง engine ตัดสิน (D20) ; `X` ที่คิดจาก Miss ล่าสุดตอน render จะโผล่ซ้ำเมื่อทิศสลับกลับมา ; `min-w-12` × 7 กว้าง 384 px ล้นจอ 375 px
+
+**Details:**
+- `X` แสดงทั้งตอบผิดด้วยปุ่มแตะและปุ่มคีย์บอร์ด (ปุ่มที่ตรงกับคำตอบ)
+- เปิด `sound=on` จาก URL โดยไม่ได้กดปุ่ม → สร้าง `AudioContext` ตอนตอบถูกครั้งแรก (ก็เป็น gesture)
+- `navigator.audioSession.type = 'playback'` หยุดเพลงจากแอปอื่นของผู้เล่นได้ — ยอมรับตาม D20
+- ผลของการตอบหาด้วย selector `answerOutcome(before, after)` ของ engine
+- `sound/notePlayer.ts` มี unit test ด้วย `AudioContext` ปลอม เฉพาะสัญญา "เสียงพังไม่ throw" กับ "เล่นความถี่ที่ส่งมา" — e2e ฟังเสียงไม่ได้ (spec › Testing decisions) ; e2e นับโน้ตที่เล่นด้วย stub แทน
+- `resume()` ทุกครั้งที่ตอบถูก ตาม D20 แม้ context จะ `running` อยู่แล้ว (เป็น no-op)
+
+**From:** build ticket 03 · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

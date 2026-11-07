@@ -3,6 +3,7 @@ import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { answeredCount, answerKind, timeLeft } from '../engine/round';
 import type { Choice, RoundState } from '../engine/types';
+import type { MissMark } from '../hooks/useRound';
 import type { Script } from '../search';
 import { AnswerRow } from './AnswerRow';
 import { Kbd } from './Kbd';
@@ -14,6 +15,7 @@ export function Game({
   now,
   script,
   keySetHints,
+  missMark,
   onAnswer,
   onRestart,
   onEnd,
@@ -23,6 +25,8 @@ export function Game({
   script: Script;
   /** Bumped on each press from the other key set in `mixed`; replays the hint flash. */
   keySetHints: number;
+  /** The button the last answer missed with, until the next counted answer. */
+  missMark: MissMark | null;
   onAnswer: (choice: Choice) => void;
   onRestart: () => void;
   onEnd: () => void;
@@ -82,6 +86,7 @@ export function Game({
         side={answerKind(state.current)}
         script={script}
         hintFlashKey={keySetHints}
+        missMark={missMark}
         onChoice={onAnswer}
       />
 

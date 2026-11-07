@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'vitest';
-import { answeredCount, needsKeySetHint, reduce, results, startRound, timeLeft } from './round';
+import {
+  answeredCount,
+  answerOutcome,
+  needsKeySetHint,
+  reduce,
+  results,
+  startRound,
+  timeLeft,
+} from './round';
 import type { Choice, Direction, RoundState, Settings } from './types';
 
 const count10: Settings = { mode: 'count', len: 10, dir: 'solfege-to-letter' };
@@ -216,5 +224,21 @@ describe('selectors', () => {
     const fixed = startRound(count10, 3);
     const digit: Choice = { kind: 'solfege', note: 1 };
     expect(needsKeySetHint(fixed, digit)).toBe(false);
+  });
+});
+
+describe('answerOutcome', () => {
+  test('right, miss, or ignored, from the states before and after one answer', () => {
+    const s = startRound(count10, 1);
+    expect(answerOutcome(s, answer(s, rightChoice(s), 0))).toBe('right');
+    expect(answerOutcome(s, answer(s, wrongChoice(s), 0))).toBe('miss');
+    const otherKeySet: Choice = { ...rightChoice(s), kind: 'solfege' };
+    expect(answerOutcome(s, answer(s, otherKeySet, 0))).toBe('ignored');
+  });
+
+  test('an answer after the deadline is ignored even though the Round finishes', () => {
+    const time15: Settings = { mode: 'time', len: 15, dir: 'solfege-to-letter' };
+    const s = answer(startRound(time15, 1), rightChoice(startRound(time15, 1)), 0);
+    expect(answerOutcome(s, answer(s, rightChoice(s), 16_000))).toBe('ignored');
   });
 });

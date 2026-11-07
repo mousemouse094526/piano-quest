@@ -1,11 +1,11 @@
 # Progress: note-name-quiz
 
-**Now:** 02 done; 03 next
+**Now:** ทุก ticket done ; รอ feature review และตรวจเสียงบน iPhone โหมดเงียบหลัง deploy (Blocked #1)
 
 **Next:**
 
 ```
-/warroom-build note-name-quiz 03
+/warroom-build note-name-quiz --review-feature
 ```
 
 ## Tickets
@@ -14,9 +14,32 @@
 |---|---|---|
 | 01 | Scaffold + engine + deploy | done |
 | 02 | Mode bar + URL + Results ครบ | done |
-| 03 | มือถือ + เสียง + e2e | ready |
+| 03 | มือถือ + เสียง + e2e | done |
 
 ## Log
+
+### 03: มือถือ + เสียง + e2e — done 2026-11-07
+
+**Built:**
+- ปุ่มแตะ 7 ปุ่มเป็น grid 7 ช่องเต็มกว้าง (`max-w-md`) อยู่แถวเดียวที่ 375 px ไม่มี scroll แนวนอน ; ตอบผิดปุ่มที่กดขึ้น `X` 600 ms แล้วจาง (ทั้งแตะและคีย์บอร์ด) จนกว่าจะมีคำตอบที่นับครั้งถัดไป
+- ปุ่มเสียง `Toggle` `VolumeX`/`Volume2` ท้าย Mode bar เปลี่ยนแค่ `sound` ใน URL รอบเดิมเล่นต่อ ; `sound/notePlayer.ts` สร้าง `AudioContext` ตอนกดเปิด (หรือตอนตอบถูกครั้งแรกถ้าเปิดจาก URL) ตั้ง `audioSession.type = 'playback'` `resume()` ทุกครั้ง คลื่น triangle 0.41 วินาที ความผิดพลาดทุกอย่างถูกกลืน
+- engine เพิ่ม selector `answerOutcome(before, after)` ; `useRound` รัน reducer ล่วงหน้าในการกดเดียวกันเพื่อเล่นเสียงและตั้ง `missMark` หลัง engine ตัดสิน
+- Playwright 1.65.0: `playwright.config.ts` (project `chromium` + `iphone`, port 4317, build ใหม่ทุกครั้ง) และ `e2e/play-round.spec.ts` 15 test ครอบทุก bullet ของ Seam 2 และทุก criterion ของ ticket (รวม AudioContext throw, ตอบผิดไม่มีเสียงด้วย stub นับโน้ต) ; CI รัน `npm run e2e` ก่อน build และ upload `playwright-report`
+- library notes ใหม่: `playwright.md`, `web-audio.md`
+- ตรวจด้วยมือที่ 375 px (browser pane): แถวปุ่มพอดี ปุ่มเสียงขึ้น แตะผิดเห็น `X`
+
+**Decided:**
+- D28 — Playwright: `Desktop Chrome` + `iPhone 15`, port 4317 ไม่ reuse server (preview เก่าบน 4173 ทำให้ test ผ่านกับ build เก่า), CI ก่อน build
+- D29 — `X` อยู่ใน `useRound` จนกว่าจะตอบข้อถัดไป ; ตัวเล่นเสียงตัวเดียวทั้งแอป ; grid 7 ช่อง ; unit test ของ notePlayer จำกัดที่สัญญาไม่ throw ; `resume()` ทุกครั้ง
+
+**For the next ticket:**
+- Mode bar บนจอแคบ: เส้นคั่น (`Divider`) ค้างท้ายแถวเมื่อ `flex-wrap` ตัดบรรทัด และปุ่มเสียงตกไปอยู่แถวเดียว — ดูตอน feature review
+- CI build สองรอบ (`webServer` ของ Playwright build เอง แล้ว step `npm run build` อีกรอบ) — เสียเวลาไม่ผิด ; ทำให้ webServer ใช้ `dist` ที่มีอยู่ได้ถ้าต้องการเร็วขึ้น
+- `useRound.answer` ตัดสินด้วย `state` ของ render ล่าสุด — ถูกเพราะ React render ระหว่าง discrete event ; ถ้าย้ายไป event ที่ batch ต้องคิดใหม่
+- ยังค้างจาก 02: `mode` แยกกรณีใน `parseQuizSearch` `settingsOf` `Progress` `roundLabel`
+- Vite preview (sirv) cache รายการไฟล์ตอนเริ่ม และ browser cache `index.html` — หลัง build ใหม่ต้อง restart preview และ reload แบบ bust cache
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (42 passed), `npm run e2e` (30 passed; 90/90 ใน `--repeat-each 3`), `npm run build` — all green ; iPhone โหมดเงียบยังไม่ได้ตรวจ (Blocked #1)
 
 ### 02: Mode bar + URL + Results ครบ — done 2026-11-07
 
@@ -69,3 +92,4 @@
 
 | # | Ticket | What | Needs | Status |
 |---|---|---|---|---|
+| 1 | 03 | ตรวจด้วยมือ: iPhone เปิดโหมดเงียบ เปิดเสียงในเกม ตอบถูก → ได้ยินเสียง (ต้องเป็นเว็บ HTTPS ที่ deploy แล้ว) | merge เข้า `main` แล้วตรวจบน iPhone จริง บันทึกผลที่นี่ | open |

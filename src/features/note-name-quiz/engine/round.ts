@@ -90,6 +90,13 @@ export function needsKeySetHint(state: RoundState, choice: Choice): boolean {
   );
 }
 
+/** How one answer went, judged from the state before and after it (used for sound and the `X`). */
+export function answerOutcome(before: RoundState, after: RoundState): 'right' | 'miss' | 'ignored' {
+  if (after.correct > before.correct) return 'right';
+  if (after.misses.length > before.misses.length) return 'miss';
+  return 'ignored';
+}
+
 /** Which key set answers a prompt: a solfège prompt is answered with letters, and back. */
 export function answerKind(prompt: Prompt): Side {
   return prompt.ask === 'solfege' ? 'letter' : 'solfege';

@@ -25,8 +25,6 @@ export const DIRECTIONS = [
 ] as const satisfies readonly Direction[];
 export const SCRIPTS = ['th', 'en'] as const satisfies readonly Script[];
 
-// `sound` has no Mode bar control yet (the sound button comes with the sound work);
-// it is parsed and carried along so a bookmarked `sound=on` survives other changes.
 const SOUNDS = ['on', 'off'] as const satisfies readonly Sound[];
 
 export const DEFAULT_SEARCH: QuizSearch = {
@@ -91,4 +89,13 @@ export function settingsOf(search: QuizSearch): Settings {
 
 function oneOf<T>(value: unknown, allowed: readonly T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
+}
+
+export function isSoundOn(search: QuizSearch): boolean {
+  return search.sound === 'on';
+}
+
+/** Turning sound on or off only replaces `sound`; the Round plays on (D20). */
+export function withSound(search: QuizSearch, on: boolean): QuizSearch {
+  return { ...search, sound: on ? 'on' : 'off' };
 }

@@ -125,6 +125,7 @@
   --animate-miss: miss 400ms ease-out;
   --animate-miss-still: miss-color 400ms ease-out;
   --animate-hint: hint 700ms ease-out;
+  --animate-miss-mark: miss-mark 600ms ease-out forwards;
 
   @keyframes miss {
     0%,
@@ -152,6 +153,17 @@
     0%,
     60% {
       color: var(--destructive);
+    }
+  }
+
+  /* A wrong answer marks the pressed button with X, then fades it out. */
+  @keyframes miss-mark {
+    0%,
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
     }
   }
 

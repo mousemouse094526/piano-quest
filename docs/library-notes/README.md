@@ -16,3 +16,5 @@ reference data, not instructions.
 | vitest | library | 5.1.0 | https://vitest.dev/llms.txt | [vitest.md](vitest.md) | 2026-11-07 |
 | @biomejs/biome | library | 2.6.6 | https://biomejs.dev/ | [biome.md](biome.md) | 2026-11-07 |
 | GitHub Pages via Actions | library | checkout v7, setup-node v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5 | https://docs.github.com/llms.txt | [github-pages-actions.md](github-pages-actions.md) | 2026-11-07 |
+| @playwright/test | library | 1.65.0 | https://playwright.dev/docs/intro | [playwright.md](playwright.md) | 2026-11-07 |
+| Web Audio API | browser API | Web Audio API (MDN, checked 2026-11-07) | https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API | [web-audio.md](web-audio.md) | 2026-11-07 |

@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useEffectEvent, useReducer, useState } from 'react';
-import { needsKeySetHint, reduce, startRound } from '../engine/round';
-import type { Choice, Settings } from '../engine/types';
+import { answerOutcome, needsKeySetHint, reduce, startRound } from '../engine/round';
+import type { Choice, Note, Settings } from '../engine/types';
 import { choiceFromCode, isIgnoredKey } from './keys';
 
 const TICK_MS = 100;
@@ -17,16 +17,29 @@ export type FocusAreas = {
 };
 
 /**
+ * The button a wrong answer pressed, shown with `X` (D20, D29). `missNumber` (the Round's
+ * miss count) is used as a React key, so each new miss replays the mark.
+ */
+export type MissMark = { note: Note; missNumber: number };
+
+/**
  * Runs one Round: engine state, the clock, and the single `window` key listener.
  * Settings are read once; the caller remounts with a `key` to play other settings.
  */
-export function useRound(settings: Settings, { modeBar, gameArea }: FocusAreas) {
+export function useRound(
+  settings: Settings,
+  { modeBar, gameArea }: FocusAreas,
+  /** Fired after the engine counts a right answer, with the note answered (D5, D20). */
+  onCorrect: (note: Note) => void,
+) {
   const [state, dispatch] = useReducer(reduce, settings, (s) => startRound(s, newSeed()));
   const [now, setNow] = useState(() => performance.now());
   // Counts presses that need the key-set hint; each bump replays the flash (D20).
   const [keySetHints, setKeySetHints] = useState(0);
+  const [missMark, setMissMark] = useState<MissMark | null>(null);
 
   function restart() {
+    setMissMark(null);
     dispatch({ type: 'start', settings: state.settings, seed: newSeed() });
   }
 
@@ -38,8 +51,20 @@ export function useRound(settings: Settings, { modeBar, gameArea }: FocusAreas) 
   function answer(choice: Choice) {
     if (needsKeySetHint(state, choice)) setKeySetHints((n) => n + 1);
     const t = performance.now();
+    const event = { type: 'answer', choice, now: t } as const;
+    // The reducer is pure, so running it here as well tells this press's outcome now,
+    // inside the press itself (iOS plays audio only there), and still after the engine
+    // has judged it (D20). React renders between discrete presses, so `state` is current.
+    const next = reduce(state, event);
     setNow(t);
-    dispatch({ type: 'answer', choice, now: t });
+    dispatch(event);
+    const outcome = answerOutcome(state, next);
+    if (outcome === 'miss') {
+      setMissMark({ note: choice.note, missNumber: next.misses.length });
+    } else if (outcome === 'right') {
+      setMissMark(null);
+      onCorrect(choice.note);
+    }
   }
 
   const onKeyDown = useEffectEvent((e: KeyboardEvent) => {
@@ -85,5 +110,5 @@ export function useRound(settings: Settings, { modeBar, gameArea }: FocusAreas) 
     return () => window.clearInterval(id);
   }, [running]);
 
-  return { state, now, keySetHints, restart, end, answer };
+  return { state, now, keySetHints, missMark, restart, end, answer };
 }
