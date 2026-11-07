@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { hasLength, isEndedByPlayer } from '../engine/modes';
 import { answeredCount, answerKind, timeLeft } from '../engine/round';
 import type { Choice, RoundState } from '../engine/types';
-import type { MissMark } from '../hooks/useRound';
+import type { LastAnswer } from '../hooks/useRound';
 import type { Script } from '../search';
 import { AnswerRow } from './AnswerRow';
 import { Kbd } from './Kbd';
@@ -16,7 +16,7 @@ export function Game({
   now,
   script,
   keySetHints,
-  missMark,
+  lastAnswer,
   onAnswer,
   onRestart,
   onEnd,
@@ -26,8 +26,8 @@ export function Game({
   script: Script;
   /** Bumped on each press from the other key set in `mixed`; replays the hint flash. */
   keySetHints: number;
-  /** The button the last answer missed with, until the next counted answer. */
-  missMark: MissMark | null;
+  /** The button the last counted answer pressed and how it went. */
+  lastAnswer: LastAnswer | null;
   onAnswer: (choice: Choice) => void;
   onRestart: () => void;
   onEnd: () => void;
@@ -58,17 +58,19 @@ export function Game({
         )}
       </div>
 
-      <div className="flex items-baseline gap-6">
-        {/*
-         * Keyed on the miss count: each miss remounts the Prompt, which replays the
-         * shake once (D7, D20). Right answers keep the key, so nothing replays.
-         */}
+      {/*
+       * Keyed on the answers so far: each answer remounts the row, which slides the new
+       * Prompt in (D31) and, after a miss, shakes it once (D7, D20).
+       */}
+      <div
+        key={answeredCount(state)}
+        className="flex animate-prompt-in items-baseline gap-6 motion-reduce:animate-none"
+      >
         <span
-          key={missCount}
           data-testid="prompt"
           className={cn(
             'font-bold text-7xl',
-            missCount > 0 && 'animate-miss motion-reduce:animate-miss-still',
+            lastAnswer?.outcome === 'miss' && 'animate-miss motion-reduce:animate-miss-still',
           )}
         >
           {promptLabel(state.current, script)}
@@ -85,7 +87,7 @@ export function Game({
         side={answerKind(state.current)}
         script={script}
         hintFlashKey={keySetHints}
-        missMark={missMark}
+        lastAnswer={lastAnswer}
         onChoice={onAnswer}
       />
 
@@ -103,20 +105,30 @@ export function Game({
   );
 }
 
+/** From here down to 1, the `time` clock beats each second (D31). */
+const TICK_FROM_SECONDS = 5;
+
 /** Time left (`time`), answered of total (`count`) or answered so far (`zen`) (D20). */
 function Progress({ state, now }: { state: RoundState; now: number }) {
   const answered = answeredCount(state);
   const { settings } = state;
   if (settings.mode === 'time') {
-    const msLeft = timeLeft(state, now) ?? 0;
+    const secondsLeft = Math.ceil((timeLeft(state, now) ?? 0) / 1000);
+    // D31: the last seconds beat once each; the key replays the beat every second.
+    const endingSoon = state.status === 'running' && secondsLeft <= TICK_FROM_SECONDS;
     return (
-      <span role="timer" aria-label="เวลาที่เหลือ">
-        {Math.ceil(msLeft / 1000)}
+      <span role="timer" aria-label="เวลาที่เหลือ" className="text-brand">
+        <span
+          key={endingSoon ? secondsLeft : 'steady'}
+          className={cn('inline-block', endingSoon && 'animate-tick motion-reduce:animate-none')}
+        >
+          {secondsLeft}
+        </span>
       </span>
     );
   }
   return (
-    <span data-testid="answered">
+    <span data-testid="answered" className="text-brand">
       <span className="sr-only">ตอบแล้ว </span>
       {hasLength(settings) ? `${answered}/${settings.len}` : answered}
     </span>
