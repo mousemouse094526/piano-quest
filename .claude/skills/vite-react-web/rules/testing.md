@@ -25,4 +25,10 @@ test('count 10, all correct → finished, accuracy 100', () => {
 
 ## Good examples
 
-- None yet — the first ticket that touches this layer sets it.
+- `src/features/note-name-quiz/engine/round.test.ts` — one `describe` per Mode, explicit `now` and `seed`, small helpers that pick the right or wrong `Choice`.
+- `.github/workflows/ci.yml` — one `check` job (Biome, typecheck, Vitest, build) for pushes and PRs; `deploy` only on push to `main`.
+- Biome checks code only; Markdown is excluded (D24).
+- `src/no-player-data.test.ts` — app-wide guard for ADR-0001; app-wide rule tests sit at `src/` root.
+- `e2e/play-round.spec.ts` — one test per Seam 2 bullet; keys only through `page.keyboard`; waits for the Prompt before the first key; reads the right Answer from the Prompt text and the engine's `NOTES`.
+- `playwright.config.ts` — own port (4317), always a fresh build, never reuse a running server (D28).
+- `src/features/note-name-quiz/sound/notePlayer.test.ts` — a fake `AudioContext` via a factory argument; failure paths must not throw.

@@ -315,6 +315,113 @@
 
 **From:** tickets · **Status:** active
 
+## D24: รูปแบบ code และกฎ lint ของ Biome
+
+**Chosen:** Biome ตรวจเฉพาะ code (ไม่รวมไฟล์ `.md`) format ด้วย space 2 ช่อง single quote บรรทัดยาวไม่เกิน 100 และเปิด `noRestrictedGlobals` ห้าม `localStorage` `sessionStorage` `indexedDB` ส่วน `document.cookie` ที่ lint จับไม่ได้ ตรวจด้วย unit test `src/no-player-data.test.ts`
+
+**Why:** ค่าเริ่มต้นของ `biome init` เป็น tab กับ double quote ซึ่งต่างจากตัวอย่างใน conventions ; Biome 2.6 format Markdown ด้วยและจะเติม padding ตารางใน docs ทั้งหมด ; การห้ามด้วย lint ทำให้ ADR-0001 ถูกตรวจใน CI ทุกครั้ง
+
+**Rejected:**
+- ใช้ค่าเริ่มต้นของ Biome — ไม่ตรงกับตัวอย่างใน conventions และเขียน docs ใหม่ทั้งหมด
+
+**From:** build ticket 01 · **Status:** active
+
+## D25: ตอบข้อเดียว ความเร็วแสดง `—`
+
+**Chosen:** รอบที่ตอบน้อยกว่า 2 ข้อ ทุก Mode → `notesPerMinute` และ `secondsPerAnswer` เป็น `null` หน้า Results แสดง `—`
+
+**Why:** ข้อเดียววัดความเร็วไม่ได้จริง เวลาที่วัดได้คือเวลานั่งรอก่อนกด `Esc` ; spec › Seams › 1 กับสูตรเวลาใน D20 ขัดกัน ผู้ใช้เลือกข้อนี้
+
+**Rejected:**
+- ใช้สูตร D20 ตามเดิม แสดง `—` เฉพาะเวลาที่ใช้เป็น 0 — ตอบ 1 ข้อแล้วรอ 5 วินาทีจะได้ 12 โน้ตต่อนาที ซึ่งไม่มีความหมาย
+
+**Details:**
+- extends D20: สูตรเวลาที่ใช้เหมือนเดิม เพิ่มเงื่อนไขจำนวนข้อ
+
+**From:** build ticket 01 · **Status:** active
+
+## D26: Mode bar เป็นแถวปุ่มเลือกที่เห็นทุกค่าพร้อมกัน
+
+**Chosen:** Mode bar ใช้ shadcn `ToggleGroup` แบบเลือกค่าเดียว 4 กลุ่ม (Mode, ความยาว, Direction, Script) เรียงในแถวเดียว ทุกค่าเห็นบนจอตลอด ไม่มี dropdown หรือ popover ; กลุ่มความยาวเปลี่ยนชุดตาม Mode และซ่อนใน `zen` ; กดค่าที่เลือกอยู่ซ้ำไม่ล้างค่า
+
+**Why:** เปลี่ยนค่าได้ในคลิกเดียวแบบแถบตั้งค่าของ D1 ; `ToggleGroup` ให้ลูกศรซ้ายขวาเลื่อนในกลุ่มและ `Tab` ข้ามกลุ่มได้เอง ; ไม่มี popover จึงไม่มีปุ่มที่ต้องแย่ง `Esc` กับเกม (D20)
+
+**Rejected:**
+- `Select` หรือ popover ต่อกลุ่ม — ต้องกดสองครั้งต่อการเปลี่ยนค่า และต้องจัดการ `Esc` ซ้อน
+
+**Details:**
+- ปุ่มบนจอของเกม (ปุ่มตอบ เริ่มใหม่ จบรอบ เล่นอีกรอบ) ไม่รับ focus ทั้งจาก `Tab` และจากการคลิก (`tabIndex={-1}` และ `preventDefault` ตอน `mousedown`) — focus อยู่ที่พื้นที่เกม
+- พื้นที่เกมมี `tabIndex={-1}` และรับ focus ตอนเปิดหน้า `Shift+Tab` จากตรงนี้จึงเข้า Mode bar ตามลำดับปกติ
+- คลิก Mode bar ด้วยเมาส์ไม่ย้าย focus เข้า Mode bar (`preventDefault` ตอน `mousedown` ที่ `<nav>`) — เลือกค่าแล้วกดปุ่มตอบหรือ `Tab` ได้ทันที ; ผู้ใช้คีย์บอร์ดยังเข้า Mode bar ด้วย `Shift+Tab` (Radix ทิ้ง `onMouseDown` ที่ใส่ให้ item จึงต้องใส่ที่ `<nav>`)
+- ป้ายปุ่มลัดกระพริบเฉพาะทิศสลับ (`needsKeySetHint` ใน engine) ทิศคงที่กดปุ่มนอกชุดแล้วไม่มีอะไรเกิด (D14)
+- แถบล่างแสดง `Esc` เฉพาะ `zen` ตาม spec › Design ("`Esc` จบ (`zen`)")
+
+**From:** build ticket 02 · **Status:** active
+
+## D27: URL ของ Mode bar
+
+**Chosen:** `validateSearch` ของ route `/` เรียก `parseQuizSearch` ใน `src/features/note-name-quiz/search.ts` (pure มี unit test) ; เปลี่ยนค่าใน Mode bar แล้ว URL มีครบทุก param ยกเว้น `len` ใน `zen` ; เปิดแอปแล้วตัด query string จริง (ส่วนก่อน `#`) ทิ้ง
+
+**Why:** router เขียน URL ใหม่ด้วยค่าที่ตรวจแล้วอยู่แล้ว การเขียนครบทำให้ bookmark อ่านง่ายและไม่ขึ้นกับค่าเริ่มต้นที่อาจเปลี่ยน ; `createHashHistory` ของ TanStack เอา query จริง เช่น `?fbclid=…` ที่แอปแชร์ลิงก์เติมให้ ไปต่อท้าย param ตัวสุดท้ายใน hash ทำให้ค่านั้นกลายเป็นค่าเริ่มต้น แอปไม่ได้อ่านอะไรจาก query จริง
+
+**Rejected:**
+- เขียนเฉพาะค่าที่ต่างจากค่าเริ่มต้น — ต้องมีโค้ดเทียบค่าเพิ่ม และ router ก็เติมค่าครบตอนโหลดอยู่ดี
+
+**Details:**
+- input ของ `validateSearch` ติด `SearchSchemaInput` ทุก param จึงไม่บังคับเวลา `<Link to="/">`
+- เปลี่ยน Mode → ความยาวกลับเป็นค่าเริ่มต้นของ Mode นั้น (D2) ด้วย `withMode`
+- Script เปลี่ยนแล้วเริ่มรอบใหม่ด้วย ตาม spec › Search params (ทุกค่ายกเว้น `sound`)
+
+**From:** build ticket 02 · **Status:** active
+
+## D28: ตั้ง Playwright
+
+**Chosen:** project `chromium` (`Desktop Chrome`) และ `iphone` (`iPhone 15` บน WebKit) ; `webServer` build แล้ว `vite preview` ที่ port 4317 ไม่ reuse server ที่รันอยู่ ; CI ติดตั้ง `chromium webkit` แล้วรัน `npm run e2e` ก่อน build และเก็บ `playwright-report` เป็น artifact
+
+**Why:** port 4173 ของ Vite มักมี preview เก่าค้างอยู่ (ตอน build ticket นี้ test ผ่านกับ build เก่าโดยไม่รู้ตัว) จึงแยก port และ build ใหม่ทุกครั้ง ; `iPhone 15` (393 px) เป็น device ที่มีใน Playwright 1.65 ส่วน 375 px ตรวจแยกด้วย `setViewportSize`
+
+**Rejected:**
+- `reuseExistingServer` ตอนรันในเครื่อง — เร็วกว่าแต่เสี่ยงผ่านกับ code เก่า
+
+**Details:**
+- e2e หา Answer ที่ถูกจากข้อความ Prompt กับตาราง `NOTES` ของ engine และกดผ่าน `page.keyboard` จริงเท่านั้น
+- ก่อนกดปุ่มแรกต้องรอ Prompt ขึ้น — ปุ่มที่กดก่อน listener ติดจะหายไป
+
+**From:** build ticket 03 · **Status:** active
+
+## D29: `X` บนปุ่มที่ผิด และตัวเล่นเสียง
+
+**Chosen:** `useRound` รัน reducer ล่วงหน้ากับ event ตอบเพื่อรู้ผลทันที: ผิด → เก็บ `missMark` (โน้ตที่กด) ให้ปุ่มนั้นขึ้น `X` 600 ms แล้วจาง จนกว่าจะมีคำตอบที่นับครั้งถัดไป ; ถูก → เรียก `onCorrect` ซึ่งเล่นเสียงถ้า `sound=on` ; ตัวเล่นเสียงเป็นตัวเดียวทั้งแอป (`notePlayer`) คลื่น triangle 0.41 วินาที ; ปุ่มแตะเรียงเป็น grid 7 ช่องเต็มกว้าง
+
+**Why:** เสียงต้องเล่นใน gesture เดียวกับที่ตอบ (iOS) และหลัง engine ตัดสิน (D20) ; `X` ที่คิดจาก Miss ล่าสุดตอน render จะโผล่ซ้ำเมื่อทิศสลับกลับมา ; `min-w-12` × 7 กว้าง 384 px ล้นจอ 375 px
+
+**Details:**
+- `X` แสดงทั้งตอบผิดด้วยปุ่มแตะและปุ่มคีย์บอร์ด (ปุ่มที่ตรงกับคำตอบ)
+- เปิด `sound=on` จาก URL โดยไม่ได้กดปุ่ม → สร้าง `AudioContext` ตอนตอบถูกครั้งแรก (ก็เป็น gesture)
+- `navigator.audioSession.type = 'playback'` หยุดเพลงจากแอปอื่นของผู้เล่นได้ — ยอมรับตาม D20
+- ผลของการตอบหาด้วย selector `answerOutcome(before, after)` ของ engine
+- `sound/notePlayer.ts` มี unit test ด้วย `AudioContext` ปลอม เฉพาะสัญญา "เสียงพังไม่ throw" กับ "เล่นความถี่ที่ส่งมา" — e2e ฟังเสียงไม่ได้ (spec › Testing decisions) ; e2e นับโน้ตที่เล่นด้วย stub แทน
+- `resume()` ทุกครั้งที่ตอบถูก ตาม D20 แม้ context จะ `running` อยู่แล้ว (เป็น no-op)
+
+**From:** build ticket 03 · **Status:** active
+
+## D30: กติกาต่อ Mode อยู่ที่เดียว และ Mode bar บรรทัดเดียวบนจอกว้าง
+
+**Chosen:** `engine/modes.ts` ถือ `MODES` `MODE_LENGTHS` (ความยาวที่เลือกได้และค่าเริ่ม) และ `hasLength` `isLengthMode` `isEndedByPlayer` ; `Settings['len']` derive จาก `MODE_LENGTHS` ; โค้ดนอก engine ถาม selector เหล่านี้แทนเทียบ `mode === 'zen'` ; ทุกการเปลี่ยนค่าใน Mode bar ผ่าน `parseQuizSearch` (`withMode` `withLength` `withDirection` `withScript` `withSound`) ; `main` กว้าง `max-w-4xl` (864 px) และเส้นคั่นใน Mode bar แสดงเฉพาะ `lg` ขึ้นไป
+
+**Why:** feature review พบการแยกกรณี `mode` ราว 8 ที่และรายการความยาวเขียนซ้ำ 2 ที่ — เพิ่ม Mode หรือความยาวต้องแก้หลายไฟล์ ; Mode bar ต้องการราว 770 px แต่ `max-w-3xl` ให้ 736 px จึงตัดบรรทัดทุกจอ เส้นคั่นค้างท้ายแถวและปุ่มเสียงตกไปแถวเดียว
+
+**Rejected:**
+- ลดช่องไฟให้พอดี 736 px — พอดีแบบเฉียดฉิว ป้ายยาวขึ้นนิดเดียวก็ตัดบรรทัดอีก
+- เส้นคั่นเป็น `border-l` ของแต่ละกลุ่ม — ตัดบรรทัดแล้วเส้นไปค้างหัวแถวแทน
+
+**Details:**
+- จอแคบกว่า `lg` (1024 px) Mode bar ตัดบรรทัดโดยไม่มีเส้นคั่น แยกกลุ่มด้วยช่องไฟ ; ตรวจที่ 375 px และ 1024 px แล้ว
+- `ResultsScreen` (component) แยกชื่อจาก type `Results` ของ engine ; `cn` import ผ่าน `@/lib/utils` ตาม `components.json`
+- e2e ที่ต้องรอเวลาใช้ `page.clock` แทน `waitForTimeout`
+
+**From:** feature review · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

@@ -1,0 +1,132 @@
+import { Volume2, VolumeX } from 'lucide-react';
+import type { Ref } from 'react';
+import { Toggle } from '@/components/ui/toggle';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { hasLength, MODE_LENGTHS, MODES } from '../engine/modes';
+import {
+  DIRECTIONS,
+  isSoundOn,
+  type QuizSearch,
+  SCRIPTS,
+  withDirection,
+  withLength,
+  withMode,
+  withScript,
+} from '../search';
+import { DIRECTION_LABELS, LENGTH_UNITS, MODE_LABELS, SCRIPT_LABELS } from './labels';
+import { stopFocusOnMouseDown } from './noFocus';
+
+type Option<T extends string> = { value: T; label: string };
+
+/**
+ * Mode bar (D1, D2, D3, D26): every change hands the next search to `onChange`.
+ * Sound goes to `onSoundChange` instead: it must not start a new Round (D20).
+ */
+export function ModeBar({
+  search,
+  onChange,
+  onSoundChange,
+  ref,
+}: {
+  search: QuizSearch;
+  onChange: (next: QuizSearch) => void;
+  onSoundChange: (on: boolean) => void;
+  ref: Ref<HTMLElement>;
+}) {
+  const soundOn = isSoundOn(search);
+  return (
+    <nav
+      ref={ref}
+      aria-label="ตั้งค่ารอบ"
+      // A mouse pick keeps focus on the game area, so answer keys work right away; keyboard
+      // users still reach the bar with Shift+Tab (D20, D26). Set here because Radix drops
+      // an item's own onMouseDown.
+      onMouseDown={stopFocusOnMouseDown}
+      className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2"
+    >
+      <SettingToggle
+        label="Mode"
+        value={search.mode}
+        options={MODES.map((m) => ({ value: m, label: MODE_LABELS[m] }))}
+        onValue={(mode) => onChange(withMode(search, mode))}
+      />
+      {hasLength(search) && (
+        <>
+          <Divider />
+          <SettingToggle
+            label={`ความยาว (${LENGTH_UNITS[search.mode]})`}
+            value={String(search.len)}
+            options={MODE_LENGTHS[search.mode].options.map((n) => ({
+              value: String(n),
+              label: String(n),
+            }))}
+            onValue={(len) => onChange(withLength(search, Number(len)))}
+          />
+        </>
+      )}
+      <Divider />
+      <SettingToggle
+        label="ทิศคำถาม"
+        value={search.dir}
+        options={DIRECTIONS.map((d) => ({ value: d, label: DIRECTION_LABELS[d] }))}
+        onValue={(dir) => onChange(withDirection(search, dir))}
+      />
+      <Divider />
+      <SettingToggle
+        label="ตัวอักษร solfège"
+        value={search.script}
+        options={SCRIPTS.map((s) => ({ value: s, label: SCRIPT_LABELS[s] }))}
+        onValue={(script) => onChange(withScript(search, script))}
+      />
+      <Divider />
+      {/* Like every control here, keeps focus on the game area via the nav's onMouseDown. */}
+      <Toggle
+        aria-label="เสียง"
+        pressed={soundOn}
+        onPressedChange={onSoundChange}
+        className="size-11 text-muted-foreground"
+      >
+        {soundOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+      </Toggle>
+    </nav>
+  );
+}
+
+/** One setting as a row of toggles; exactly one value stays chosen. */
+function SettingToggle<T extends string>({
+  label,
+  value,
+  options,
+  onValue,
+}: {
+  label: string;
+  value: T;
+  options: Option<T>[];
+  onValue: (value: T) => void;
+}) {
+  return (
+    <ToggleGroup
+      type="single"
+      aria-label={label}
+      value={value}
+      // Radix clears a single group when the chosen item is pressed again; ignore that.
+      onValueChange={(v) => {
+        if (v && v !== value) onValue(v as T);
+      }}
+    >
+      {options.map((o) => (
+        <ToggleGroupItem key={o.value} value={o.value} className="min-h-11 text-muted-foreground">
+          {o.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
+  );
+}
+
+/**
+ * Only from `lg` up, where the whole bar fits one line (~770 px of the 864 px `main`).
+ * Below that the bar wraps, and a divider would hang at the end of a row.
+ */
+function Divider() {
+  return <span aria-hidden="true" className="hidden h-5 w-px bg-border lg:block" />;
+}

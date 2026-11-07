@@ -24,7 +24,11 @@ export function reduce(state: RoundState, event: Event): RoundState {
 - Every time-dependent rule takes `now` from the event.
 - Randomness comes from a seeded generator stored in state.
 - Types for the public contract live in one `types.ts` per engine.
+- Per-Mode rules (lengths, what ends a Round) live in one module; code outside asks its selectors instead of comparing `mode`.
 
 ## Good examples
 
-- None yet — the first ticket that touches this layer sets it.
+- `src/features/note-name-quiz/engine/round.ts` — `startRound`, `reduce`, `results`; one small handler per event.
+- `src/features/note-name-quiz/engine/rng.ts` — mulberry32; the generator state lives in `RoundState.rngState`.
+- `src/features/note-name-quiz/engine/types.ts` — the whole public contract in one file.
+- `src/features/note-name-quiz/engine/modes.ts` — `MODE_LENGTHS`, `hasLength`, `isEndedByPlayer`; `Settings['len']` is derived from it.
