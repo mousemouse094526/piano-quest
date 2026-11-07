@@ -25,4 +25,7 @@ test('count 10, all correct → finished, accuracy 100', () => {
 
 ## Good examples
 
-- None yet — the first ticket that touches this layer sets it.
+- `src/features/note-name-quiz/engine/round.test.ts` — one `describe` per Mode, explicit `now` and `seed`, small helpers that pick the right or wrong `Choice`.
+- `.github/workflows/ci.yml` — one `check` job (Biome, typecheck, Vitest, build) for pushes and PRs; `deploy` only on push to `main`.
+- Biome checks code only; Markdown is excluded (D24).
+- `src/no-player-data.test.ts` — app-wide guard for ADR-0001; app-wide rule tests sit at `src/` root.

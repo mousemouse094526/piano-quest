@@ -27,4 +27,6 @@ export function reduce(state: RoundState, event: Event): RoundState {
 
 ## Good examples
 
-- None yet — the first ticket that touches this layer sets it.
+- `src/features/note-name-quiz/engine/round.ts` — `startRound`, `reduce`, `results`; one small handler per event.
+- `src/features/note-name-quiz/engine/rng.ts` — mulberry32; the generator state lives in `RoundState.rngState`.
+- `src/features/note-name-quiz/engine/types.ts` — the whole public contract in one file.

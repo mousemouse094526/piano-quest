@@ -24,4 +24,4 @@ export const indexRoute = createRoute({
 
 ## Good examples
 
-- None yet — the first ticket that touches this layer sets it.
+- `src/routes/_public/index.tsx` — `createRoute` mounting a feature component; `src/main.tsx` builds the tree and the hash-history router.

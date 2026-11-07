@@ -315,6 +315,31 @@
 
 **From:** tickets · **Status:** active
 
+## D24: รูปแบบ code และกฎ lint ของ Biome
+
+**Chosen:** Biome ตรวจเฉพาะ code (ไม่รวมไฟล์ `.md`) format ด้วย space 2 ช่อง single quote บรรทัดยาวไม่เกิน 100 และเปิด `noRestrictedGlobals` ห้าม `localStorage` `sessionStorage` `indexedDB` ส่วน `document.cookie` ที่ lint จับไม่ได้ ตรวจด้วย unit test `src/no-player-data.test.ts`
+
+**Why:** ค่าเริ่มต้นของ `biome init` เป็น tab กับ double quote ซึ่งต่างจากตัวอย่างใน conventions ; Biome 2.6 format Markdown ด้วยและจะเติม padding ตารางใน docs ทั้งหมด ; การห้ามด้วย lint ทำให้ ADR-0001 ถูกตรวจใน CI ทุกครั้ง
+
+**Rejected:**
+- ใช้ค่าเริ่มต้นของ Biome — ไม่ตรงกับตัวอย่างใน conventions และเขียน docs ใหม่ทั้งหมด
+
+**From:** build ticket 01 · **Status:** active
+
+## D25: ตอบข้อเดียว ความเร็วแสดง `—`
+
+**Chosen:** รอบที่ตอบน้อยกว่า 2 ข้อ ทุก Mode → `notesPerMinute` และ `secondsPerAnswer` เป็น `null` หน้า Results แสดง `—`
+
+**Why:** ข้อเดียววัดความเร็วไม่ได้จริง เวลาที่วัดได้คือเวลานั่งรอก่อนกด `Esc` ; spec › Seams › 1 กับสูตรเวลาใน D20 ขัดกัน ผู้ใช้เลือกข้อนี้
+
+**Rejected:**
+- ใช้สูตร D20 ตามเดิม แสดง `—` เฉพาะเวลาที่ใช้เป็น 0 — ตอบ 1 ข้อแล้วรอ 5 วินาทีจะได้ 12 โน้ตต่อนาที ซึ่งไม่มีความหมาย
+
+**Details:**
+- extends D20: สูตรเวลาที่ใช้เหมือนเดิม เพิ่มเงื่อนไขจำนวนข้อ
+
+**From:** build ticket 01 · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

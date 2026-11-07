@@ -19,6 +19,7 @@ question; the full entry is in the feature's decisions.md.
 | ไม่ทำ design แยก ใช้ shadcn ค่าเริ่มต้น | [note-name-quiz](features/note-name-quiz/decisions.md) | D9 | — | — | active |
 | React SPA บน Vite กับ TanStack Router แบบ hash history | [note-name-quiz](features/note-name-quiz/decisions.md) | D11 | — | [0004](adr/0004-hash-history.md) | active |
 | ธีมสว่างมืดตามระบบ ไม่มีปุ่มสลับ | [note-name-quiz](features/note-name-quiz/decisions.md) | D17 | — | — | active |
+| Biome ตรวจเฉพาะ code รูปแบบ code และห้าม browser storage ด้วย lint กับ test | [note-name-quiz](features/note-name-quiz/decisions.md) | D24 | — | [0001](adr/0001-no-player-data.md) | active |
 
 ## ข้อมูลผู้เล่น
 
@@ -36,6 +37,7 @@ question; the full entry is in the feature's decisions.md.
 | ตอบผิดแล้วข้ามไป เฉลยตอนจบ Round | [note-name-quiz](features/note-name-quiz/decisions.md) | D7 | — | — | active |
 | กติกาเล็ก: `KeyboardEvent.code` `Tab` `Esc` เริ่มนับเวลาตอนตอบข้อแรก | [note-name-quiz](features/note-name-quiz/decisions.md) | D14 | — | — | active |
 | ค่าบนหน้า Results | [note-name-quiz](features/note-name-quiz/decisions.md) | D15 | — | — | active |
+| ตอบน้อยกว่า 2 ข้อ ความเร็วแสดง `—` | [note-name-quiz](features/note-name-quiz/decisions.md) | D25 | — | — | active |
 | แก้จาก red team: เวลา deadline ปุ่มที่ไม่นับ focus เสียง สัญญาณที่ไม่พึ่งสี | [note-name-quiz](features/note-name-quiz/decisions.md) | D20 | — | [0002](adr/0002-settings-in-url.md) | active |
 | มือถือใช้ปุ่มแตะ 7 ปุ่ม | [note-name-quiz](features/note-name-quiz/decisions.md) | D6 | — | — | active |
 | เสียงโน้ตสังเคราะห์เมื่อตอบถูก เปิดปิดได้ ค่าเริ่มต้นปิด | [note-name-quiz](features/note-name-quiz/decisions.md) | D5 | — | — | active |
