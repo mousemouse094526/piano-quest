@@ -340,6 +340,40 @@
 
 **From:** build ticket 01 · **Status:** active
 
+## D26: Mode bar เป็นแถวปุ่มเลือกที่เห็นทุกค่าพร้อมกัน
+
+**Chosen:** Mode bar ใช้ shadcn `ToggleGroup` แบบเลือกค่าเดียว 4 กลุ่ม (Mode, ความยาว, Direction, Script) เรียงในแถวเดียว ทุกค่าเห็นบนจอตลอด ไม่มี dropdown หรือ popover ; กลุ่มความยาวเปลี่ยนชุดตาม Mode และซ่อนใน `zen` ; กดค่าที่เลือกอยู่ซ้ำไม่ล้างค่า
+
+**Why:** เปลี่ยนค่าได้ในคลิกเดียวแบบแถบตั้งค่าของ D1 ; `ToggleGroup` ให้ลูกศรซ้ายขวาเลื่อนในกลุ่มและ `Tab` ข้ามกลุ่มได้เอง ; ไม่มี popover จึงไม่มีปุ่มที่ต้องแย่ง `Esc` กับเกม (D20)
+
+**Rejected:**
+- `Select` หรือ popover ต่อกลุ่ม — ต้องกดสองครั้งต่อการเปลี่ยนค่า และต้องจัดการ `Esc` ซ้อน
+
+**Details:**
+- ปุ่มบนจอของเกม (ปุ่มตอบ เริ่มใหม่ จบรอบ เล่นอีกรอบ) ไม่รับ focus ทั้งจาก `Tab` และจากการคลิก (`tabIndex={-1}` และ `preventDefault` ตอน `mousedown`) — focus อยู่ที่พื้นที่เกม
+- พื้นที่เกมมี `tabIndex={-1}` และรับ focus ตอนเปิดหน้า `Shift+Tab` จากตรงนี้จึงเข้า Mode bar ตามลำดับปกติ
+- คลิก Mode bar ด้วยเมาส์ไม่ย้าย focus เข้า Mode bar (`preventDefault` ตอน `mousedown` ที่ `<nav>`) — เลือกค่าแล้วกดปุ่มตอบหรือ `Tab` ได้ทันที ; ผู้ใช้คีย์บอร์ดยังเข้า Mode bar ด้วย `Shift+Tab` (Radix ทิ้ง `onMouseDown` ที่ใส่ให้ item จึงต้องใส่ที่ `<nav>`)
+- ป้ายปุ่มลัดกระพริบเฉพาะทิศสลับ (`needsKeySetHint` ใน engine) ทิศคงที่กดปุ่มนอกชุดแล้วไม่มีอะไรเกิด (D14)
+- แถบล่างแสดง `Esc` เฉพาะ `zen` ตาม spec › Design ("`Esc` จบ (`zen`)")
+
+**From:** build ticket 02 · **Status:** active
+
+## D27: URL ของ Mode bar
+
+**Chosen:** `validateSearch` ของ route `/` เรียก `parseQuizSearch` ใน `src/features/note-name-quiz/search.ts` (pure มี unit test) ; เปลี่ยนค่าใน Mode bar แล้ว URL มีครบทุก param ยกเว้น `len` ใน `zen` ; เปิดแอปแล้วตัด query string จริง (ส่วนก่อน `#`) ทิ้ง
+
+**Why:** router เขียน URL ใหม่ด้วยค่าที่ตรวจแล้วอยู่แล้ว การเขียนครบทำให้ bookmark อ่านง่ายและไม่ขึ้นกับค่าเริ่มต้นที่อาจเปลี่ยน ; `createHashHistory` ของ TanStack เอา query จริง เช่น `?fbclid=…` ที่แอปแชร์ลิงก์เติมให้ ไปต่อท้าย param ตัวสุดท้ายใน hash ทำให้ค่านั้นกลายเป็นค่าเริ่มต้น แอปไม่ได้อ่านอะไรจาก query จริง
+
+**Rejected:**
+- เขียนเฉพาะค่าที่ต่างจากค่าเริ่มต้น — ต้องมีโค้ดเทียบค่าเพิ่ม และ router ก็เติมค่าครบตอนโหลดอยู่ดี
+
+**Details:**
+- input ของ `validateSearch` ติด `SearchSchemaInput` ทุก param จึงไม่บังคับเวลา `<Link to="/">`
+- เปลี่ยน Mode → ความยาวกลับเป็นค่าเริ่มต้นของ Mode นั้น (D2) ด้วย `withMode`
+- Script เปลี่ยนแล้วเริ่มรอบใหม่ด้วย ตาม spec › Search params (ทุกค่ายกเว้น `sound`)
+
+**From:** build ticket 02 · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

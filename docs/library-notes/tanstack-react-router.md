@@ -69,6 +69,8 @@ Follows [Code-Based Routing](https://tanstack.com/router/latest/docs/routing/cod
 - Search params are parsed as JSON, so `?seconds=30` arrives as the number `30`, not `'30'`. `validateSearch` must accept both types — [Search Params › JSON-first Search Params](https://tanstack.com/router/latest/docs/guide/search-params#json-first-search-params)
 - If `validateSearch` returns required keys, every `<Link to="/">` and `navigate` must pass `search`, or it fails to type-check. Make keys optional or fill defaults in the parser — [Search Params › Adapters](https://tanstack.com/router/latest/docs/guide/search-params#adapters)
 - If `Register` is missing, hooks and `Link` fall back to loose types without any error — [Creating a Router › Router Type Safety](https://tanstack.com/router/latest/docs/guide/creating-a-router#router-type-safety)
+- To keep `search` optional on `<Link to="/">` while `validateSearch` returns complete values, intersect the validator's input type with `SearchSchemaInput`. A plain `Record<string, unknown>` input still makes `search` required. Checked locally on 1.170.46 — [Search Params › Validating Search Params](https://tanstack.com/router/latest/docs/guide/search-params#validating-search-params)
+- `createHashHistory` builds the location from the hash path plus `window.location.search`, so `/app/?fbclid=x#/?a=1&b=2` reads `b` as `2?fbclid=x`. Drop the real query with `history.replaceState` before creating the router. Read in `@tanstack/history` source and checked locally on 1.170.46
 - Under hash history the path lives after `#`. `https://.../piano-quest/#/?mode=time` is the URL shape, and Vite's `base` stays `/piano-quest/` — [History Types](https://tanstack.com/router/latest/docs/guide/history-types)
 
 ## Sources

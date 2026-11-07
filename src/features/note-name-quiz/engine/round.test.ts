@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { reduce, results, startRound, timeLeft } from './round';
+import { answeredCount, needsKeySetHint, reduce, results, startRound, timeLeft } from './round';
 import type { Choice, Direction, RoundState, Settings } from './types';
 
 const count10: Settings = { mode: 'count', len: 10, dir: 'solfege-to-letter' };
@@ -193,5 +193,28 @@ describe('ignored events', () => {
     s = reduce(s, { type: 'start', settings: count10, seed: 14 });
     expect(s.status).toBe('ready');
     expect(s.correct).toBe(0);
+  });
+});
+
+describe('selectors', () => {
+  test('answeredCount counts right and wrong answers', () => {
+    let s = startRound(count10, 1);
+    s = answer(s, rightChoice(s), 0);
+    s = answer(s, wrongChoice(s), 100);
+    expect(answeredCount(s)).toBe(2);
+  });
+
+  test('needsKeySetHint: only in mixed, only for the other key set (D20)', () => {
+    const mixed = startRound({ ...count10, dir: 'mixed' }, 3);
+    const other: Choice = {
+      ...rightChoice(mixed),
+      kind: rightChoice(mixed).kind === 'letter' ? 'solfege' : 'letter',
+    };
+    expect(needsKeySetHint(mixed, other)).toBe(true);
+    expect(needsKeySetHint(mixed, rightChoice(mixed))).toBe(false);
+
+    const fixed = startRound(count10, 3);
+    const digit: Choice = { kind: 'solfege', note: 1 };
+    expect(needsKeySetHint(fixed, digit)).toBe(false);
   });
 });

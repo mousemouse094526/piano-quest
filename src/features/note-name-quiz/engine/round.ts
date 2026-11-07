@@ -51,7 +51,7 @@ export function reduce(state: RoundState, event: Event): RoundState {
  */
 export function results(state: RoundState): Results {
   const wrong = state.misses.length;
-  const answered = state.correct + wrong;
+  const answered = answeredCount(state);
   const elapsed =
     state.startedAt !== null && state.endedAt !== null ? state.endedAt - state.startedAt : 0;
   // D25: one answer has no pace to measure, so speed needs 2+ answers.
@@ -72,8 +72,26 @@ export function timeLeft(state: RoundState, now: number): number | null {
   return deadline === null ? null : Math.max(0, deadline - now);
 }
 
+/** Prompts answered so far, right or wrong. */
+export function answeredCount(state: RoundState): number {
+  return state.correct + state.misses.length;
+}
+
+/**
+ * D20: in `mixed`, a press from the key set the current Prompt does not want is not
+ * counted (the reducer ignores it) but the answer row flashes the right shortcuts.
+ * In a fixed Direction such keys are simply ignored (D14).
+ */
+export function needsKeySetHint(state: RoundState, choice: Choice): boolean {
+  return (
+    state.status !== 'finished' &&
+    state.settings.dir === 'mixed' &&
+    choice.kind !== answerKind(state.current)
+  );
+}
+
 /** Which key set answers a prompt: a solfège prompt is answered with letters, and back. */
-function answerKind(prompt: Prompt): Side {
+export function answerKind(prompt: Prompt): Side {
   return prompt.ask === 'solfege' ? 'letter' : 'solfege';
 }
 

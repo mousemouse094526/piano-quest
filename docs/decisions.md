@@ -20,6 +20,7 @@ question; the full entry is in the feature's decisions.md.
 | React SPA บน Vite กับ TanStack Router แบบ hash history | [note-name-quiz](features/note-name-quiz/decisions.md) | D11 | — | [0004](adr/0004-hash-history.md) | active |
 | ธีมสว่างมืดตามระบบ ไม่มีปุ่มสลับ | [note-name-quiz](features/note-name-quiz/decisions.md) | D17 | — | — | active |
 | Biome ตรวจเฉพาะ code รูปแบบ code และห้าม browser storage ด้วย lint กับ test | [note-name-quiz](features/note-name-quiz/decisions.md) | D24 | — | [0001](adr/0001-no-player-data.md) | active |
+| Mode bar เป็น `ToggleGroup` เห็นทุกค่า ไม่มี popover ปุ่มเกมไม่รับ focus | [note-name-quiz](features/note-name-quiz/decisions.md) | D26 | — | — | active |
 
 ## ข้อมูลผู้เล่น
 
@@ -27,6 +28,7 @@ question; the full entry is in the feature's decisions.md.
 |---|---|---|---|---|---|
 | ไม่เก็บข้อมูลอะไรเลย ไม่มี server บัญชี storage cookie analytics | [note-name-quiz](features/note-name-quiz/decisions.md) | D4 | — | [0001](adr/0001-no-player-data.md) | active |
 | ค่า Mode bar อยู่ใน URL search params | [note-name-quiz](features/note-name-quiz/decisions.md) | D16 | — | [0002](adr/0002-settings-in-url.md) | active |
+| URL เขียนครบทุก param parser ใน `search.ts` ตัด query จริงก่อน `#` ตอนเปิดแอป | [note-name-quiz](features/note-name-quiz/decisions.md) | D27 | — | [0002](adr/0002-settings-in-url.md) | active |
 
 ## การเล่นเกม
 

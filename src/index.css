@@ -117,6 +117,54 @@
   }
 }
 
+/*
+ * Wrong-answer feedback that does not rely on colour alone (D20): the Prompt
+ * shakes as it flashes red. With reduced motion only the colour flash stays.
+ */
+@theme {
+  --animate-miss: miss 400ms ease-out;
+  --animate-miss-still: miss-color 400ms ease-out;
+  --animate-hint: hint 700ms ease-out;
+
+  @keyframes miss {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    15% {
+      transform: translateX(-10px);
+      color: var(--destructive);
+    }
+    35% {
+      transform: translateX(10px);
+      color: var(--destructive);
+    }
+    55% {
+      transform: translateX(-6px);
+      color: var(--destructive);
+    }
+    75% {
+      transform: translateX(6px);
+    }
+  }
+
+  @keyframes miss-color {
+    0%,
+    60% {
+      color: var(--destructive);
+    }
+  }
+
+  /* Pressing the other key set flashes the shortcut hints to point at the right keys. */
+  @keyframes hint {
+    0%,
+    50% {
+      background-color: var(--primary);
+      color: var(--primary-foreground);
+    }
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
