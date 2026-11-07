@@ -1,12 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** เปิด [PR #1](https://github.com/mousemouse094526/piano-quest/pull/1) แล้ว ; ก่อน merge ต้องตั้ง Settings › Pages › Source = GitHub Actions ; เหลือ Blocked #1 (ตรวจเสียงบน iPhone โหมดเงียบ) ซึ่งทำได้หลัง merge และ deploy เท่านั้น
+**Now:** merged (PR #1, `84817c9`) ; ยังเหลือ Blocked #1 — ตรวจเสียงบน iPhone โหมดเงียบบนเว็บที่ deploy แล้ว
 
-**Next:**
-
-```
-/warroom next
-```
+**Next:** —
 
 ## Tickets
 
