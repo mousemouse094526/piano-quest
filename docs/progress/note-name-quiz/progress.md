@@ -1,11 +1,11 @@
 # Progress: note-name-quiz
 
-**Now:** feature review ผ่าน แก้ครบ CI เขียวที่ `0db2607` ; พร้อมเปิด PR ; เหลือ Blocked #1 (ตรวจเสียงบน iPhone โหมดเงียบ) ซึ่งทำได้หลัง merge และ deploy เท่านั้น
+**Now:** เปิด [PR #1](https://github.com/mousemouse094526/piano-quest/pull/1) แล้ว ; ก่อน merge ต้องตั้ง Settings › Pages › Source = GitHub Actions ; เหลือ Blocked #1 (ตรวจเสียงบน iPhone โหมดเงียบ) ซึ่งทำได้หลัง merge และ deploy เท่านั้น
 
 **Next:**
 
 ```
-/pr-open
+/warroom next
 ```
 
 ## Tickets
