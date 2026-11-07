@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
 
 /** Keeps a click from moving focus, so focus stays on the game area (D20, D26). */
-export function keepFocus(e: MouseEvent) {
+export function stopFocusOnMouseDown(e: MouseEvent) {
   e.preventDefault();
 }
 
@@ -11,5 +11,5 @@ export function keepFocus(e: MouseEvent) {
  */
 export const noFocus = {
   tabIndex: -1,
-  onMouseDown: keepFocus,
+  onMouseDown: stopFocusOnMouseDown,
 } as const;

@@ -1,22 +1,14 @@
-import type { Direction, Settings } from './engine/types';
+import { isLengthMode, MODE_LENGTHS, MODES } from './engine/modes';
+import type { Direction, Length, LengthMode, Mode, Settings } from './engine/types';
 
 // URL contract of the quiz (spec.md › Search params, ADR-0002). Param names and
 // values are bookmarked by Players: renaming one needs a fallback from the old name.
 
-export type Mode = Settings['mode'];
 export type Script = 'th' | 'en';
 export type Sound = 'on' | 'off';
 
 /** Every Mode bar value. Engine `Settings` plus what only the UI uses. */
 export type QuizSearch = Settings & { script: Script; sound: Sound };
-
-export const MODES = ['time', 'count', 'zen'] as const satisfies readonly Mode[];
-
-/** Modes that have a length, with the lengths they offer and the one they start with (D2). */
-export const LENGTHS = {
-  time: { options: [15, 30, 60, 120], initial: 30 },
-  count: { options: [10, 25, 50, 100], initial: 25 },
-} as const;
 
 export const DIRECTIONS = [
   'solfege-to-letter',
@@ -29,7 +21,7 @@ const SOUNDS = ['on', 'off'] as const satisfies readonly Sound[];
 
 export const DEFAULT_SEARCH: QuizSearch = {
   mode: 'time',
-  len: LENGTHS.time.initial,
+  len: MODE_LENGTHS.time.initial,
   dir: 'solfege-to-letter',
   script: 'th',
   sound: 'off',
@@ -46,27 +38,22 @@ export function parseQuizSearch(raw: Record<string, unknown>): QuizSearch {
     script: oneOf(raw.script, SCRIPTS, DEFAULT_SEARCH.script),
     sound: oneOf(raw.sound, SOUNDS, DEFAULT_SEARCH.sound),
   };
+  const mode = oneOf(raw.mode, MODES, DEFAULT_SEARCH.mode);
+  if (!isLengthMode(mode)) return { mode, ...common };
   const len = typeof raw.len === 'string' ? Number(raw.len) : raw.len;
-  switch (oneOf(raw.mode, MODES, DEFAULT_SEARCH.mode)) {
-    case 'time':
-      return {
-        mode: 'time',
-        len: oneOf(len, LENGTHS.time.options, LENGTHS.time.initial),
-        ...common,
-      };
-    case 'count':
-      return {
-        mode: 'count',
-        len: oneOf(len, LENGTHS.count.options, LENGTHS.count.initial),
-        ...common,
-      };
-    case 'zen':
-      return { mode: 'zen', ...common };
-  }
+  // TS can't tie `mode` to its own `len` across the union; parseLength keeps them paired.
+  return { ...parseLength(mode, len), ...common } as QuizSearch;
+}
+
+/** `len` if `mode` offers it, else that Mode's starting length. */
+function parseLength<M extends LengthMode>(mode: M, len: unknown): { mode: M; len: Length<M> } {
+  const { options, initial } = MODE_LENGTHS[mode];
+  return { mode, len: oneOf(len, options as readonly Length<M>[], initial as Length<M>) };
 }
 
 /** Switching Mode starts from that Mode's default length (D2). */
 export function withMode(search: QuizSearch, mode: Mode): QuizSearch {
+  // A missing `len` parses to the new Mode's starting length, as in a URL without one.
   return parseQuizSearch({ ...search, mode, len: undefined });
 }
 
@@ -75,16 +62,18 @@ export function withLength(search: QuizSearch, len: number): QuizSearch {
   return parseQuizSearch({ ...search, len });
 }
 
+export function withDirection(search: QuizSearch, dir: Direction): QuizSearch {
+  return parseQuizSearch({ ...search, dir });
+}
+
+export function withScript(search: QuizSearch, script: Script): QuizSearch {
+  return parseQuizSearch({ ...search, script });
+}
+
 /** The part of the search the engine plays by. */
 export function settingsOf(search: QuizSearch): Settings {
-  switch (search.mode) {
-    case 'time':
-      return { mode: 'time', len: search.len, dir: search.dir };
-    case 'count':
-      return { mode: 'count', len: search.len, dir: search.dir };
-    case 'zen':
-      return { mode: 'zen', dir: search.dir };
-  }
+  const { script: _script, sound: _sound, ...settings } = search;
+  return settings;
 }
 
 function oneOf<T>(value: unknown, allowed: readonly T[], fallback: T): T {
@@ -97,5 +86,5 @@ export function isSoundOn(search: QuizSearch): boolean {
 
 /** Turning sound on or off only replaces `sound`; the Round plays on (D20). */
 export function withSound(search: QuizSearch, on: boolean): QuizSearch {
-  return { ...search, sound: on ? 'on' : 'off' };
+  return parseQuizSearch({ ...search, sound: on ? 'on' : 'off' });
 }

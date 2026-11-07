@@ -10,7 +10,7 @@ export const rootRoute = createRootRoute({
     </p>
   ),
   component: () => (
-    <main className="mx-auto flex min-h-svh max-w-3xl flex-col px-4 py-8">
+    <main className="mx-auto flex min-h-svh max-w-4xl flex-col px-4 py-8">
       <Outlet />
     </main>
   ),

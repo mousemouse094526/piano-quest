@@ -1,14 +1,26 @@
 // Public contract of the note-name-quiz engine (spec.md › Engine contract, D18, D20).
 
+import type { MODE_LENGTHS, MODES } from './modes';
+
 /** Index into the note table (spec.md › Data): 1 = C … 7 = B. */
 export type Note = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 export type Direction = 'solfege-to-letter' | 'letter-to-solfege' | 'mixed';
 
-export type Settings =
-  | { mode: 'time'; len: 15 | 30 | 60 | 120; dir: Direction }
-  | { mode: 'count'; len: 10 | 25 | 50 | 100; dir: Direction }
-  | { mode: 'zen'; dir: Direction };
+export type Mode = (typeof MODES)[number];
+
+/** Modes that have a length (`time` in seconds, `count` in answers). */
+export type LengthMode = keyof typeof MODE_LENGTHS;
+
+/** The lengths `mode` offers, from `MODE_LENGTHS`. */
+export type Length<M extends LengthMode> = (typeof MODE_LENGTHS)[M]['options'][number];
+
+/** One `{ mode, len, dir }` per Mode that has a length. */
+export type LengthSettings = {
+  [M in LengthMode]: { mode: M; len: Length<M>; dir: Direction };
+}[LengthMode];
+
+export type Settings = LengthSettings | { mode: 'zen'; dir: Direction };
 
 /** The two ways to name a note: solfège (โด / Do) or letter (C). */
 export type Side = 'solfege' | 'letter';
@@ -24,6 +36,9 @@ export type Prompt = { note: Note; ask: Side };
 export type Choice = { kind: Side; note: Note };
 
 export type Miss = { prompt: Prompt; answered: Note };
+
+/** How one answer went: counted right, counted wrong, or not counted at all. */
+export type AnswerOutcome = 'right' | 'miss' | 'ignored';
 
 export type Event =
   | { type: 'start'; settings: Settings; seed: number }

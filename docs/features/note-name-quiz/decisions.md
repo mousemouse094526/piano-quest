@@ -405,6 +405,23 @@
 
 **From:** build ticket 03 · **Status:** active
 
+## D30: กติกาต่อ Mode อยู่ที่เดียว และ Mode bar บรรทัดเดียวบนจอกว้าง
+
+**Chosen:** `engine/modes.ts` ถือ `MODES` `MODE_LENGTHS` (ความยาวที่เลือกได้และค่าเริ่ม) และ `hasLength` `isLengthMode` `isEndedByPlayer` ; `Settings['len']` derive จาก `MODE_LENGTHS` ; โค้ดนอก engine ถาม selector เหล่านี้แทนเทียบ `mode === 'zen'` ; ทุกการเปลี่ยนค่าใน Mode bar ผ่าน `parseQuizSearch` (`withMode` `withLength` `withDirection` `withScript` `withSound`) ; `main` กว้าง `max-w-4xl` (864 px) และเส้นคั่นใน Mode bar แสดงเฉพาะ `lg` ขึ้นไป
+
+**Why:** feature review พบการแยกกรณี `mode` ราว 8 ที่และรายการความยาวเขียนซ้ำ 2 ที่ — เพิ่ม Mode หรือความยาวต้องแก้หลายไฟล์ ; Mode bar ต้องการราว 770 px แต่ `max-w-3xl` ให้ 736 px จึงตัดบรรทัดทุกจอ เส้นคั่นค้างท้ายแถวและปุ่มเสียงตกไปแถวเดียว
+
+**Rejected:**
+- ลดช่องไฟให้พอดี 736 px — พอดีแบบเฉียดฉิว ป้ายยาวขึ้นนิดเดียวก็ตัดบรรทัดอีก
+- เส้นคั่นเป็น `border-l` ของแต่ละกลุ่ม — ตัดบรรทัดแล้วเส้นไปค้างหัวแถวแทน
+
+**Details:**
+- จอแคบกว่า `lg` (1024 px) Mode bar ตัดบรรทัดโดยไม่มีเส้นคั่น แยกกลุ่มด้วยช่องไฟ ; ตรวจที่ 375 px และ 1024 px แล้ว
+- `ResultsScreen` (component) แยกชื่อจาก type `Results` ของ engine ; `cn` import ผ่าน `@/lib/utils` ตาม `components.json`
+- e2e ที่ต้องรอเวลาใช้ `page.clock` แทน `waitForTimeout`
+
+**From:** feature review · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

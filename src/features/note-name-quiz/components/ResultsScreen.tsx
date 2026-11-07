@@ -9,7 +9,7 @@ import { noFocus } from './noFocus';
 
 const NO_VALUE = '—';
 
-export function Results({
+export function ResultsScreen({
   state,
   script,
   onRestart,
@@ -18,7 +18,7 @@ export function Results({
   script: Script;
   onRestart: () => void;
 }) {
-  const r = results(state);
+  const stats = results(state);
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8">
       <div className="text-center">
@@ -27,17 +27,17 @@ export function Results({
       </div>
 
       <dl className="grid grid-cols-3 gap-x-8 gap-y-6 text-center sm:grid-cols-5">
-        <Stat label="ถูก" value={r.correct} />
-        <Stat label="ผิด" value={r.wrong} />
-        <Stat label="ความแม่น" value={`${r.accuracy}%`} />
-        <Stat label="โน้ตต่อนาที" value={r.notesPerMinute ?? NO_VALUE} />
+        <Stat label="ถูก" value={stats.correct} />
+        <Stat label="ผิด" value={stats.wrong} />
+        <Stat label="ความแม่น" value={`${stats.accuracy}%`} />
+        <Stat label="โน้ตต่อนาที" value={stats.notesPerMinute ?? NO_VALUE} />
         <Stat
           label="เวลาเฉลี่ยต่อข้อ (วินาที)"
-          value={r.secondsPerAnswer === null ? NO_VALUE : r.secondsPerAnswer.toFixed(2)}
+          value={stats.secondsPerAnswer === null ? NO_VALUE : stats.secondsPerAnswer.toFixed(2)}
         />
       </dl>
 
-      <MissList misses={r.misses} script={script} />
+      <MissList misses={stats.misses} script={script} />
 
       <Button variant="outline" size="lg" className="min-h-11" {...noFocus} onClick={onRestart}>
         <RotateCcw aria-hidden="true" />

@@ -1,5 +1,6 @@
+import { hasLength } from '../engine/modes';
 import { NOTES } from '../engine/notes';
-import type { Direction, Note, Prompt, Settings, Side } from '../engine/types';
+import type { Direction, LengthMode, Mode, Note, Prompt, Settings, Side } from '../engine/types';
 import type { Script } from '../search';
 
 /** How a note reads on one side: a solfège name in the chosen Script, or its letter. */
@@ -17,7 +18,8 @@ export function shortcutLabel(note: Note, side: Side): string {
   return side === 'letter' ? NOTES[note].letter : String(note);
 }
 
-export const MODE_LABELS: Record<Settings['mode'], string> = {
+/** Mode names stay in English on screen, as in the URL; the map lets a label change alone. */
+export const MODE_LABELS: Record<Mode, string> = {
   time: 'time',
   count: 'count',
   zen: 'zen',
@@ -35,16 +37,15 @@ export const SCRIPT_LABELS: Record<Script, string> = {
 };
 
 /** What a length counts, per Mode that has one. */
-export const LENGTH_UNITS: Record<Exclude<Settings['mode'], 'zen'>, string> = {
+export const LENGTH_UNITS: Record<LengthMode, string> = {
   time: 'วินาที',
   count: 'ข้อ',
 };
 
 /** One line naming the Round played, e.g. `count 25 ข้อ · โด→C · ไทย`. */
 export function roundLabel(settings: Settings, script: Script): string {
-  const mode =
-    settings.mode === 'zen'
-      ? MODE_LABELS.zen
-      : `${MODE_LABELS[settings.mode]} ${settings.len} ${LENGTH_UNITS[settings.mode]}`;
+  const mode = hasLength(settings)
+    ? `${MODE_LABELS[settings.mode]} ${settings.len} ${LENGTH_UNITS[settings.mode]}`
+    : MODE_LABELS[settings.mode];
   return [mode, DIRECTION_LABELS[settings.dir], SCRIPT_LABELS[script]].join(' · ');
 }

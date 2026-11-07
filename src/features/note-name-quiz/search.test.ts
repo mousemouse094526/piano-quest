@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'vitest';
-import { DEFAULT_SEARCH, parseQuizSearch, settingsOf, withLength, withMode } from './search';
+import {
+  DEFAULT_SEARCH,
+  parseQuizSearch,
+  settingsOf,
+  withDirection,
+  withLength,
+  withMode,
+  withScript,
+} from './search';
 
 describe('parseQuizSearch', () => {
   test('no params → defaults', () => {
@@ -86,5 +94,13 @@ describe('settingsOf', () => {
       mode: 'zen',
       dir: 'solfege-to-letter',
     });
+  });
+});
+
+describe('withDirection and withScript', () => {
+  test('change only their own value, keeping Mode and length', () => {
+    const count50 = withLength(withMode(DEFAULT_SEARCH, 'count'), 50);
+    expect(withDirection(count50, 'mixed')).toEqual({ ...count50, dir: 'mixed' });
+    expect(withScript(count50, 'en')).toEqual({ ...count50, script: 'en' });
   });
 });

@@ -44,6 +44,7 @@ question; the full entry is in the feature's decisions.md.
 | มือถือใช้ปุ่มแตะ 7 ปุ่ม | [note-name-quiz](features/note-name-quiz/decisions.md) | D6 | — | — | active |
 | เสียงโน้ตสังเคราะห์เมื่อตอบถูก เปิดปิดได้ ค่าเริ่มต้นปิด | [note-name-quiz](features/note-name-quiz/decisions.md) | D5 | — | — | active |
 | `X` บนปุ่มที่ผิดจนกว่าจะตอบข้อถัดไป ตัวเล่นเสียงตัวเดียวทั้งแอป ปุ่มแตะเป็น grid 7 ช่อง | [note-name-quiz](features/note-name-quiz/decisions.md) | D29 | — | — | active |
+| กติกาต่อ Mode อยู่ใน `engine/modes.ts` ; Mode bar บรรทัดเดียวจาก `lg` (`main` `max-w-4xl`) | [note-name-quiz](features/note-name-quiz/decisions.md) | D30 | — | — | active |
 
 ## เนื้อหาดนตรี
 

@@ -1,5 +1,16 @@
+import { isEndedByPlayer } from './modes';
 import { nextInt } from './rng';
-import type { Choice, Event, Note, Prompt, Results, RoundState, Settings, Side } from './types';
+import type {
+  AnswerOutcome,
+  Choice,
+  Event,
+  Note,
+  Prompt,
+  Results,
+  RoundState,
+  Settings,
+  Side,
+} from './types';
 
 export function startRound(settings: Settings, seed: number): RoundState {
   let rngState = seed | 0;
@@ -91,7 +102,7 @@ export function needsKeySetHint(state: RoundState, choice: Choice): boolean {
 }
 
 /** How one answer went, judged from the state before and after it (used for sound and the `X`). */
-export function answerOutcome(before: RoundState, after: RoundState): 'right' | 'miss' | 'ignored' {
+export function answerOutcome(before: RoundState, after: RoundState): AnswerOutcome {
   if (after.correct > before.correct) return 'right';
   if (after.misses.length > before.misses.length) return 'miss';
   return 'ignored';
@@ -145,7 +156,7 @@ function onTick(state: RoundState, now: number): RoundState {
 function onEnd(state: RoundState, now: number): RoundState {
   // D15: ending before any answer leaves the round ready (no Results).
   if (state.startedAt === null) return state;
-  return state.settings.mode === 'zen' ? finish(state, now) : state;
+  return isEndedByPlayer(state.settings) ? finish(state, now) : state;
 }
 
 function finish(state: RoundState, endedAt: number): RoundState {

@@ -2,18 +2,19 @@ import { Volume2, VolumeX } from 'lucide-react';
 import type { Ref } from 'react';
 import { Toggle } from '@/components/ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { hasLength, MODE_LENGTHS, MODES } from '../engine/modes';
 import {
   DIRECTIONS,
   isSoundOn,
-  LENGTHS,
-  MODES,
   type QuizSearch,
   SCRIPTS,
+  withDirection,
   withLength,
   withMode,
+  withScript,
 } from '../search';
 import { DIRECTION_LABELS, LENGTH_UNITS, MODE_LABELS, SCRIPT_LABELS } from './labels';
-import { keepFocus } from './noFocus';
+import { stopFocusOnMouseDown } from './noFocus';
 
 type Option<T extends string> = { value: T; label: string };
 
@@ -40,7 +41,7 @@ export function ModeBar({
       // A mouse pick keeps focus on the game area, so answer keys work right away; keyboard
       // users still reach the bar with Shift+Tab (D20, D26). Set here because Radix drops
       // an item's own onMouseDown.
-      onMouseDown={keepFocus}
+      onMouseDown={stopFocusOnMouseDown}
       className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2"
     >
       <SettingToggle
@@ -49,13 +50,13 @@ export function ModeBar({
         options={MODES.map((m) => ({ value: m, label: MODE_LABELS[m] }))}
         onValue={(mode) => onChange(withMode(search, mode))}
       />
-      {search.mode !== 'zen' && (
+      {hasLength(search) && (
         <>
           <Divider />
           <SettingToggle
             label={`ความยาว (${LENGTH_UNITS[search.mode]})`}
             value={String(search.len)}
-            options={LENGTHS[search.mode].options.map((n) => ({
+            options={MODE_LENGTHS[search.mode].options.map((n) => ({
               value: String(n),
               label: String(n),
             }))}
@@ -68,14 +69,14 @@ export function ModeBar({
         label="ทิศคำถาม"
         value={search.dir}
         options={DIRECTIONS.map((d) => ({ value: d, label: DIRECTION_LABELS[d] }))}
-        onValue={(dir) => onChange({ ...search, dir })}
+        onValue={(dir) => onChange(withDirection(search, dir))}
       />
       <Divider />
       <SettingToggle
         label="ตัวอักษร solfège"
         value={search.script}
         options={SCRIPTS.map((s) => ({ value: s, label: SCRIPT_LABELS[s] }))}
-        onValue={(script) => onChange({ ...search, script })}
+        onValue={(script) => onChange(withScript(search, script))}
       />
       <Divider />
       {/* Like every control here, keeps focus on the game area via the nav's onMouseDown. */}
@@ -122,6 +123,10 @@ function SettingToggle<T extends string>({
   );
 }
 
+/**
+ * Only from `lg` up, where the whole bar fits one line (~770 px of the 864 px `main`).
+ * Below that the bar wraps, and a divider would hang at the end of a row.
+ */
 function Divider() {
-  return <span aria-hidden="true" className="h-5 w-px bg-border" />;
+  return <span aria-hidden="true" className="hidden h-5 w-px bg-border lg:block" />;
 }

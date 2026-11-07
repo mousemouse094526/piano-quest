@@ -1,6 +1,7 @@
-import { cn } from 'cn';
 import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { hasLength, isEndedByPlayer } from '../engine/modes';
 import { answeredCount, answerKind, timeLeft } from '../engine/round';
 import type { Choice, RoundState } from '../engine/types';
 import type { MissMark } from '../hooks/useRound';
@@ -32,7 +33,7 @@ export function Game({
   onEnd: () => void;
 }) {
   const missCount = state.misses.length;
-  const isZen = state.settings.mode === 'zen';
+  const endedByPlayer = isEndedByPlayer(state.settings);
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-10">
       <div className="flex items-center gap-4 font-mono text-lg tabular-nums">
@@ -50,7 +51,7 @@ export function Game({
         >
           <RotateCcw aria-hidden="true" />
         </Button>
-        {isZen && (
+        {endedByPlayer && (
           <Button variant="outline" className="min-h-11" {...noFocus} onClick={onEnd}>
             จบรอบ
           </Button>
@@ -61,12 +62,10 @@ export function Game({
         {/*
          * Keyed on the miss count: each miss remounts the Prompt, which replays the
          * shake once (D7, D20). Right answers keep the key, so nothing replays.
-         * `data-missed` lets e2e tests see the wrong-answer state.
          */}
         <span
           key={missCount}
           data-testid="prompt"
-          data-missed={missCount > 0 || undefined}
           className={cn(
             'font-bold text-7xl',
             missCount > 0 && 'animate-miss motion-reduce:animate-miss-still',
@@ -97,7 +96,7 @@ export function Game({
       <p className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-muted-foreground text-xs">
         <Shortcut keys="Tab" action="เริ่มใหม่" />
         {/* Esc ends only a zen Round (D14), so it is listed only there. */}
-        {isZen && <Shortcut keys="Esc" action="จบรอบ" />}
+        {endedByPlayer && <Shortcut keys="Esc" action="จบรอบ" />}
         <Shortcut keys="Shift+Tab" action="ไปที่ Mode bar" />
       </p>
     </div>
@@ -119,7 +118,7 @@ function Progress({ state, now }: { state: RoundState; now: number }) {
   return (
     <span data-testid="answered">
       <span className="sr-only">ตอบแล้ว </span>
-      {settings.mode === 'count' ? `${answered}/${settings.len}` : answered}
+      {hasLength(settings) ? `${answered}/${settings.len}` : answered}
     </span>
   );
 }

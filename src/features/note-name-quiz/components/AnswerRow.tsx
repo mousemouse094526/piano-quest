@@ -1,6 +1,6 @@
-import { cn } from 'cn';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import type { Choice, Note, Side } from '../engine/types';
 import type { MissMark } from '../hooks/useRound';
 import type { Script } from '../search';

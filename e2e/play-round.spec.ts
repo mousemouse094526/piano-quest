@@ -109,13 +109,15 @@ test('count 10 with 2 misses → miss counter 2, Results list 2 answers', async 
   await expect(page.getByTestId('miss-list').locator('tbody tr')).toHaveCount(2);
 });
 
-test('a miss marks the Prompt and the pressed button', async ({ page }) => {
+test('a miss shakes the Prompt and marks the pressed button with X', async ({ page }) => {
   await page.goto('#/?mode=count&len=10');
-  await expect(page.getByTestId('prompt')).not.toHaveAttribute('data-missed');
+  const prompt = page.getByTestId('prompt');
+  await expect(prompt).toHaveCSS('animation-name', 'none');
   const { wrong } = await readPrompt(page);
   await answerButton(page, wrong).click();
-  await expect(page.getByTestId('prompt')).toHaveAttribute('data-missed', 'true');
-  await expect(answerButton(page, wrong).getByTestId('miss-mark')).toBeAttached();
+  // The shake (or, with reduced motion, the red flash) plays on the new Prompt.
+  await expect(prompt).toHaveCSS('animation-name', /^miss/);
+  await expect(answerButton(page, wrong).getByTestId('miss-mark')).toBeVisible();
 });
 
 test('holding G answers once', async ({ page }) => {
@@ -128,6 +130,17 @@ test('holding G answers once', async ({ page }) => {
   await page.keyboard.down('KeyG');
   await page.keyboard.up('KeyG');
   await expect(page.getByTestId('answered')).toHaveText(/1\/10/);
+});
+
+test('Ctrl, Cmd or Alt with an answer key does not answer', async ({ page }) => {
+  await page.goto('#/?mode=count&len=10');
+  await expect(page.getByTestId('prompt')).toBeVisible();
+  const p = await readPrompt(page);
+  for (const modifier of ['Control', 'Meta', 'Alt']) {
+    await page.keyboard.press(`${modifier}+${p.keyOf(p.right)}`);
+  }
+  await expect(page.getByText(START_HINT)).toBeVisible();
+  await expect(page.getByTestId('answered')).toHaveText(/0\/10/);
 });
 
 test('tapping the on-screen buttons plays a whole Round', async ({ page, isMobile }) => {
@@ -187,14 +200,17 @@ test('Tab mid-Round restarts and keeps focus', async ({ page }) => {
 });
 
 test('Tab on Results → a new Game, clock not started', async ({ page }) => {
+  // A fake clock: the 15 s Round and the idle check run without real waiting.
+  await page.clock.install();
   await page.goto('#/?mode=time&len=15');
   await answer(page, true);
-  await expect(resultsHeading(page)).toBeVisible({ timeout: 20_000 });
+  await page.clock.runFor(15_000);
+  await expect(resultsHeading(page)).toBeVisible();
   await page.keyboard.press('Tab');
   await expect(page.getByText(START_HINT)).toBeVisible();
   const timer = page.getByRole('timer');
   await expect(timer).toHaveText('15');
-  await page.waitForTimeout(1500); // the clock would have moved by now if it were running
+  await page.clock.runFor(2_000);
   await expect(timer).toHaveText('15');
 });
 

@@ -6,7 +6,7 @@ import { isSoundOn, type QuizSearch, settingsOf, withSound } from '../search';
 import { notePlayer } from '../sound/notePlayer';
 import { Game } from './Game';
 import { ModeBar } from './ModeBar';
-import { Results } from './Results';
+import { ResultsScreen } from './ResultsScreen';
 
 export function NoteNameQuiz() {
   const search = useSearch({ from: '/' });
@@ -29,12 +29,8 @@ export function NoteNameQuiz() {
   }
 
   // Every Mode bar value except `sound` starts a new Round (D14, D20): a new key remounts it.
-  const roundKey = [
-    search.mode,
-    search.mode === 'zen' ? '' : search.len,
-    search.dir,
-    search.script,
-  ].join('|');
+  // Script only changes how notes read, but a Round keeps one Script from start to Results.
+  const roundKey = JSON.stringify([settingsOf(search), search.script]);
 
   return (
     <div className="flex flex-1 flex-col gap-8">
@@ -67,7 +63,7 @@ function Round({ search, focus }: { search: QuizSearch; focus: FocusAreas }) {
     },
   );
   return state.status === 'finished' ? (
-    <Results state={state} script={search.script} onRestart={restart} />
+    <ResultsScreen state={state} script={search.script} onRestart={restart} />
   ) : (
     <Game
       state={state}

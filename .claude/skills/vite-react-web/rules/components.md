@@ -26,5 +26,5 @@ export function AnswerPad({ onChoice }: { onChoice: (c: Choice) => void }) {
 
 - `src/features/note-name-quiz/hooks/useRound.ts` — engine via `useReducer`, one `window` keydown listener, a ticker only while the Round runs.
 - `src/features/note-name-quiz/hooks/keys.ts` — `KeyboardEvent.code` → `Choice`, and which keys never answer (D20).
-- `src/features/note-name-quiz/components/Results.tsx` — shadcn `Button` with a lucide icon marked `aria-hidden`.
+- `src/features/note-name-quiz/components/ResultsScreen.tsx` — shadcn `Button` with a lucide icon marked `aria-hidden`.
 - `src/features/note-name-quiz/sound/notePlayer.ts` — Web Audio side effect: created inside a user gesture, every call wrapped so sound never breaks the game (D20, D29).
