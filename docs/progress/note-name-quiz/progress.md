@@ -1,11 +1,11 @@
 # Progress: note-name-quiz
 
-**Now:** ทุก ticket done ; รอ feature review และตรวจเสียงบน iPhone โหมดเงียบหลัง deploy (Blocked #1)
+**Now:** feature review ผ่าน แก้ครบ CI เขียวที่ `0db2607` ; พร้อมเปิด PR ; เหลือ Blocked #1 (ตรวจเสียงบน iPhone โหมดเงียบ) ซึ่งทำได้หลัง merge และ deploy เท่านั้น
 
 **Next:**
 
 ```
-/warroom-build note-name-quiz --review-feature
+/pr-open
 ```
 
 ## Tickets
@@ -17,6 +17,26 @@
 | 03 | มือถือ + เสียง + e2e | done |
 
 ## Log
+
+### Feature review — done 2026-11-07
+
+**Built:**
+- กติกาต่อ Mode อยู่ที่ `engine/modes.ts` (`MODE_LENGTHS` `hasLength` `isLengthMode` `isEndedByPlayer`) ; `Settings['len']` derive จาก `MODE_LENGTHS` ; การแยกกรณี `mode` ใน `search.ts` `labels.ts` `Game.tsx` `ModeBar.tsx` `NoteNameQuiz.tsx` `round.ts` หายไป (ปิดข้อค้างจาก 02 และ 03)
+- ทุกการเปลี่ยนค่าใน Mode bar ผ่าน `parseQuizSearch` (เพิ่ม `withDirection` `withScript`) ; `settingsOf` ใช้ destructuring ; `AnswerOutcome` ย้ายไป `types.ts`
+- `cn` import ผ่าน `@/lib/utils` ; component `Results` → `ResultsScreen` ; `keepFocus` → `stopFocusOnMouseDown`
+- Mode bar: `main` กว้าง `max-w-4xl` → บรรทัดเดียวตั้งแต่ `lg` ; เส้นคั่นแสดงเฉพาะ `lg` ขึ้นไป ไม่ค้างท้ายแถวบนจอแคบ (ตรวจที่ 375 และ 1024 px)
+- e2e: `page.clock` แทน `waitForTimeout` (suite 24 s → 12 s) ; ตอบผิดตรวจ animation ของ Prompt และ `X` ที่ `toBeVisible` แทน `data-missed` (ลบออก) ; test ใหม่ `Ctrl`/`Cmd`/`Alt` + ปุ่มคำตอบไม่ตอบ
+- spec.md › Design และ Engine contract ตาม D25 (ตอบไม่ถึง 2 ข้อ → `—`)
+
+**Decided:**
+- D30 — กติกาต่อ Mode ที่เดียว ; Mode bar บรรทัดเดียวจาก `lg`
+- ทิ้งตามที่ผู้ใช้เลือก: seed สร้างใน `useRound` (spec ว่า route) ; หน้า not-found ; unit test notePlayer ผูกกับ oscillator (D29) ; prop `script` ส่งผ่านหลาย component ; CI build สองรอบ
+
+**For the next ticket:**
+- `parseQuizSearch` ยังมี `as QuizSearch` หนึ่งที่ — TS จับคู่ `mode` กับ `len` ของมันข้าม union ไม่ได้ ; `parseLength` รับประกันคู่ให้
+- บนจอแคบปุ่มเสียงอยู่แถวสุดท้ายคนเดียว — ตั้งใจ ไม่ใช่บั๊ก
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (43 passed), `npm run e2e` (32 passed; test ที่แก้ 30/30 ใน `--repeat-each 5`), `npm run build` — all green ที่ `0db2607`
 
 ### 03: มือถือ + เสียง + e2e — done 2026-11-07
 
