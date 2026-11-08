@@ -1,7 +1,9 @@
 import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { answerKind, results } from '../engine/round';
 import type { Miss, RoundState } from '../engine/types';
+import { useCountUp } from '../hooks/useCountUp';
 import type { Script } from '../search';
 import { Kbd } from './Kbd';
 import { noteLabel, promptLabel, roundLabel } from './labels';
@@ -20,7 +22,8 @@ export function ResultsScreen({
 }) {
   const stats = results(state);
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-8">
+    // D31: Results rise in, and their numbers count up.
+    <div className="flex flex-1 animate-in flex-col items-center justify-center gap-8 fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
       <div className="text-center">
         <h1 className="font-semibold text-2xl">ผลรอบนี้</h1>
         <p className="text-muted-foreground text-sm">{roundLabel(state.settings, script)}</p>
@@ -29,12 +32,9 @@ export function ResultsScreen({
       <dl className="grid grid-cols-3 gap-x-8 gap-y-6 text-center sm:grid-cols-5">
         <Stat label="ถูก" value={stats.correct} />
         <Stat label="ผิด" value={stats.wrong} />
-        <Stat label="ความแม่น" value={`${stats.accuracy}%`} />
-        <Stat label="โน้ตต่อนาที" value={stats.notesPerMinute ?? NO_VALUE} />
-        <Stat
-          label="เวลาเฉลี่ยต่อข้อ (วินาที)"
-          value={stats.secondsPerAnswer === null ? NO_VALUE : stats.secondsPerAnswer.toFixed(2)}
-        />
+        <Stat label="ความแม่น" value={stats.accuracy} format={asPercent} accent />
+        <Stat label="โน้ตต่อนาที" value={stats.notesPerMinute} accent />
+        <Stat label="เวลาเฉลี่ยต่อข้อ (วินาที)" value={stats.secondsPerAnswer} format={asSeconds} />
       </dl>
 
       <MissList misses={stats.misses} script={script} />
@@ -48,11 +48,29 @@ export function ResultsScreen({
   );
 }
 
-function Stat({ label, value }: { label: string; value: number | string }) {
+const asWhole = (n: number) => String(Math.round(n));
+const asPercent = (n: number) => `${Math.round(n)}%`;
+const asSeconds = (n: number) => n.toFixed(2);
+
+/** One Results number; `null` shows "—". `accent` marks the headline numbers (D31). */
+function Stat({
+  label,
+  value,
+  format = asWhole,
+  accent = false,
+}: {
+  label: string;
+  value: number | null;
+  format?: (n: number) => string;
+  accent?: boolean;
+}) {
+  const shown = useCountUp(value);
   return (
     <div>
       <dt className="text-muted-foreground text-sm">{label}</dt>
-      <dd className="font-bold font-mono text-4xl tabular-nums">{value}</dd>
+      <dd className={cn('font-bold font-mono text-4xl tabular-nums', accent && 'text-brand')}>
+        {shown === null ? NO_VALUE : format(shown)}
+      </dd>
     </div>
   );
 }

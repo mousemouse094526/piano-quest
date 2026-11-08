@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useEffectEvent, useReducer, useState } from 'react';
-import { answerOutcome, needsKeySetHint, reduce, startRound } from '../engine/round';
-import type { Choice, Note, Settings } from '../engine/types';
+import { answeredCount, answerOutcome, needsKeySetHint, reduce, startRound } from '../engine/round';
+import type { AnswerOutcome, Choice, Note, Settings } from '../engine/types';
 import { choiceFromCode, isIgnoredKey } from './keys';
 
 const TICK_MS = 100;
@@ -17,10 +17,15 @@ export type FocusAreas = {
 };
 
 /**
- * The button a wrong answer pressed, shown with `X` (D20, D29). `missNumber` (the Round's
- * miss count) is used as a React key, so each new miss replays the mark.
+ * The button the last counted answer pressed, and how it went, until the next counted
+ * answer (D20, D29, D31): a miss shows `X`, a right answer flashes the accent. `answerNumber`
+ * (answers so far in the Round) is used as a React key, so each answer replays its mark.
  */
-export type MissMark = { note: Note; missNumber: number };
+export type LastAnswer = {
+  note: Note;
+  outcome: Exclude<AnswerOutcome, 'ignored'>;
+  answerNumber: number;
+};
 
 /**
  * Runs one Round: engine state, the clock, and the single `window` key listener.
@@ -36,10 +41,10 @@ export function useRound(
   const [now, setNow] = useState(() => performance.now());
   // Counts presses that need the key-set hint; each bump replays the flash (D20).
   const [keySetHints, setKeySetHints] = useState(0);
-  const [missMark, setMissMark] = useState<MissMark | null>(null);
+  const [lastAnswer, setLastAnswer] = useState<LastAnswer | null>(null);
 
   function restart() {
-    setMissMark(null);
+    setLastAnswer(null);
     dispatch({ type: 'start', settings: state.settings, seed: newSeed() });
   }
 
@@ -59,12 +64,9 @@ export function useRound(
     setNow(t);
     dispatch(event);
     const outcome = answerOutcome(state, next);
-    if (outcome === 'miss') {
-      setMissMark({ note: choice.note, missNumber: next.misses.length });
-    } else if (outcome === 'right') {
-      setMissMark(null);
-      onCorrect(choice.note);
-    }
+    if (outcome === 'ignored') return;
+    setLastAnswer({ note: choice.note, outcome, answerNumber: answeredCount(next) });
+    if (outcome === 'right') onCorrect(choice.note);
   }
 
   const onKeyDown = useEffectEvent((e: KeyboardEvent) => {
@@ -110,5 +112,5 @@ export function useRound(
     return () => window.clearInterval(id);
   }, [running]);
 
-  return { state, now, keySetHints, missMark, restart, end, answer };
+  return { state, now, keySetHints, lastAnswer, restart, end, answer };
 }

@@ -1,8 +1,12 @@
 # Progress: note-name-quiz
 
-**Now:** merged (PR #1, `84817c9`) ; ยังเหลือ Blocked #1 — ตรวจเสียงบน iPhone โหมดเงียบบนเว็บที่ deploy แล้ว
+**Now:** change request D31 (สีเน้นเขียวมิ้นต์ + animation) เปิด [PR #2](https://github.com/mousemouse094526/piano-quest/pull/2) เข้า `develop` แล้ว ; ยังเหลือ Blocked #1 (ตรวจเสียงบน iPhone)
 
-**Next:** —
+**Next:**
+
+```
+/warroom next
+```
 
 ## Tickets
 
@@ -13,6 +17,23 @@
 | 03 | มือถือ + เสียง + e2e | done |
 
 ## Log
+
+### Change request: สีเน้น + animation — done 2026-11-07
+
+**Built:**
+- สีเน้นเขียวมิ้นต์ `--brand` (`text-brand`) ใช้กับค่าที่เลือกใน Mode bar ปุ่มเสียงตอนเปิด ตัวนับเวลาหรือข้อ ปุ่มที่ตอบถูก และตัวเลขความแม่นกับโน้ตต่อนาทีในหน้า Results
+- animation: แถว Prompt เลื่อนเข้าทุกครั้งที่ตอบ ; ปุ่มที่ตอบยุบแล้วเด้ง (ตอบถูกกระพริบสีมิ้นต์) ; หน้า Results ค่อยๆ โผล่และตัวเลขนับขึ้น (`hooks/useCountUp.ts`) ; `time` 5 วินาทีสุดท้ายตัวเลขเวลาเต้นทุกวินาที ; ทุกแบบปิดเมื่อตั้ง reduced motion
+- `useRound` คืน `lastAnswer` แทน `missMark`
+- e2e ใหม่: ตอบถูก ปุ่มที่กดมี animation `hit` และไม่มี `X`
+- ตรวจใน browser ทั้งธีมสว่างและมืดที่ 1024 px: contrast ผ่าน AA (≥ 4.7:1) และตัวเลขเวลาเต้นที่ 5 วินาที
+
+**Decided:**
+- D31 — สีเน้นเขียวมิ้นต์ของเราเอง (ไม่ใช้ชุดสีของ Monkeytype ตาม ADR-0006) และ animation ทั้ง 4 แบบ
+
+**For the next ticket:**
+- ยังไม่ได้ดูด้วยตาที่ 375 px หลังเพิ่มสี (layout ไม่ได้เปลี่ยน)
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (43 passed), `npm run e2e` (34 passed), `npm run build` — all green
 
 ### Feature review — done 2026-11-07
 

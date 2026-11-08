@@ -120,6 +120,14 @@ test('a miss shakes the Prompt and marks the pressed button with X', async ({ pa
   await expect(answerButton(page, wrong).getByTestId('miss-mark')).toBeVisible();
 });
 
+test('a right answer flashes the pressed button, with no X', async ({ page }) => {
+  await page.goto('#/?mode=count&len=10');
+  const { right } = await readPrompt(page);
+  await answerButton(page, right).click();
+  await expect(answerButton(page, right)).toHaveCSS('animation-name', 'hit');
+  await expect(answerButton(page, right).getByTestId('miss-mark')).toHaveCount(0);
+});
+
 test('holding G answers once', async ({ page }) => {
   await page.goto('#/?mode=count&len=10');
   // The app must be mounted (its key listener attached) before the first key.

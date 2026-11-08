@@ -84,7 +84,7 @@ export function ModeBar({
         aria-label="เสียง"
         pressed={soundOn}
         onPressedChange={onSoundChange}
-        className="size-11 text-muted-foreground"
+        className="size-11 text-muted-foreground data-[state=on]:text-brand"
       >
         {soundOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
       </Toggle>
@@ -115,7 +115,12 @@ function SettingToggle<T extends string>({
       }}
     >
       {options.map((o) => (
-        <ToggleGroupItem key={o.value} value={o.value} className="min-h-11 text-muted-foreground">
+        <ToggleGroupItem
+          key={o.value}
+          value={o.value}
+          // D31: the chosen value reads in the accent.
+          className="min-h-11 text-muted-foreground data-[state=on]:text-brand"
+        >
           {o.label}
         </ToggleGroupItem>
       ))}

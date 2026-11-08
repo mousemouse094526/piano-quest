@@ -55,7 +55,7 @@ export function NoteNameQuiz() {
 
 /** One Round with fixed settings; it exists so the parent can remount it by `key`. */
 function Round({ search, focus }: { search: QuizSearch; focus: FocusAreas }) {
-  const { state, now, keySetHints, missMark, restart, end, answer } = useRound(
+  const { state, now, keySetHints, lastAnswer, restart, end, answer } = useRound(
     settingsOf(search),
     focus,
     (note) => {
@@ -70,7 +70,7 @@ function Round({ search, focus }: { search: QuizSearch; focus: FocusAreas }) {
       now={now}
       script={search.script}
       keySetHints={keySetHints}
-      missMark={missMark}
+      lastAnswer={lastAnswer}
       onAnswer={answer}
       onRestart={restart}
       onEnd={end}

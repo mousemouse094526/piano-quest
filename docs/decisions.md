@@ -21,6 +21,7 @@ question; the full entry is in the feature's decisions.md.
 | ธีมสว่างมืดตามระบบ ไม่มีปุ่มสลับ | [note-name-quiz](features/note-name-quiz/decisions.md) | D17 | — | — | active |
 | Biome ตรวจเฉพาะ code รูปแบบ code และห้าม browser storage ด้วย lint กับ test | [note-name-quiz](features/note-name-quiz/decisions.md) | D24 | — | [0001](adr/0001-no-player-data.md) | active |
 | Mode bar เป็น `ToggleGroup` เห็นทุกค่า ไม่มี popover ปุ่มเกมไม่รับ focus | [note-name-quiz](features/note-name-quiz/decisions.md) | D26 | — | — | active |
+| สีเน้นเขียวมิ้นต์ของเราเอง (`--brand`) และ animation ตอบ เลื่อน Prompt นับผล เวลาใกล้หมด | [note-name-quiz](features/note-name-quiz/decisions.md) | D31 | — | [0006](adr/0006-own-content-only.md) | active |
 
 ## ข้อมูลผู้เล่น
 
