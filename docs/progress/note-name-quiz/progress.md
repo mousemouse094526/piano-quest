@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** ทุก ticket done (01–05) ; รอ feature review ; Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`) ยังค้าง
+**Now:** feature review (Keymap) เสร็จ ; พร้อม merge ; Blocked #1 (ตรวจเสียงบน iPhone) รอหลัง merge เข้า `main`
 
-**Next:** `/warroom-build note-name-quiz --review-feature`
+**Next:** `/pr-open`
 
 ## Tickets
 
@@ -15,6 +15,25 @@
 | 05 | Dialog ตั้งปุ่มลัด | done |
 
 ## Log
+
+### Feature review (Keymap) — done 2026-11-09
+
+**Built:**
+- e2e ของ Keymap (URL และ Dialog) แยกเป็น `e2e/keymap.spec.ts` ; helper ร่วมอยู่ `e2e/quiz.ts` ; `play-round.spec.ts` เหลือเฉพาะรอบเล่น (one file per user flow) ; `rules/testing.md` และ spec.md › Testing decisions ตาม
+- ตรวจ scroll แนวนอนด้วย `expect.poll` (`expectNoSidewaysScroll`) แทนอ่าน `page.evaluate` ครั้งเดียว
+- Dialog ปุ่มลัด: กด modifier เดี่ยวขณะรอ ไม่ขึ้น "ใช้ปุ่มนี้ไม่ได้" ; `Shift+Q` ผูก `Q` (D43) + e2e ใหม่
+- `SIDES` อยู่ที่ `hooks/keys.ts` ที่เดียว ; `shortcutLabel` → `boundKeyLabel` (CONTEXT.md เลี่ยงคำ shortcut) ; `change` → `commitKeymap` ; คอมเมนต์ `roundKeyOf` `bindableCode` (Numpad) D40 และ `onMouseDown` ใน portal อธิบายเหตุผล
+- unit test fixture เขียนเป็น code ตรงๆ ไม่สร้างด้วย `keySetOf` ที่กำลังถูก test
+- `dialog.tsx` import `cn` ผ่าน `@/lib/utils` เหมือน component อื่น
+
+**Decided:**
+- D43 — modifier เดี่ยวขณะรอปุ่ม ไม่มีอะไรเกิด
+- ทิ้งตามตัวเลือก Recommended (auto mode): `ModeBar` ส่ง prop ต่อให้ Dialog (Middle Man) ; ชนิด branded ของ key code ; ย้าย `hooks/keys.ts` ออกจาก `hooks/` ; รวมคู่ `letter-keys`/`solfege-keys` ด้วย map ตาม Side ; fallback ใน `keymapOf` ; e2e ผูกกับรูป `%22…%22` ของ router (D34)
+
+**For the next ticket:**
+- —
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (69 passed), `npm run e2e` (80 passed, 2 skipped), `npm run build` — all green ที่ `a692936`
 
 ### 05: Dialog ตั้งปุ่มลัด — done 2026-11-09
 
