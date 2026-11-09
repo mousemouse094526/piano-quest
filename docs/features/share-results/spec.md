@@ -65,11 +65,12 @@ Piano Quest ไม่เก็บผลไว้ที่ไหน (ADR-0001) �
   - `buildShareText(state: RoundState, script: Script, url: string): string` ตาม [sketch-share-text.md](sketch-share-text.md) (D4, D7)
   - ใช้ `results()` `roundLabel()` `promptLabel()` `noteLabel()` และ `answerKind()` ที่มีอยู่ ไม่คำนวณตัวเลขใหม่ (note-name-quiz D15, D25)
   - ไม่ import React หรือ DOM จึง test ได้แบบเดียวกับ engine
-- **`src/lib` › `shareOrCopy.ts`** (ใหม่)
+- **`src/features/note-name-quiz/hooks` › `shareOrCopy.ts`** (ใหม่)
   - `shareOrCopy(text, deps): Promise<ShareOutcome>` ตามลำดับใน spec › Share or copy (D3, D7)
   - `deps` คือ `{ share?, writeText?, isCoarse }` ส่งเข้ามาจากข้างนอก ไม่อ่าน `navigator` หรือ `matchMedia` เอง
   - `ShareOutcome` คือ `'shared'` `'dismissed'` `'copied'` หรือ `'failed'`
-  - อยู่ใน `src/lib` เพราะปุ่มคัดลอกลิงก์ของ note-name-quiz ticket 06 ใช้ด้วย และเกมถัดไปจะใช้ต่อ (`.claude/skills/vite-react-web/SKILL.md` › Where shared code goes)
+  - `copyText(text, writeText)` คือตัวคัดลอกที่ `shareOrCopy` และปุ่มคัดลอกลิงก์ใช้ ; `COPIED_SHOWN_MS` คือเวลาข้อความยืนยันของทั้งสองปุ่ม
+  - อยู่ใน feature เพราะผู้ใช้ทั้งสองอยู่ใน note-name-quiz เกมถัดไปที่ใช้ค่อยย้ายไป `src/lib` (`.claude/skills/vite-react-web/SKILL.md` › Where shared code goes, D9)
 - **`src/features/note-name-quiz` › `ResultsScreen`**
   - ปุ่ม "แชร์ผล" region บอกผล และกล่องข้อความตาม spec › Design (D2, D3, D7)
   - URL ที่ส่งเข้า Share text คือ `window.location.href` ตอนกด (ADR-0002, ADR-0004, note-name-quiz D27)
@@ -77,7 +78,7 @@ Piano Quest ไม่เก็บผลไว้ที่ไหน (ADR-0001) �
   - `KeyS` บนหน้า Results ทำงานเหมือนกดปุ่ม "แชร์ผล" (D7)
   - ไม่รับ `KeyS` ที่มี `Ctrl` `Cmd` หรือ `Alt` แบบเดียวกับปุ่มคำตอบ
 - **ปุ่มคัดลอกลิงก์ของ note-name-quiz ticket 06 (F12)**
-  - เปลี่ยนให้เรียก `shareOrCopy` ด้วย `share` ว่าง จะได้มีตัวคัดลอกตัวเดียว (D6, D7)
+  - เปลี่ยนให้เรียก `copyText` จะได้มีตัวคัดลอกตัวเดียว (D6, D7, D9)
 
 ### Share or copy
 

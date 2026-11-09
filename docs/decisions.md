@@ -66,7 +66,8 @@ question; the full entry is in the feature's decisions.md.
 | มือถือ (`pointer: coarse`) เปิด share sheet จอใหญ่คัดลอกข้อความ | [share-results](features/share-results/decisions.md) | D3 | — | — | changed by D7 |
 | share-results เริ่มสร้างหลัง note-name-quiz ticket 06 merge | [share-results](features/share-results/decisions.md) | D6 | — | — | active |
 | แก้จาก red team: share ล้มแสดงกล่องข้อความ ข้อผิดไม่เกิน 20 แถว ปุ่มลัด `S` seam share หรือคัดลอก | [share-results](features/share-results/decisions.md) | D7 | — | [0009](adr/0009-game-buttons-need-shortcuts.md) | active |
-| ticket 01: share ล้มบอก "แชร์ไม่ได้" `S` ผ่าน `RoundHandlers.onShare` ผลแชร์ผูกกับ Round ปุ่มคัดลอกลิงก์ใช้ `shareOrCopy` | [share-results](features/share-results/decisions.md) | D8 | — | — | active |
+| ticket 01: share ล้มบอก "แชร์ไม่ได้" `S` ผ่าน `RoundHandlers.onShare` ผลแชร์ผูกกับ Round ปุ่มคัดลอกลิงก์ใช้ `shareOrCopy` | [share-results](features/share-results/decisions.md) | D8 | — | — | changed by D9 |
+| feature review: `shareOrCopy` อยู่ใน note-name-quiz `hooks/` ปุ่มคัดลอกลิงก์เรียก `copyText` เวลา "คัดลอกแล้ว" ใช้ `COPIED_SHOWN_MS` ตัวเดียว | [share-results](features/share-results/decisions.md) | D9 | — | — | active |
 
 ## เนื้อหาดนตรี
 

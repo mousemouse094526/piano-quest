@@ -93,7 +93,7 @@ function Round({ search, keyRouting }: { search: QuizSearch; keyRouting: KeyRout
     <ResultsScreen
       state={state}
       script={search.script}
-      share={sharing.viewFor(state)}
+      shareView={sharing.viewFor(state)}
       onRestart={restart}
       onShare={() => shareRound(state)}
     />

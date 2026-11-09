@@ -121,6 +121,17 @@
 
 **From:** build ticket 01 · **Status:** active
 
+## D9: แก้จาก feature review
+
+**Chosen:** ย้าย `shareOrCopy` เข้า feature และให้ปุ่มคัดลอกลิงก์กับปุ่มแชร์ผลใช้ตัวคัดลอกและเวลาข้อความยืนยันชุดเดียวกัน
+
+**Details:**
+- **`shareOrCopy` อยู่ `src/features/note-name-quiz/hooks/shareOrCopy.ts`:** ผู้ใช้ทั้งสองอยู่ใน note-name-quiz จึงทำตาม "Where shared code goes" ไม่สร้างไฟล์กลางก่อนมีผู้ใช้ feature ที่สอง ; เกมถัดไปที่ใช้ค่อยย้ายไป `src/lib` ใน change นั้น แทนที่ D8 ข้อ "`shareOrCopy` อยู่ `src/lib`" และ spec › Implementation เดิม ; อยู่ `hooks/` แบบเดียวกับ `keys.ts` ที่เป็น helper ไม่ใช่ React
+- **`copyText(text, writeText)`:** แยกออกจาก `shareOrCopy` ปุ่มคัดลอกลิงก์เรียกตรง แทนการตัด `share` ทิ้ง (แทนที่ D8 ข้อ "ตัวคัดลอกของปุ่มคัดลอกลิงก์")
+- **`COPIED_SHOWN_MS` ตัวเดียว:** 2 วินาทีของ "คัดลอกแล้ว" และ "คัดลอกผลแล้ว" มาจากค่าคงที่เดียว (D3 "ข้อความยืนยันชุดเดียวกับปุ่มคัดลอกลิงก์")
+
+**From:** feature review · **Status:** active
+
 ## Sources
 
 - [MDN `Navigator.share()`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share) — share sheet, `AbortError` (accessed 2026-11-09)

@@ -24,7 +24,7 @@
 ## Pattern
 
 ```ts
-// src/lib/shareOrCopy.ts (shape): the browser parts come in from outside, so Vitest drives every path.
+// src/features/note-name-quiz/hooks/shareOrCopy.ts (shape): the browser parts come in from outside, so Vitest drives every path.
 await deps.share({ text });          // inside the press
 // AbortError | InvalidStateError → 'dismissed'; anything else → 'failed', no copy after it
 ```

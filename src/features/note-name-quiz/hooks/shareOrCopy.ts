@@ -9,6 +9,9 @@ export type ShareDeps = {
   isCoarse: boolean;
 };
 
+/** share-results D3: how long a "copied" notice stays, for the copy-link and the share button alike. */
+export const COPIED_SHOWN_MS = 2000;
+
 /** The Player closed the sheet, or pressed again while it was open: not a failure. */
 const DISMISSALS = new Set(['AbortError', 'InvalidStateError']);
 
@@ -28,9 +31,17 @@ export async function shareOrCopy(text: string, deps: ShareDeps): Promise<ShareO
       return e instanceof DOMException && DISMISSALS.has(e.name) ? 'dismissed' : 'failed';
     }
   }
-  if (!deps.writeText) return 'failed';
+  return copyText(text, deps.writeText);
+}
+
+/** Copies `text`; no clipboard (http, some in-app browsers) or a refused write fails. */
+export async function copyText(
+  text: string,
+  writeText: ShareDeps['writeText'],
+): Promise<'copied' | 'failed'> {
+  if (!writeText) return 'failed';
   try {
-    await deps.writeText(text);
+    await writeText(text);
     return 'copied';
   } catch {
     return 'failed';

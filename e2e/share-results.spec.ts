@@ -4,7 +4,7 @@ import { answer, resultsHeading, START_HINT, stubShare, watchErrors } from './qu
 // share-results spec › Seams › 3: the "แชร์ผล" button on Results. `navigator.share` and
 // the clipboard are stubs on both projects, so the test reads what left the page without
 // browser permissions (WebKit has none to grant). Which way a press goes, and every way it
-// fails, is proven by `src/lib/shareOrCopy.test.ts`.
+// fails, is proven by `src/features/note-name-quiz/hooks/shareOrCopy.test.ts`.
 
 /** count 10 with misses at answers 4 and 8, ending on Results. */
 async function playCount10(page: Page) {
@@ -14,13 +14,32 @@ async function playCount10(page: Page) {
 }
 
 const shareButton = (page: Page) => page.getByRole('button', { name: 'แชร์ผล' });
+// Not found by its text as in copy-link.spec.ts: this one is checked empty too. The copy-link
+// status has no explicit `aria-live`, so this matches only the Results one.
 const shareStatus = (page: Page) => page.locator('[role="status"][aria-live="polite"]');
+
+/** Records each text the share status shows from now on: '' when it empties. */
+async function watchText(page: Page) {
+  await shareStatus(page).evaluate((el) => {
+    const log: string[] = [];
+    (window as unknown as { statusLog: string[] }).statusLog = log;
+    new MutationObserver((records) => {
+      for (const r of records) {
+        if (r.addedNodes.length > 0) log.push(el.textContent ?? '');
+        else if (r.removedNodes.length > 0 || r.type === 'characterData') log.push('');
+      }
+    }).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+  return () => page.evaluate(() => (window as unknown as { statusLog: string[] }).statusLog);
+}
 
 test.describe('desktop', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop copies; the phone shares');
 
   test('click แชร์ผล → copied, the notice goes after 2 s, no request', async ({ page }) => {
     const spy = await stubShare(page);
+    // A fake clock: the notice's 2 s checked exactly, without real waiting.
+    await page.clock.install();
     await playCount10(page);
     // ADR-0001: sharing sends nothing anywhere; the text leaves only through the Player.
     const requests: string[] = [];
@@ -39,7 +58,10 @@ test.describe('desktop', () => {
     expect(copied[0]).toContain('\nผิด 2\n');
     // ADR-0009: the click leaves focus on the game area.
     await expect(page.getByLabel('พื้นที่เกม')).toBeFocused();
-    await expect(shareStatus(page)).toHaveText('', { timeout: 3000 });
+    await page.clock.runFor(1900);
+    await expect(shareStatus(page)).toHaveText('คัดลอกผลแล้ว');
+    await page.clock.runFor(200);
+    await expect(shareStatus(page)).toHaveText('');
     expect(requests).toEqual([]);
   });
 
@@ -84,8 +106,11 @@ test.describe('desktop', () => {
     await page.clock.runFor(2500);
     await expect(box).toBeVisible();
     // A second try keeps the box while it runs and after it fails again.
+    const changes = await watchText(page);
     await page.keyboard.press('s');
     await expect(shareStatus(page)).toHaveText('แชร์ไม่ได้');
+    // D7: the region empties before the same outcome comes back, so a screen reader reads it again.
+    expect(await changes()).toEqual(['', 'แชร์ไม่ได้']);
     await expect(box).toBeVisible();
     await page.keyboard.press('Tab');
     await expect(page.getByText(START_HINT)).toBeVisible();

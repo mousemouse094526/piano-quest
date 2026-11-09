@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { browserShareDeps, type ShareOutcome, shareOrCopy } from '@/lib/shareOrCopy';
 import type { RoundState } from '../engine/types';
-
-/** share-results D3: how long "คัดลอกผลแล้ว" stays; a new copy restarts it. */
-const COPIED_SHOWN_MS = 2000;
+import { browserShareDeps, COPIED_SHOWN_MS, type ShareOutcome, shareOrCopy } from './shareOrCopy';
 
 /** What the Results screen shows of the shares made for its Round. */
 export type ShareView = {
@@ -15,7 +12,7 @@ export type ShareView = {
   boxText: string | null;
 };
 
-type Shown = { round: RoundState; outcome: ShareOutcome | null; boxText: string | null };
+type LastShare = { round: RoundState; outcome: ShareOutcome | null; boxText: string | null };
 
 /**
  * share-results D3, D7: shares or copies a finished Round's Share text and keeps how it went.
@@ -23,7 +20,7 @@ type Shown = { round: RoundState; outcome: ShareOutcome | null; boxText: string 
  */
 export function useShareResults() {
   // A new object on every press, so a second copy restarts the timer even with the same outcome.
-  const [shown, setShown] = useState<Shown | null>(null);
+  const [shown, setShown] = useState<LastShare | null>(null);
   const [busy, setBusy] = useState(false);
   // Set inside the press, before React renders, so a fast second `S` can't open a second sheet.
   const pending = useRef(false);

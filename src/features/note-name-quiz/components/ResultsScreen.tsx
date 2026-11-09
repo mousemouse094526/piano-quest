@@ -14,13 +14,13 @@ import { noFocus } from './noFocus';
 export function ResultsScreen({
   state,
   script,
-  share,
+  shareView,
   onRestart,
   onShare,
 }: {
   state: RoundState;
   script: Script;
-  share: ShareView;
+  shareView: ShareView;
   onRestart: () => void;
   onShare: () => void;
 }) {
@@ -58,7 +58,7 @@ export function ResultsScreen({
           size="lg"
           className="min-h-11"
           {...noFocus}
-          disabled={share.busy}
+          disabled={shareView.busy}
           onClick={onShare}
         >
           <Share2 aria-hidden="true" />
@@ -67,7 +67,7 @@ export function ResultsScreen({
         </Button>
       </div>
 
-      <ShareOutcomeView share={share} />
+      <ShareOutcomeView view={shareView} />
     </div>
   );
 }
@@ -76,19 +76,19 @@ export function ResultsScreen({
  * share-results D3, D7: the live region stays on the page so each new outcome is read out;
  * a share or copy that failed leaves the Share text in a box to copy by hand.
  */
-function ShareOutcomeView({ share }: { share: ShareView }) {
+function ShareOutcomeView({ view }: { view: ShareView }) {
   return (
     <>
       <p role="status" aria-live="polite" className="min-h-5 text-muted-foreground text-sm">
-        {share.outcome === 'copied' && 'คัดลอกผลแล้ว'}
-        {share.outcome === 'failed' && 'แชร์ไม่ได้'}
+        {view.outcome === 'copied' && 'คัดลอกผลแล้ว'}
+        {view.outcome === 'failed' && 'แชร์ไม่ได้'}
       </p>
-      {share.boxText !== null && (
+      {view.boxText !== null && (
         <label className="flex w-full max-w-md flex-col gap-2 text-sm">
           คัดลอกข้อความนี้ไปส่งเองได้
           <textarea
             readOnly
-            value={share.boxText}
+            value={view.boxText}
             rows={10}
             className="rounded-md border bg-transparent p-3 font-mono text-sm"
           />

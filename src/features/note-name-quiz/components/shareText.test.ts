@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import { NOTES } from '../engine/notes';
 import { reduce, startRound } from '../engine/round';
 import type { Choice, Note, RoundState, Settings, Side } from '../engine/types';
 import { buildShareText } from './shareText';
@@ -110,9 +111,14 @@ describe('buildShareText', () => {
     const rows = missRows(buildShareText(s, 'th', 'URL'));
     expect(rows).toHaveLength(21);
     expect(rows.at(-1)).toBe('และอีก 7 ข้อ');
-    expect(missRows(buildShareText({ ...s, misses: s.misses.slice(0, 20) }, 'th', 'URL'))).toEqual(
-      rows.slice(0, 20),
-    );
+    // ไทย โด→C: the asked solfège, the letter answered, the right letter.
+    const expected = s.misses
+      .slice(0, 20)
+      .map(
+        ({ prompt: { note }, answered }) =>
+          `${NOTES[note].th} / ${NOTES[answered].letter} / ${NOTES[note].letter}`,
+      );
+    expect(rows.slice(0, 20)).toEqual(expected);
   });
 
   // The 20-row cap is what keeps a long zen Round short enough to send in one chat message.
