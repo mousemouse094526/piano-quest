@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** feature review (Keymap) เสร็จ ; พร้อม merge ; Blocked #1 (ตรวจเสียงบน iPhone) รอหลัง merge เข้า `main`
+**Now:** feature review (Keymap 04–05) เสร็จ ; user trial 2026-11-09 ([รายงาน](user-trials/2026-11-09.md)) เพิ่ม ticket 06 จาก friction 8 ข้อ ; F2 ย้ายไปเป็นฟีเจอร์ใหม่ `share-results` ; Blocked #1 (ตรวจเสียงบน iPhone) รอหลัง merge เข้า `main`
 
-**Next:** `/pr-open`
+**Next:** `/warroom-build note-name-quiz 06`
 
 ## Tickets
 
@@ -13,6 +13,7 @@
 | 03 | มือถือ + เสียง + e2e | done |
 | 04 | Keymap ใน URL + ป้ายบนปุ่มคำตอบ | done |
 | 05 | Dialog ตั้งปุ่มลัด | done |
+| 06 | Trial fixes 2026-11-09 | ready-for-agent |
 
 ## Log
 
@@ -190,3 +191,4 @@
 | # | Ticket | What | Needs | Status |
 |---|---|---|---|---|
 | 1 | 03 | ตรวจด้วยมือ: iPhone เปิดโหมดเงียบ เปิดเสียงในเกม ตอบถูก → ได้ยินเสียง (ต้องเป็นเว็บ HTTPS ที่ deploy แล้ว) | merge เข้า `main` แล้วตรวจบน iPhone จริง บันทึกผลที่นี่ | open |
+| 2 | — | user trial F2: ครูแพรส่งผลรอบให้ผู้ปกครองไม่ได้ — **เจ้าของตัดสิน 2026-11-09: ทำเป็นฟีเจอร์ใหม่ `share-results`** ไม่แก้ในฟีเจอร์นี้ | `/warroom share-results` | moved |
