@@ -1,12 +1,8 @@
 # Progress: share-results
 
-**Now:** feature review เสร็จ 2026-11-09 — [PR #5](https://github.com/mousemouse094526/piano-quest/pull/5) รอ review และ merge ; หลัง deploy ตรวจ share sheet บน iPhone จริงพร้อม Blocked #1 ของ note-name-quiz
+**Now:** merged ([PR #5](https://github.com/mousemouse094526/piano-quest/pull/5), a4ecc4e) — หลัง deploy ตรวจ share sheet บน iPhone จริงพร้อม Blocked #1 ของ note-name-quiz
 
-**Next:**
-
-```
-/warroom next
-```
+**Next:** —
 
 ## Tickets
 
