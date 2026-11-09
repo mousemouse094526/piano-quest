@@ -1,11 +1,11 @@
 # Progress: share-results
 
-**Now:** ticket 01 เสร็จ 2026-11-09 — ทุก ticket done รอ feature review
+**Now:** feature review เสร็จ 2026-11-09 — ready to merge ; หลัง deploy ตรวจ share sheet บน iPhone จริงพร้อม Blocked #1 ของ note-name-quiz
 
 **Next:**
 
 ```
-/warroom-build share-results --review-feature
+/pr-open
 ```
 
 ## Tickets
@@ -15,6 +15,24 @@
 | 01 | ปุ่มแชร์ผลบนหน้า Results | done |
 
 ## Log
+
+### Feature review — done 2026-11-09
+
+**Built:**
+- `shareOrCopy` ย้ายจาก `src/lib` เข้า `features/note-name-quiz/hooks/` ; แยก `copyText` ให้ปุ่มคัดลอกลิงก์เรียกตรง ; `COPIED_SHOWN_MS` ตัวเดียวของทั้งสองปุ่ม
+- prop `share` → `shareView` ใน `ResultsScreen` ; `Shown` → `LastShare`
+- e2e: ข้อความ "คัดลอกผลแล้ว" ตรวจ 2 วินาทีด้วย `page.clock` ; กดซ้ำแล้ว region ว่างก่อนข้อความเดิมกลับมา (ตรวจด้วย `MutationObserver` และลองถอดบรรทัดล้างแล้ว test ล้มจริง)
+- test "ผิด 27 ข้อ" สร้างแถวที่คาดจากข้อมูล engine ไม่ใช่จาก `buildShareText`
+- library-notes `clipboard.md` `web-share.md` และ `rules/testing.md` ชี้ที่อยู่ใหม่
+
+**Decided:**
+- D9 — `shareOrCopy` อยู่ใน feature จนเกมที่สองใช้ ; `copyText` ; `COPIED_SHOWN_MS` (แทนสองข้อใน D8)
+- ไม่แก้: `(state, script)` ที่เดินด้วยกัน, `onShare` ใน `useRound` (ตามกติกา listener ตัวเดียว), Share text ภาษาไทยแม้ Script อังกฤษ (ตาม spec)
+
+**For the next ticket:**
+- ตรวจ share sheet บน iPhone จริงพร้อม Blocked #1 ของ note-name-quiz หลัง deploy
+
+**Checks:** `npx biome ci .` · `npm run typecheck` · `npm test` (89) · `npm run e2e` (104) · `npm run build` — all green
 
 ### 01: ปุ่มแชร์ผลบนหน้า Results — done 2026-11-09
 
