@@ -595,6 +595,17 @@
 
 **From:** build ticket 04 · **Status:** active
 
+## D42: Dialog ปุ่มลัด อยู่ใน Mode bar และนับการเปิดเข้า Round key
+
+**Chosen:** `KeymapDialog` (ปุ่มเปิดกับ Dialog) อยู่ใน `<nav>` ของ Mode bar ถัดจากปุ่มเสียง ไม่มีเส้นคั่น ; `NoteNameQuiz` นับจำนวนครั้งที่เปิดไว้ต่อท้าย `roundKey` จึงเริ่มรอบใหม่ทุกครั้งที่เปิด (D40) ; ref `keymapOpen` ตั้งใน `onOpenChange` ก่อน React render แล้วส่งให้ `useRound` ผ่าน `KeyRouting` ; listener ของเกมเลิกเมื่อ `defaultPrevented` ทุกปุ่ม ; หัวคอลัมน์เป็น `C–B` กับชื่อ solfège ตาม Script (`โด–ที` หรือ `Do–Ti`) ; แตะแถวอื่นหรือคืนค่าเริ่มต้นล้างข้อความใต้แถว ; `ปุ่มปิด` ของ shadcn ใช้ป้าย sr-only "ปิด"
+
+**Why:** อยู่ใน `Dialog.Trigger` จึงได้ `aria-expanded` `aria-haspopup` ของ Radix เอง (D35 จึงหยุด `mousedown` ที่เนื้อหา Dialog) ; ตัวนับเป็นทางเดียวที่เริ่มรอบใหม่ได้โดยไม่ต้องให้ `Round` มี API restart จากข้างนอก ; ข้อความในหน้าจอเป็นถ้อยคำของเราเอง (ADR-0006)
+
+**Rejected:**
+- Dialog นอก `<nav>` กับปุ่มเปิดธรรมดา — ต้องใส่ `aria-expanded` เองและไม่มี Trigger ให้ Radix คืน focus
+
+**From:** build ticket 05 · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

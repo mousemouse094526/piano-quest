@@ -1,11 +1,13 @@
 import { describe, expect, test } from 'vitest';
 import {
+  bindableCode,
   choiceFromCode,
   DEFAULT_KEYMAP,
   type Keymap,
   keyLabel,
   keySetLabels,
   keySetOf,
+  rebind,
 } from './keys';
 
 const HOME_ROW: Keymap = {
@@ -91,5 +93,47 @@ describe('labels', () => {
   test('a key set reads back as its URL form', () => {
     expect(keySetLabels(DEFAULT_KEYMAP.letter)).toBe('CDEFGAB');
     expect(keySetLabels(DEFAULT_KEYMAP.solfege)).toBe('1234567');
+  });
+});
+
+describe('bindableCode', () => {
+  test('a key from the D33 table → its code; Numpad → the digit row (D32)', () => {
+    expect(bindableCode('KeyQ')).toBe('KeyQ');
+    expect(bindableCode('Semicolon')).toBe('Semicolon');
+    expect(bindableCode('Numpad4')).toBe('Digit4');
+  });
+
+  test('any other key → null', () => {
+    for (const code of ['Enter', 'Space', 'Tab', 'Escape', 'ArrowLeft', 'F1', 'ShiftLeft']) {
+      expect(bindableCode(code)).toBeNull();
+    }
+  });
+});
+
+describe('rebind', () => {
+  test('a free key replaces the Answer’s key', () => {
+    const { keymap, swappedWith } = rebind(DEFAULT_KEYMAP, { kind: 'solfege', note: 1 }, 'KeyQ');
+    expect(keySetLabels(keymap.solfege)).toBe('Q234567');
+    expect(keymap.letter).toEqual(DEFAULT_KEYMAP.letter);
+    expect(swappedWith).toBeNull();
+  });
+
+  test('a key another Answer in the same set uses → the two swap (D36)', () => {
+    const { keymap, swappedWith } = rebind(DEFAULT_KEYMAP, { kind: 'letter', note: 1 }, 'KeyD');
+    expect(keySetLabels(keymap.letter)).toBe('DCEFGAB');
+    expect(swappedWith).toEqual({ kind: 'letter', note: 2 });
+  });
+
+  test('a key from the other set → the two swap across sets (D36)', () => {
+    const { keymap, swappedWith } = rebind(DEFAULT_KEYMAP, { kind: 'letter', note: 1 }, 'Digit1');
+    expect(keySetLabels(keymap.letter)).toBe('1DEFGAB');
+    expect(keySetLabels(keymap.solfege)).toBe('C234567');
+    expect(swappedWith).toEqual({ kind: 'solfege', note: 1 });
+  });
+
+  test('the Answer’s own key → nothing changes', () => {
+    const { keymap, swappedWith } = rebind(DEFAULT_KEYMAP, { kind: 'letter', note: 5 }, 'KeyG');
+    expect(keymap).toEqual(DEFAULT_KEYMAP);
+    expect(swappedWith).toBeNull();
   });
 });

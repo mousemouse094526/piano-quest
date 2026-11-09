@@ -100,6 +100,15 @@ export function keymapOf(search: QuizSearch): Keymap {
   };
 }
 
+/** A Keymap from the Keymap dialog, written back as labels (D34, D35). */
+export function withKeymap(search: QuizSearch, keymap: Keymap): QuizSearch {
+  return parseQuizSearch({
+    ...search,
+    'letter-keys': keySetLabels(keymap.letter),
+    'solfege-keys': keySetLabels(keymap.solfege),
+  });
+}
+
 /** Switching Mode starts from that Mode's default length (D2). */
 export function withMode(search: QuizSearch, mode: Mode): QuizSearch {
   // A missing `len` parses to the new Mode's starting length, as in a URL without one.

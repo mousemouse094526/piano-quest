@@ -6,6 +6,7 @@ import {
   parseQuizSearch,
   settingsOf,
   withDirection,
+  withKeymap,
   withLength,
   withMode,
   withScript,
@@ -176,5 +177,32 @@ describe('withDirection and withScript', () => {
     const count50 = withLength(withMode(DEFAULT_SEARCH, 'count'), 50);
     expect(withDirection(count50, 'mixed')).toEqual({ ...count50, dir: 'mixed' });
     expect(withScript(count50, 'en')).toEqual({ ...count50, script: 'en' });
+  });
+});
+
+describe('withKeymap', () => {
+  test('writes both key sets as labels and keeps the rest', () => {
+    const next = withKeymap(
+      { ...DEFAULT_SEARCH, mode: 'count', len: 50, sound: 'on' },
+      {
+        letter: keySetOf('ASDFGHJ') ?? DEFAULT_KEYMAP.letter,
+        solfege: DEFAULT_KEYMAP.solfege,
+      },
+    );
+    expect(next).toEqual({
+      ...DEFAULT_SEARCH,
+      mode: 'count',
+      len: 50,
+      sound: 'on',
+      'letter-keys': 'ASDFGHJ',
+      'solfege-keys': '1234567',
+    });
+  });
+
+  test('the default Keymap → the default labels (คืนค่าเริ่มต้น)', () => {
+    const custom = { ...DEFAULT_SEARCH, 'letter-keys': 'QWERTYU', 'solfege-keys': '7654321' };
+    const next = withKeymap(custom, DEFAULT_KEYMAP);
+    expect(next['letter-keys']).toBe('CDEFGAB');
+    expect(next['solfege-keys']).toBe('1234567');
   });
 });

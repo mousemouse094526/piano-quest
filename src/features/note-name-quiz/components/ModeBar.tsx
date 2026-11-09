@@ -1,5 +1,5 @@
 import { Volume2, VolumeX } from 'lucide-react';
-import type { Ref } from 'react';
+import type { Ref, RefObject } from 'react';
 import { Toggle } from '@/components/ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { hasLength, MODE_LENGTHS, MODES } from '../engine/modes';
@@ -13,24 +13,31 @@ import {
   withMode,
   withScript,
 } from '../search';
+import { KeymapDialog } from './KeymapDialog';
 import { DIRECTION_LABELS, LENGTH_UNITS, MODE_LABELS, SCRIPT_LABELS } from './labels';
 import { stopFocusOnMouseDown } from './noFocus';
 
 type Option<T extends string> = { value: T; label: string };
 
 /**
- * Mode bar (D1, D2, D3, D26): every change hands the next search to `onChange`.
- * Sound goes to `onSoundChange` instead: it must not start a new Round (D20).
+ * Mode bar (D1, D2, D3, D26, D35): every change, the Keymap dialog's too, hands the next
+ * search to `onChange`. Sound goes to `onSoundChange` instead: it must not start a new
+ * Round (D20).
  */
 export function ModeBar({
   search,
   onChange,
   onSoundChange,
+  onKeymapOpenChange,
+  gameArea,
   ref,
 }: {
   search: QuizSearch;
   onChange: (next: QuizSearch) => void;
   onSoundChange: (on: boolean) => void;
+  onKeymapOpenChange: (open: boolean) => void;
+  /** Where focus goes back to when the Keymap dialog closes. */
+  gameArea: RefObject<HTMLElement | null>;
   ref: Ref<HTMLElement>;
 }) {
   const soundOn = isSoundOn(search);
@@ -88,6 +95,12 @@ export function ModeBar({
       >
         {soundOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
       </Toggle>
+      <KeymapDialog
+        search={search}
+        onChange={onChange}
+        onOpenChange={onKeymapOpenChange}
+        returnFocusTo={gameArea}
+      />
     </nav>
   );
 }

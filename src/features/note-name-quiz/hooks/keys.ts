@@ -60,13 +60,44 @@ function numpadAsDigit(code: string): string {
  * names the physical key whatever the keyboard layout, so a Thai layout answers too (D14).
  */
 export function choiceFromCode(code: string, keymap: Keymap): Choice | null {
-  const key = numpadAsDigit(code);
-  if (!(key in KEY_LABELS)) return null;
+  const bound = bindableCode(code);
+  return bound ? answerOfCode(bound, keymap) : null;
+}
+
+/** The code a Keymap stores for a pressed key's code, or null when it can't be bound (D33). */
+export function bindableCode(code: string): string | null {
+  const bound = numpadAsDigit(code);
+  return bound in KEY_LABELS ? bound : null;
+}
+
+function answerOfCode(code: string, keymap: Keymap): Choice | null {
   for (const kind of ['letter', 'solfege'] as const) {
-    const note = NOTES_IN_ORDER.find((n) => keymap[kind][n] === key);
+    const note = NOTES_IN_ORDER.find((n) => keymap[kind][n] === code);
     if (note) return { kind, note };
   }
   return null;
+}
+
+/**
+ * Binds `code` (from `bindableCode`) to one Answer. A code another Answer holds, in either
+ * set, swaps over to it (D36), so the Keymap keeps 14 distinct keys; `swappedWith` names
+ * that Answer.
+ */
+export function rebind(
+  keymap: Keymap,
+  answer: Choice,
+  code: string,
+): { keymap: Keymap; swappedWith: Choice | null } {
+  const holder = answerOfCode(code, keymap);
+  if (holder && isSameAnswer(holder, answer)) return { keymap, swappedWith: null };
+  const next = { letter: { ...keymap.letter }, solfege: { ...keymap.solfege } };
+  if (holder) next[holder.kind][holder.note] = keymap[answer.kind][answer.note];
+  next[answer.kind][answer.note] = code;
+  return { keymap: next, swappedWith: holder };
+}
+
+export function isSameAnswer(a: Choice | null, b: Choice): boolean {
+  return a?.kind === b.kind && a.note === b.note;
 }
 
 /** The label a bound key shows on screen (D38). */

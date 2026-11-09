@@ -9,11 +9,14 @@ function newSeed(): number {
   return crypto.getRandomValues(new Uint32Array(1))[0] ?? 0;
 }
 
-export type FocusAreas = {
+/** Where the game's keys may go: Mode bar, game area, or nowhere while the Keymap dialog is open. */
+export type KeyRouting = {
   /** Keys pressed while focus is in here belong to its controls (D20). */
   modeBar: RefObject<HTMLElement | null>;
   /** Where `Esc` in the Mode bar sends focus back to. */
   gameArea: RefObject<HTMLElement | null>;
+  /** True while the Keymap dialog is open: every key is the Dialog's (D35). */
+  keymapOpen: RefObject<boolean>;
 };
 
 /**
@@ -34,7 +37,7 @@ export type LastAnswer = {
 export function useRound(
   settings: Settings,
   keymap: Keymap,
-  { modeBar, gameArea }: FocusAreas,
+  { modeBar, gameArea, keymapOpen }: KeyRouting,
   /** Fired after the engine counts a right answer, with the note answered (D5, D20). */
   onCorrect: (note: Note) => void,
 ) {
@@ -71,10 +74,12 @@ export function useRound(
   }
 
   const onKeyDown = useEffectEvent((e: KeyboardEvent) => {
-    if (isIgnoredKey(e)) return;
+    // D35: a key the Keymap dialog handled — even the `Esc` that just closed it, when the
+    // ref already reads closed — and any key while it is open is never the game's.
+    if (e.defaultPrevented || keymapOpen.current || isIgnoredKey(e)) return;
     if (e.target instanceof Node && modeBar.current?.contains(e.target)) {
       // D20: inside the Mode bar only `Esc` is ours — it hands focus back to the game.
-      if (e.code === 'Escape' && !e.defaultPrevented) {
+      if (e.code === 'Escape') {
         e.preventDefault();
         gameArea.current?.focus();
       }

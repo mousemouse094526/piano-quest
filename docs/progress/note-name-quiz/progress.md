@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** ticket 04 (Keymap ใน URL + ป้าย) done ; ticket 05 (Dialog ตั้งปุ่มลัด) ready ; Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`) ยังค้าง
+**Now:** ทุก ticket done (01–05) ; รอ feature review ; Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`) ยังค้าง
 
-**Next:** `/warroom-build note-name-quiz 05`
+**Next:** `/warroom-build note-name-quiz --review-feature`
 
 ## Tickets
 
@@ -12,9 +12,31 @@
 | 02 | Mode bar + URL + Results ครบ | done |
 | 03 | มือถือ + เสียง + e2e | done |
 | 04 | Keymap ใน URL + ป้ายบนปุ่มคำตอบ | done |
-| 05 | Dialog ตั้งปุ่มลัด | ready |
+| 05 | Dialog ตั้งปุ่มลัด | done |
 
 ## Log
+
+### 05: Dialog ตั้งปุ่มลัด — done 2026-11-09
+
+**Built:**
+- ปุ่มไอคอน `Keyboard` "ปุ่มลัด" ท้าย Mode bar ข้างปุ่มเสียง เปิด shadcn `Dialog` (`components/KeymapDialog.tsx`): 2 คอลัมน์ `C–B` กับ solfège ตาม Script ; คลิก แตะ หรือ Enter ที่แถว → "กดปุ่มที่ต้องการ…" ; ปุ่มที่ผูกได้ → ผูก (ชน → สลับ "สลับกับ {Answer}") ; ปุ่มอื่น → "ใช้ปุ่มนี้ไม่ได้" รอต่อ ; `Esc` เลิกรอ ; `Tab` ย้าย focus และเลิกรอ ; แตะแถวเดิมซ้ำ แถวอื่น หรือปิด → เลิกรอ ; "คืนค่าเริ่มต้น" ; บรรทัด "ต้องใช้คีย์บอร์ดจริง แตะปุ่มคำตอบได้เสมอ"
+- ทุกการเปลี่ยนเขียน URL ทันทีผ่าน `withKeymap` (`search.ts`) แล้วรอบเริ่มใหม่ (D37) ; เปิด Dialog เริ่มรอบใหม่เสมอ (D40) ด้วยตัวนับการเปิดต่อท้าย `roundKey`
+- `hooks/keys.ts`: `bindableCode` `rebind(keymap, answer, code)` (สลับในชุดและข้ามชุด) `isSameAnswer` ; `choiceFromCode` ใช้ `bindableCode`
+- `useRound`: listener เลิกเมื่อ `e.defaultPrevented` หรือ ref `keymapOpen` (ตั้งใน `onOpenChange` ก่อน render) ; `FocusAreas` → `KeyRouting`
+- ปิด Dialog แล้ว focus กลับพื้นที่เกม (`onCloseAutoFocus`) ; เนื้อหา Dialog หยุด `mousedown` ไม่ให้ถึง `<nav>`
+- unit test ใหม่ 8 ข้อ (`bindableCode` `rebind` `withKeymap`) ; e2e ใหม่ 15 test ใน `e2e/play-round.spec.ts` (ครบทุก criterion รวม `zen` Esc ปิดแล้ว `G` ตอบได้, เปิดจาก Results, 1024 px บรรทัดเดียว, 375 px ไม่มี scroll แนวนอน)
+- library note ใหม่ `radix-dialog.md` (Esc ของ Radix อยู่ช่วง capture บน `document` และ `preventDefault` ก่อนปิด) ; `rules/components.md` เพิ่มกติกา Dialog ที่อ่านปุ่มเอง ; ป้ายปิดของ shadcn `dialog.tsx` เป็น "ปิด"
+- ตรวจด้วยตาที่ 375 และ 1024 px: Mode bar ตัดบรรทัดเรียบร้อย ปุ่มลัดอยู่ข้างปุ่มเสียง Dialog พอดีจอ
+
+**Decided:**
+- D42 — Dialog อยู่ใน Mode bar (`Dialog.Trigger`) ; ตัวนับการเปิดต่อท้าย Round key ; ref Dialog เปิดผ่าน `KeyRouting` ; หัวคอลัมน์ `C–B` กับ `โด–ที`/`Do–Ti`
+
+**For the next ticket:**
+- ป้ายในแถวรอที่ 375 px ("กดปุ่มที่ต้องการ…") พอดีช่องพอดี — ถ้าเปลี่ยนคำต้องดูอีกที
+- review เสนอแต่ไม่ทำ (judgement): ชนิด branded ของ code ที่ผูกได้ ; `ModeBar` ส่ง `onKeymapOpenChange` `gameArea` ต่อให้ Dialog อย่างเดียว ; `hooks/keys.ts` ไม่ใช่ hook (เดิม)
+- AC "URL เป็น `CDEFGAB` กับ `1234567`" — router เขียน `solfege-keys=%221234567%22` (D34 รู้แล้ว ไม่ใช่ของใหม่)
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (69 passed), `npm run e2e` (78 passed, 2 skipped; 156/156 ใน `--repeat-each 2`), `npm run build` — all green
 
 ### 04: Keymap ใน URL + ป้ายบนปุ่มคำตอบ — done 2026-11-09
 

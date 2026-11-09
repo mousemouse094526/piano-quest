@@ -1,7 +1,7 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NOTES } from '../engine/notes';
-import { type FocusAreas, useRound } from '../hooks/useRound';
+import { type KeyRouting, useRound } from '../hooks/useRound';
 import { isSoundOn, keymapOf, type QuizSearch, roundKeyOf, settingsOf, withSound } from '../search';
 import { notePlayer } from '../sound/notePlayer';
 import { Game } from './Game';
@@ -13,6 +13,11 @@ export function NoteNameQuiz() {
   const navigate = useNavigate({ from: '/' });
   const modeBar = useRef<HTMLElement>(null);
   const gameArea = useRef<HTMLElement>(null);
+  // Set inside the press that opens or closes the Keymap dialog, before React renders, so
+  // the game's key listener ignores every key while it is open (D35).
+  const keymapOpen = useRef(false);
+  // Bumped when the Keymap dialog opens: the Round restarts even if no key changes (D40).
+  const [keymapOpenings, setKeymapOpenings] = useState(0);
 
   // Keys work without focus, but starting in the game area makes Shift+Tab reach the Mode bar.
   useEffect(() => gameArea.current?.focus(), []);
@@ -28,9 +33,15 @@ export function NoteNameQuiz() {
     changeSettings(withSound(search, on));
   }
 
+  function changeKeymapOpen(open: boolean) {
+    keymapOpen.current = open;
+    if (open) setKeymapOpenings((n) => n + 1);
+  }
+
   // A new Round key remounts the Round. Script only changes how notes read, but a Round
-  // keeps one Script from start to Results.
-  const roundKey = roundKeyOf(search);
+  // keeps one Script from start to Results. Opening the Keymap dialog counts too, so the
+  // Player comes back to a Round that hasn't started, changed keys or not (D40).
+  const roundKey = `${roundKeyOf(search)}#${keymapOpenings}`;
 
   return (
     <div className="flex flex-1 flex-col gap-8">
@@ -39,6 +50,8 @@ export function NoteNameQuiz() {
         search={search}
         onChange={changeSettings}
         onSoundChange={changeSound}
+        onKeymapOpenChange={changeKeymapOpen}
+        gameArea={gameArea}
       />
       <section
         ref={gameArea}
@@ -47,19 +60,19 @@ export function NoteNameQuiz() {
         aria-label="พื้นที่เกม"
         className="flex flex-1 flex-col outline-none"
       >
-        <Round key={roundKey} search={search} focus={{ modeBar, gameArea }} />
+        <Round key={roundKey} search={search} keyRouting={{ modeBar, gameArea, keymapOpen }} />
       </section>
     </div>
   );
 }
 
 /** One Round with fixed settings; it exists so the parent can remount it by `key`. */
-function Round({ search, focus }: { search: QuizSearch; focus: FocusAreas }) {
+function Round({ search, keyRouting }: { search: QuizSearch; keyRouting: KeyRouting }) {
   const keymap = keymapOf(search);
   const { state, now, keySetHints, lastAnswer, restart, end, answer } = useRound(
     settingsOf(search),
     keymap,
-    focus,
+    keyRouting,
     (note) => {
       if (isSoundOn(search)) notePlayer.play(NOTES[note].hz);
     },
