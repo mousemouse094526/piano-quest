@@ -16,20 +16,22 @@ question; the full entry is in the feature's decisions.md.
 | Decision | Feature | D | Used by | ADR | Status |
 |---|---|---|---|---|---|
 | UI ใช้ shadcn/ui กับ Tailwind ไอคอนใช้ Lucide | [note-name-quiz](features/note-name-quiz/decisions.md) | D8 | — | — | active |
-| ไม่ทำ design แยก ใช้ shadcn ค่าเริ่มต้น | [note-name-quiz](features/note-name-quiz/decisions.md) | D9 | — | — | active |
+| ไม่ทำ design แยก ใช้ shadcn ค่าเริ่มต้น | [note-name-quiz](features/note-name-quiz/decisions.md) | D9 | share-results | — | active |
 | React SPA บน Vite กับ TanStack Router แบบ hash history | [note-name-quiz](features/note-name-quiz/decisions.md) | D11 | — | [0004](adr/0004-hash-history.md) | active |
 | ธีมสว่างมืดตามระบบ ไม่มีปุ่มสลับ | [note-name-quiz](features/note-name-quiz/decisions.md) | D17 | — | — | active |
 | Biome ตรวจเฉพาะ code รูปแบบ code และห้าม browser storage ด้วย lint กับ test | [note-name-quiz](features/note-name-quiz/decisions.md) | D24 | — | [0001](adr/0001-no-player-data.md) | active |
-| Mode bar เป็น `ToggleGroup` เห็นทุกค่า ไม่มี popover ปุ่มเกมไม่รับ focus | [note-name-quiz](features/note-name-quiz/decisions.md) | D26 | — | — | active |
+| Mode bar เป็น `ToggleGroup` เห็นทุกค่า ไม่มี popover ปุ่มเกมไม่รับ focus | [note-name-quiz](features/note-name-quiz/decisions.md) | D26 | share-results | [0008](adr/0008-game-buttons-need-shortcuts.md) | active |
 | สีเน้นเขียวมิ้นต์ของเราเอง (`--brand`) และ animation ตอบ เลื่อน Prompt นับผล เวลาใกล้หมด | [note-name-quiz](features/note-name-quiz/decisions.md) | D31 | — | [0006](adr/0006-own-content-only.md) | active |
 
 ## ข้อมูลผู้เล่น
 
 | Decision | Feature | D | Used by | ADR | Status |
 |---|---|---|---|---|---|
-| ไม่เก็บข้อมูลอะไรเลย ไม่มี server บัญชี storage cookie analytics | [note-name-quiz](features/note-name-quiz/decisions.md) | D4 | — | [0001](adr/0001-no-player-data.md) | active |
-| ค่า Mode bar อยู่ใน URL search params | [note-name-quiz](features/note-name-quiz/decisions.md) | D16 | — | [0002](adr/0002-settings-in-url.md) | active |
-| URL เขียนครบทุก param parser ใน `search.ts` ตัด query จริงก่อน `#` ตอนเปิดแอป | [note-name-quiz](features/note-name-quiz/decisions.md) | D27 | — | [0002](adr/0002-settings-in-url.md) | active |
+| ไม่เก็บข้อมูลอะไรเลย ไม่มี server บัญชี storage cookie analytics | [note-name-quiz](features/note-name-quiz/decisions.md) | D4 | share-results | [0001](adr/0001-no-player-data.md) | active |
+| ค่า Mode bar อยู่ใน URL search params | [note-name-quiz](features/note-name-quiz/decisions.md) | D16 | share-results | [0002](adr/0002-settings-in-url.md) | active |
+| URL เขียนครบทุก param parser ใน `search.ts` ตัด query จริงก่อน `#` ตอนเปิดแอป | [note-name-quiz](features/note-name-quiz/decisions.md) | D27 | share-results | [0002](adr/0002-settings-in-url.md) | active |
+| ส่งผลเป็น Share text ข้อความล้วน ไม่ใช่ลิงก์หรือรูป | [share-results](features/share-results/decisions.md) | D1 | — | [0007](adr/0007-results-leave-as-player-sent-text.md) | active |
+| Share text ไม่มีชื่อ Player ไม่มีวันเวลา มีลิงก์เล่นค่าเดียวกัน | [share-results](features/share-results/decisions.md) | D4 | — | [0007](adr/0007-results-leave-as-player-sent-text.md) | changed by D7 |
 
 ## การเล่นเกม
 
@@ -37,15 +39,19 @@ question; the full entry is in the feature's decisions.md.
 |---|---|---|---|---|---|
 | หน้าตาและการเล่นแบบ Monkeytype มี Mode bar ปรับได้ทุกอย่าง | [note-name-quiz](features/note-name-quiz/decisions.md) | D1 | — | — | active |
 | Mode `time` `count` `zen` กับ Direction 3 แบบ | [note-name-quiz](features/note-name-quiz/decisions.md) | D2 | — | — | active |
-| ตอบผิดแล้วข้ามไป เฉลยตอนจบ Round | [note-name-quiz](features/note-name-quiz/decisions.md) | D7 | — | — | active |
-| กติกาเล็ก: `KeyboardEvent.code` `Tab` `Esc` เริ่มนับเวลาตอนตอบข้อแรก | [note-name-quiz](features/note-name-quiz/decisions.md) | D14 | — | — | active |
-| ค่าบนหน้า Results | [note-name-quiz](features/note-name-quiz/decisions.md) | D15 | — | — | active |
-| ตอบน้อยกว่า 2 ข้อ ความเร็วแสดง `—` | [note-name-quiz](features/note-name-quiz/decisions.md) | D25 | — | — | active |
+| ตอบผิดแล้วข้ามไป เฉลยตอนจบ Round | [note-name-quiz](features/note-name-quiz/decisions.md) | D7 | share-results | — | active |
+| กติกาเล็ก: `KeyboardEvent.code` `Tab` `Esc` เริ่มนับเวลาตอนตอบข้อแรก | [note-name-quiz](features/note-name-quiz/decisions.md) | D14 | share-results | [0008](adr/0008-game-buttons-need-shortcuts.md) | active |
+| ค่าบนหน้า Results | [note-name-quiz](features/note-name-quiz/decisions.md) | D15 | share-results | — | active |
+| ตอบน้อยกว่า 2 ข้อ ความเร็วแสดง `—` | [note-name-quiz](features/note-name-quiz/decisions.md) | D25 | share-results | — | active |
 | แก้จาก red team: เวลา deadline ปุ่มที่ไม่นับ focus เสียง สัญญาณที่ไม่พึ่งสี | [note-name-quiz](features/note-name-quiz/decisions.md) | D20 | — | [0002](adr/0002-settings-in-url.md) | active |
 | มือถือใช้ปุ่มแตะ 7 ปุ่ม | [note-name-quiz](features/note-name-quiz/decisions.md) | D6 | — | — | active |
 | เสียงโน้ตสังเคราะห์เมื่อตอบถูก เปิดปิดได้ ค่าเริ่มต้นปิด | [note-name-quiz](features/note-name-quiz/decisions.md) | D5 | — | — | active |
 | `X` บนปุ่มที่ผิดจนกว่าจะตอบข้อถัดไป ตัวเล่นเสียงตัวเดียวทั้งแอป ปุ่มแตะเป็น grid 7 ช่อง | [note-name-quiz](features/note-name-quiz/decisions.md) | D29 | — | — | active |
 | กติกาต่อ Mode อยู่ใน `engine/modes.ts` ; Mode bar บรรทัดเดียวจาก `lg` (`main` `max-w-4xl`) | [note-name-quiz](features/note-name-quiz/decisions.md) | D30 | — | — | active |
+| ปุ่ม "แชร์ผล" ปุ่มเดียวบน Results ทุก Mode | [share-results](features/share-results/decisions.md) | D2 | — | — | changed by D7 |
+| มือถือ (`pointer: coarse`) เปิด share sheet จอใหญ่คัดลอกข้อความ | [share-results](features/share-results/decisions.md) | D3 | — | — | changed by D7 |
+| share-results เริ่มสร้างหลัง note-name-quiz ticket 06 merge | [share-results](features/share-results/decisions.md) | D6 | — | — | active |
+| แก้จาก red team: share ล้มแสดงกล่องข้อความ ข้อผิดไม่เกิน 20 แถว ปุ่มลัด `S` seam share หรือคัดลอก | [share-results](features/share-results/decisions.md) | D7 | — | [0008](adr/0008-game-buttons-need-shortcuts.md) | active |
 
 ## เนื้อหาดนตรี
 
@@ -63,6 +69,7 @@ question; the full entry is in the feature's decisions.md.
 | Vitest Playwright Biome code-based route npm | [note-name-quiz](features/note-name-quiz/decisions.md) | D21 | — | [0005](adr/0005-pure-game-engine.md) | active |
 | Conventions web app ใน `.claude/skills/vite-react-web/` | [note-name-quiz](features/note-name-quiz/decisions.md) | D23 | — | — | active |
 | Playwright: `Desktop Chrome` กับ `iPhone 15` build ใหม่ทุกครั้งที่ port 4317 CI รันก่อน build | [note-name-quiz](features/note-name-quiz/decisions.md) | D28 | — | — | active |
+| Seam สองจุด: ตัวสร้าง Share text กับ e2e หนึ่ง flow | [share-results](features/share-results/decisions.md) | D5 | — | — | changed by D7 |
 
 ## เนื้อหาจากภายนอก
 

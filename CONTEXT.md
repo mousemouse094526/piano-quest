@@ -39,3 +39,7 @@ _Avoid_: Input, guess
 **Results**:
 หน้าสรุปตอนจบ Round แสดงความแม่น ความเร็ว และเฉลยทุก Prompt ที่ตอบผิด
 _Avoid_: Score screen, summary, report
+
+**Share text**:
+ข้อความสรุป Round หนึ่งรอบที่ปุ่ม "แชร์ผล" บนหน้า Results ส่งออก ไม่มีชื่อ Player และไม่ถูกเก็บที่ไหน
+_Avoid_: Report, export, share link
