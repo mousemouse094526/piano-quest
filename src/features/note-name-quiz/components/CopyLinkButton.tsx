@@ -12,20 +12,27 @@ type CopyStatus = 'idle' | 'copied' | 'failed';
  * onMouseDown, as for every control there.
  */
 export function CopyLinkButton() {
-  const [status, setStatus] = useState<CopyStatus>('idle');
+  // A new object on every copy, so a second click restarts the timer even when the status is the same.
+  const [shown, setShown] = useState<{ status: CopyStatus }>({ status: 'idle' });
+  const { status } = shown;
 
   useEffect(() => {
-    if (status === 'idle') return;
-    const id = window.setTimeout(() => setStatus('idle'), SHOWN_MS);
+    if (shown.status === 'idle') return;
+    const id = window.setTimeout(() => setShown({ status: 'idle' }), SHOWN_MS);
     return () => window.clearTimeout(id);
-  }, [status]);
+  }, [shown]);
 
   function copy() {
+    // Missing outside a secure context (http, some in-app browsers).
+    if (!navigator.clipboard) {
+      setShown({ status: 'failed' });
+      return;
+    }
     // Inside the click: Safari and Firefox allow writing only on a user gesture.
     navigator.clipboard
       .writeText(window.location.href)
-      .then(() => setStatus('copied'))
-      .catch(() => setStatus('failed'));
+      .then(() => setShown({ status: 'copied' }))
+      .catch(() => setShown({ status: 'failed' }));
   }
 
   return (

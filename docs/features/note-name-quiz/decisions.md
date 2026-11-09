@@ -641,6 +641,17 @@
 
 **From:** build ticket 06 · **Status:** active
 
+## D45: ปุ่มคัดลอกลิงก์เมื่อไม่มี clipboard และเมื่อกดซ้ำ
+
+**Chosen:** เบราว์เซอร์ไม่มี `navigator.clipboard` (หน้าไม่ใช่ https หรือ in-app browser บางตัว) → "คัดลอกไม่ได้" เหมือน clipboard ปฏิเสธ ; กดซ้ำภายใน 2 วินาที → ข้อความนับ 2 วินาทีใหม่จากการกดล่าสุด
+
+**Why:** feature review พบว่า `writeText` บน `navigator.clipboard` ที่ไม่มีโยน error ก่อนถึง `.catch` จอไม่บอกอะไรเลย ; กดซ้ำแล้วข้อความหายเร็วกว่าที่ผู้เล่นคาด
+
+**Rejected:**
+- ใช้ `document.execCommand('copy')` เป็นทางสำรอง — deprecated และ GitHub Pages เป็น https อยู่แล้ว
+
+**From:** feature review 2026-11-09 · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

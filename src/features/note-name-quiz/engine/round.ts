@@ -93,6 +93,7 @@ export function accuracyOf(correct: number, wrong: number): number {
 export function countedUp(final: Results, progress: number): Results {
   const correct = Math.round(final.correct * progress);
   const wrong = Math.round(final.wrong * progress);
+  // No right answers means no notes per minute to count up; any share keeps it at 0.
   const share = final.correct === 0 ? 1 : correct / final.correct;
   return {
     ...final,

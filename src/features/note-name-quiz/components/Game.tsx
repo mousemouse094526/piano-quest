@@ -40,7 +40,7 @@ export function Game({
   const endedByPlayer = isEndedByPlayer(state.settings);
   const side = answerKind(state.current);
   const ready = state.status === 'ready';
-  const missed = lastAnswer?.outcome === 'miss' ? lastAnswer.prompt : undefined;
+  const missedPrompt = lastAnswer?.outcome === 'miss' ? lastAnswer.prompt : undefined;
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-10">
       <div className="flex items-center gap-4 font-mono text-lg tabular-nums">
@@ -75,13 +75,13 @@ export function Game({
         className="flex animate-prompt-in items-baseline gap-6 motion-reduce:animate-none"
       >
         <span className="relative">
-          {missed && (
+          {missedPrompt && (
             <span
               aria-hidden="true"
               data-testid="missed-prompt"
               className="absolute right-full mr-6 font-bold text-5xl text-destructive animate-missed-prompt motion-reduce:animate-miss-fade"
             >
-              {promptLabel(missed, script)}
+              {promptLabel(missedPrompt, script)}
             </span>
           )}
           <span data-testid="prompt" className="font-bold text-7xl">

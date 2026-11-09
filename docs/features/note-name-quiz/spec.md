@@ -232,7 +232,7 @@ type Results = {
 
 engine ถือกติกาทั้งหมด ส่วน UI พิสูจน์ด้วย e2e หนึ่ง flow (D18)
 
-1. **Game engine** `src/features/note-name-quiz/engine` reducer และ `results()`
+1. **Game engine** `src/features/note-name-quiz/engine` reducer `results()` และ `countedUp()`
    - `count` 10 ตอบถูก 10 ข้อ → `finished` ความแม่น 100
    - `count` 10 ผิด 3 ข้อ → 3 `Miss` แต่ละตัวมี Prompt สิ่งที่ตอบ คำตอบที่ถูก ความแม่น 70
    - `count` 10 ตอบทุก 1000 ms (ข้อแรก t=0 ข้อสุดท้าย t=9000) ถูกหมด → โน้ตต่อนาที 67 เวลาเฉลี่ย 0.90
@@ -246,7 +246,7 @@ engine ถือกติกาทั้งหมด ส่วน UI พิส�
    - event หลัง `finished` → สถานะไม่เปลี่ยน
 2. **Play one round** (e2e) หน้า `/` บน Chromium เดสก์ท็อป และ WebKit device `iPhone`
    - เปิด `/#/?mode=count&len=10` กดปุ่มลัดตอบ 10 ข้อ ผิด 2 ข้อ → ตัวนับผิดเป็น 2 ระหว่างเล่น หน้า Results แสดงผิด 2 และเฉลย 2 รายการ
-   - ตอบผิด → Prompt มีสถานะผิดที่มองเห็นได้ (สั่นหรือ `X`)
+   - ตอบผิด → ข้อที่เพิ่งตอบค้างทางซ้ายสีแดง สั่นแล้วจาง อยู่ในจอ ; Prompt ใหม่ไม่มี animation ; ปุ่มที่กดมี `X` (D44)
    - กด `G` ค้าง → ตอบแค่ 1 ข้อ
    - viewport iPhone แตะปุ่มบนจอครบ 10 ข้อ → หน้า Results
    - กด `Tab` กลางรอบ → กลับไปข้อความ "กดปุ่มคำตอบเพื่อเริ่ม" focus ไม่ย้าย
@@ -266,12 +266,20 @@ engine ถือกติกาทั้งหมด ส่วน UI พิส�
    - เปิด `/#/?letter-keys=AAAAAAA` → ป้ายเป็นค่าเริ่มต้น ไม่มี error (D34)
    - กด `Numpad5` ในทิศ C→โด → ตอบ ซอล (D32)
    - viewport iPhone กับ `letter-keys=ASDFGHJ` แตะปุ่มคำตอบครบ 10 ข้อ → หน้า Results (D39)
+   - ก่อนข้อแรก → วิธีเล่นของ Mode พร้อมหน่วย ; แถบล่างไม่มีคำว่า "Mode bar" (D44)
+   - `mixed` กดชุดผิด → "ข้อนี้ตอบด้วยปุ่ม …" ไม่นับผิด ; ตอบข้อนั้นแล้วหาย (D44)
+   - focus ใน Mode bar → แถบล่างบอก `Esc` กลับเข้าเกม (D44)
+   - viewport iPhone → ไม่มีแถบล่างและป้าย `Tab` ; ปุ่มตอบสูงอย่างน้อย 64 px (D44)
+   - Script อังกฤษ → ป้าย Direction `Do→C` `C→Do` (D44)
+   - Results ถูก 8 ผิด 0 และ ถูก 6 ผิด 2 → ทุก frame ความแม่นตรงกับถูกและผิดที่เห็น ; จบที่ค่าสุดท้าย (D44)
+   - คัดลอกลิงก์ → "คัดลอกแล้ว" รอบไม่เริ่มใหม่ เปิดลิงก์ได้ค่าเดิม ; clipboard ปฏิเสธหรือไม่มี → "คัดลอกไม่ได้" ไม่มี error (D44, D45)
 
 ## Testing decisions
 
 - **Copy:** ยังไม่มี test ในโปรเจกต์ ticket แรกตั้ง pattern ตาม conventions (D21)
 - **Copy (Keymap):** parse ของ `letter-keys` `solfege-keys` ทำตาม `src/features/note-name-quiz/search.test.ts` ; `keys.ts` ได้ test ใหม่ `hooks/keys.test.ts` แบบเดียวกัน ; e2e อยู่ใน `e2e/keymap.spec.ts` (แยกจาก `play-round.spec.ts` ตอน feature review) ตาม D28
 - unit test ของ Keymap: ค่าเริ่มต้น ; อักษรเล็ก ; number `1234567` ; ยาวผิด ; ตัวนอกตาราง ; ซ้ำในชุด ; ซ้ำข้ามชุด ; ชนกันหลัง fallback (`AAAAAAA` กับ `ASDFGHJ`) ; `1234.50` `1e23456` `[12345]` ; `Numpad` ; สลับข้ามชุด
+- **Copy (trial fixes):** `accuracyOf` และ `countedUp` ทดสอบใน `engine/round.test.ts` (Seam 1) ; e2e ของรอบเล่นอยู่ใน `play-round.spec.ts` ส่วนคัดลอกลิงก์แยกเป็น `e2e/copy-link.spec.ts` ใช้ clipboard stub ทั้งสอง project (WebKit ให้ permission ไม่ได้) (D44)
 - engine ทดสอบด้วย unit test เท่านั้น ส่ง `now` และ `seed` เข้าไป ไม่ใช้ timer จริง
 - e2e ฟังเสียงไม่ได้ ทดสอบแค่ว่าไม่มี error ใน console การได้ยินเสียงบน iPhone ตรวจด้วยมือ
 
@@ -285,7 +293,6 @@ engine ถือกติกาทั้งหมด ส่วน UI พิส�
 - ผูกหลายปุ่มต่อ Answer (D32)
 - ผูก `Tab` `Esc` `Space` ลูกศร หรือ F-key (D33)
 - ป้ายตาม layout คีย์บอร์ดจริงของเครื่อง (D38)
-- ปุ่ม copy link — แชร์ด้วย URL ในแถบที่อยู่ของเบราว์เซอร์ (D34)
 
 ## Open Questions
 

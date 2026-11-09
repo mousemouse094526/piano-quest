@@ -41,9 +41,10 @@ test('a miss shakes the missed Prompt beside the new one and marks the button wi
   // D44: the miss reads as the old Prompt's; the new Prompt looks as any other.
   const missed = page.getByTestId('missed-prompt');
   await expect(missed).toHaveText(label);
-  await expect(missed).toHaveCSS('animation-name', /^miss/);
+  await expect(missed).toHaveCSS('animation-name', 'miss, miss-fade');
   await expect(page.getByTestId('prompt')).toHaveCSS('animation-name', 'none');
   await expect(answerButton(page, wrong).getByTestId('miss-mark')).toBeVisible();
+  await expect(missed).toBeInViewport({ ratio: 1 });
   // It fades out, so a long look at the new Prompt shows no red beside it.
   await expect(missed).toHaveCSS('opacity', '0');
 });
@@ -252,7 +253,7 @@ test('mixed: a key from the other set says which keys answer, no miss', async ({
   await expect(hint).toHaveCount(0);
 });
 
-test('focus in the settings → the bottom bar says Esc goes back to the game', async ({
+test('focus in the Mode bar → the bottom bar says Esc goes back to the game', async ({
   page,
   isMobile,
 }) => {
@@ -305,19 +306,27 @@ for (const { right, wrong, accuracy } of [
   test(`Results ${right} right, ${wrong} wrong count up with numbers that agree on every frame`, async ({
     page,
   }) => {
-    // A fake clock steps the count-up frame by frame; between steps the screen holds still,
-    // so each frame is read once rather than through a retrying assertion.
+    // A fake clock steps the count-up frame by frame. React commits a frame on its own
+    // schedule, which the fake clock does not hold, so each frame is read in one go.
     await page.clock.install();
     await page.goto('#/?mode=zen');
     for (let i = 0; i < right + wrong; i++) await answer(page, i >= wrong);
     await page.keyboard.press('Escape');
     await expect(resultsHeading(page)).toBeVisible();
-    const read = async () => {
-      const [r, w, a] = await Promise.all(
-        ['ถูก', 'ผิด', 'ความแม่น'].map((label) => stat(page, label).textContent()),
-      );
-      return { right: Number(r), wrong: Number(w), accuracy: a };
-    };
+    const stats = page.locator('dl');
+    const read = () =>
+      stats.evaluate((dl) => {
+        const value = (label: string) =>
+          [...dl.querySelectorAll('div')]
+            .find((d) => d.querySelector('dt')?.textContent === label)
+            ?.querySelector('dd')?.textContent;
+        return {
+          right: Number(value('ถูก')),
+          wrong: Number(value('ผิด')),
+          accuracy: value('ความแม่น'),
+        };
+      });
+    // A little past the 600 ms count-up, so the last step lands on the final numbers.
     for (let t = 0; t < 700; t += 50) {
       const shown = await read();
       const answered = shown.right + shown.wrong;

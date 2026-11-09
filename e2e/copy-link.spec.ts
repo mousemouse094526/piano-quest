@@ -1,5 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
-import { answer } from './quiz';
+import { answer, watchErrors } from './quiz';
+
+type ClipboardSpy = { copied: string | null };
 
 // F12, D44: the copy-link button in the Mode bar hands a teacher the URL with every
 // setting (D16). The clipboard is a stub, so the test reads what was copied on both
@@ -7,7 +9,7 @@ import { answer } from './quiz';
 
 async function stubClipboard(page: Page, works = true) {
   await page.addInitScript((works) => {
-    const w = window as unknown as { copied: string | null };
+    const w = window as unknown as ClipboardSpy;
     w.copied = null;
     Object.defineProperty(navigator, 'clipboard', {
       value: {
@@ -18,7 +20,7 @@ async function stubClipboard(page: Page, works = true) {
       },
     });
   }, works);
-  return () => page.evaluate(() => (window as unknown as { copied: string | null }).copied);
+  return () => page.evaluate(() => (window as unknown as ClipboardSpy).copied);
 }
 
 test('count 10 ไทย โด→C → copy the link, open it, the same settings', async ({ page, context }) => {
@@ -46,8 +48,20 @@ test('count 10 ไทย โด→C → copy the link, open it, the same setting
 
 test('a clipboard that refuses → says the copy failed, no error', async ({ page }) => {
   await stubClipboard(page, false);
-  const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
+  const errors = watchErrors(page);
+  await page.goto('#/?mode=count&len=10');
+  await page.getByRole('button', { name: 'คัดลอกลิงก์' }).click();
+  await expect(page.getByRole('status').filter({ hasText: 'คัดลอกไม่ได้' })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('no clipboard at all (not a secure page) → says the copy failed, no error', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(navigator, 'clipboard', { value: undefined }),
+  );
+  const errors = watchErrors(page);
   await page.goto('#/?mode=count&len=10');
   await page.getByRole('button', { name: 'คัดลอกลิงก์' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'คัดลอกไม่ได้' })).toBeVisible();

@@ -17,7 +17,7 @@ _Avoid_: Game, session, test
 _Avoid_: Level, difficulty
 
 **Mode bar**:
-แถบตั้งค่าด้านบนหน้าจอ ใช้เลือก Mode ความยาว Direction Script เสียง และเปิด Dialog ตั้ง Keymap
+แถบตั้งค่าด้านบนหน้าจอ ใช้เลือก Mode ความยาว Direction Script เสียง และเปิด Dialog ตั้ง Keymap ; บนจอผู้เล่นเห็นคำว่า "การตั้งค่า" (D44) ส่วนโค้ดและเอกสารใช้ Mode bar
 _Avoid_: Settings, toolbar, menu
 
 **Direction**:

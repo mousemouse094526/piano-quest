@@ -56,9 +56,14 @@ export function useRound(
   const [keySetHint, setKeySetHint] = useState(NO_KEY_SET_HINT);
   const [lastAnswer, setLastAnswer] = useState<LastAnswer | null>(null);
 
+  /** `flashes` keeps counting, so the next hint is a new React key and replays its flash. */
+  function hideKeySetHint() {
+    setKeySetHint((h) => ({ ...h, shown: false }));
+  }
+
   function restart() {
     setLastAnswer(null);
-    setKeySetHint((h) => ({ ...h, shown: false }));
+    hideKeySetHint();
     dispatch({ type: 'start', settings: state.settings, seed: newSeed() });
   }
 
@@ -80,8 +85,9 @@ export function useRound(
     setNow(t);
     dispatch(event);
     const outcome = answerOutcome(state, next);
+    // A press from the other Key set is `ignored` (D20), so its hint stays up.
     if (outcome === 'ignored') return;
-    setKeySetHint((h) => ({ ...h, shown: false }));
+    hideKeySetHint();
     setLastAnswer({
       note: choice.note,
       prompt: state.current,

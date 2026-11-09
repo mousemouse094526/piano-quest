@@ -23,6 +23,7 @@ question; the full entry is in the feature's decisions.md.
 | Mode bar เป็น `ToggleGroup` เห็นทุกค่า ไม่มี popover ปุ่มเกมไม่รับ focus | [note-name-quiz](features/note-name-quiz/decisions.md) | D26 | — | — | changed by D35 |
 | สีเน้นเขียวมิ้นต์ของเราเอง (`--brand`) และ animation ตอบ เลื่อน Prompt นับผล เวลาใกล้หมด | [note-name-quiz](features/note-name-quiz/decisions.md) | D31 | — | [0006](adr/0006-own-content-only.md) | changed by D44 |
 | แก้ตาม user trial 2026-11-09: วิธีเล่นก่อนข้อแรก ข้อที่ตอบผิดค้างสีแดง ข้อความกดผิดชุด คำใบ้ `Esc` ซ่อนคำใบ้คีย์บอร์ดบนจอสัมผัส ป้าย Direction ตาม Script ปุ่มคัดลอกลิงก์ ตัวเลข Results นับขึ้นพร้อมกัน | [note-name-quiz](features/note-name-quiz/decisions.md) | D44 | — | — | active |
+| ปุ่มคัดลอกลิงก์: ไม่มี clipboard → "คัดลอกไม่ได้" ; กดซ้ำนับ 2 วินาทีใหม่ | [note-name-quiz](features/note-name-quiz/decisions.md) | D45 | — | — | active |
 | ตั้งปุ่มลัดใน Dialog จากปุ่ม `Keyboard` ท้าย Mode bar ปุ่มเกมไม่ทำงานขณะเปิด ปิดแล้ว focus กลับเกม | [note-name-quiz](features/note-name-quiz/decisions.md) | D35 | — | — | active |
 | ป้ายปุ่มลัดตามแป้น US QWERTY ตายตัว | [note-name-quiz](features/note-name-quiz/decisions.md) | D38 | — | [0007](adr/0007-key-labels-are-bookmark-format.md) | active |
 | ปุ่มตั้งปุ่มลัดและป้ายปุ่มแสดงทุกจอ ไม่ตรวจว่ามีคีย์บอร์ด | [note-name-quiz](features/note-name-quiz/decisions.md) | D39 | — | — | changed by D44 |

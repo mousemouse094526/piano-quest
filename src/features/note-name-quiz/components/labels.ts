@@ -31,12 +31,15 @@ export const MODE_LABELS: Record<Mode, string> = {
   zen: 'zen',
 };
 
+/** C, the solfège Do: the note Direction names are written with. */
+const DO: Note = 1;
+
 /**
  * Direction names read in the chosen Script, e.g. `โด→C` or `Do→C` (D44). Script names only
  * the solfège; the rest of the screen stays Thai, `สลับ` too.
  */
 export function directionLabel(dir: Direction, script: Script): string {
-  const doName = NOTES[1][script]; // note 1 is C, the solfège Do
+  const doName = NOTES[DO][script];
   const labels: Record<Direction, string> = {
     'solfege-to-letter': `${doName}→C`,
     'letter-to-solfege': `C→${doName}`,
@@ -77,5 +80,6 @@ const MODE_HOW_TO: Record<Mode, string> = {
 /** D44: how a Round of this Mode ends, e.g. `ตอบให้ครบทุกข้อ เร็วที่สุด (25 ข้อ)`. */
 export function modeHowTo(settings: Settings): string {
   const howTo = MODE_HOW_TO[settings.mode];
-  return hasLength(settings) ? `${howTo} (${settings.len} ${LENGTH_UNITS[settings.mode]})` : howTo;
+  const length = lengthLabel(settings);
+  return length ? `${howTo} (${length})` : howTo;
 }

@@ -143,15 +143,12 @@
     }
     15% {
       transform: translateX(-10px);
-      color: var(--destructive);
     }
     35% {
       transform: translateX(10px);
-      color: var(--destructive);
     }
     55% {
       transform: translateX(-6px);
-      color: var(--destructive);
     }
     75% {
       transform: translateX(6px);
