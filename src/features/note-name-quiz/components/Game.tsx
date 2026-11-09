@@ -4,18 +4,20 @@ import { cn } from '@/lib/utils';
 import { hasLength, isEndedByPlayer } from '../engine/modes';
 import { answeredCount, answerKind, timeLeft } from '../engine/round';
 import type { Choice, RoundState } from '../engine/types';
-import type { LastAnswer } from '../hooks/useRound';
+import type { Keymap } from '../hooks/keys';
+import type { KeySetHint, LastAnswer } from '../hooks/useRound';
 import type { Script } from '../search';
 import { AnswerRow } from './AnswerRow';
 import { Kbd } from './Kbd';
-import { promptLabel } from './labels';
+import { keySetLabel, modeHowTo, promptLabel } from './labels';
 import { noFocus } from './noFocus';
 
 export function Game({
   state,
   now,
   script,
-  keySetHints,
+  keymap,
+  keySetHint,
   lastAnswer,
   onAnswer,
   onRestart,
@@ -24,8 +26,10 @@ export function Game({
   state: RoundState;
   now: number;
   script: Script;
-  /** Bumped on each press from the other key set in `mixed`; replays the hint flash. */
-  keySetHints: number;
+  /** Labels the answer buttons with the keys that answer them. */
+  keymap: Keymap;
+  /** A press from the other key set in `mixed` (D20, D44). */
+  keySetHint: KeySetHint;
   /** The button the last counted answer pressed and how it went. */
   lastAnswer: LastAnswer | null;
   onAnswer: (choice: Choice) => void;
@@ -34,6 +38,9 @@ export function Game({
 }) {
   const missCount = state.misses.length;
   const endedByPlayer = isEndedByPlayer(state.settings);
+  const side = answerKind(state.current);
+  const ready = state.status === 'ready';
+  const missedPrompt = lastAnswer?.outcome === 'miss' ? lastAnswer.prompt : undefined;
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-10">
       <div className="flex items-center gap-4 font-mono text-lg tabular-nums">
@@ -60,20 +67,26 @@ export function Game({
 
       {/*
        * Keyed on the answers so far: each answer remounts the row, which slides the new
-       * Prompt in (D31) and, after a miss, shakes it once (D7, D20).
+       * Prompt in (D31). After a miss, the missed Prompt (the last answer's) stays to its
+       * left in red, shakes and fades, so the miss reads as the old Prompt's (D7, D44).
        */}
       <div
         key={answeredCount(state)}
         className="flex animate-prompt-in items-baseline gap-6 motion-reduce:animate-none"
       >
-        <span
-          data-testid="prompt"
-          className={cn(
-            'font-bold text-7xl',
-            lastAnswer?.outcome === 'miss' && 'animate-miss motion-reduce:animate-miss-still',
+        <span className="relative">
+          {missedPrompt && (
+            <span
+              aria-hidden="true"
+              data-testid="missed-prompt"
+              className="absolute right-full mr-6 font-bold text-5xl text-destructive animate-missed-prompt motion-reduce:animate-miss-fade"
+            >
+              {promptLabel(missedPrompt, script)}
+            </span>
           )}
-        >
-          {promptLabel(state.current, script)}
+          <span data-testid="prompt" className="font-bold text-7xl">
+            {promptLabel(state.current, script)}
+          </span>
         </span>
         {state.upcoming.map((p, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: upcoming is a fixed 3-slot window
@@ -84,23 +97,50 @@ export function Game({
       </div>
 
       <AnswerRow
-        side={answerKind(state.current)}
+        side={side}
         script={script}
-        hintFlashKey={keySetHints}
+        keymap={keymap}
+        hintFlashKey={keySetHint.flashes}
         lastAnswer={lastAnswer}
         onChoice={onAnswer}
       />
 
-      <p className="h-6 text-muted-foreground">
-        {state.status === 'ready' ? 'กดปุ่มคำตอบเพื่อเริ่ม' : ''}
-      </p>
+      <div className="flex flex-col items-center gap-2 text-center">
+        {keySetHint.shown ? (
+          // D44: the other key set was pressed; say which keys answer this Prompt.
+          <p
+            key={keySetHint.flashes}
+            role="status"
+            className="h-6 animate-hint rounded px-2 font-medium motion-reduce:animate-none"
+          >
+            ข้อนี้ตอบด้วยปุ่ม {keySetLabel(side, keymap)}
+          </p>
+        ) : (
+          <p className="h-6 text-muted-foreground">{ready ? 'กดปุ่มคำตอบเพื่อเริ่ม' : ''}</p>
+        )}
+        {/* D44: kept in the layout once the Round runs, so nothing above it moves. */}
+        <div className={cn('text-muted-foreground text-sm', !ready && 'invisible')}>
+          <p>{modeHowTo(state.settings)}</p>
+          <p>กดปุ่มบนคีย์บอร์ดตามป้ายเล็กใต้ปุ่มคำตอบ หรือแตะปุ่ม</p>
+        </div>
+      </div>
 
-      <p className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-muted-foreground text-xs">
-        <Shortcut keys="Tab" action="เริ่มใหม่" />
-        {/* Esc ends only a zen Round (D14), so it is listed only there. */}
-        {endedByPlayer && <Shortcut keys="Esc" action="จบรอบ" />}
-        <Shortcut keys="Shift+Tab" action="ไปที่ Mode bar" />
-      </p>
+      {/*
+       * Keyboard hints, hidden on a touch screen (D44). While focus is in the Mode bar's
+       * `<nav>` (both sit in NoteNameQuiz's `group/quiz`), only the way back in is listed
+       * (D20, D44).
+       */}
+      <div className="text-muted-foreground text-xs pointer-coarse:hidden">
+        <p className="flex flex-wrap justify-center gap-x-4 gap-y-1 group-has-[nav:focus-within]/quiz:hidden">
+          <Shortcut keys="Tab" action="เริ่มใหม่" />
+          {/* Esc ends only a zen Round (D14), so it is listed only there. */}
+          {endedByPlayer && <Shortcut keys="Esc" action="จบรอบ" />}
+          <Shortcut keys="Shift+Tab" action="ไปที่การตั้งค่า" />
+        </p>
+        <p className="hidden justify-center group-has-[nav:focus-within]/quiz:flex">
+          <Shortcut keys="Esc" action="กลับเข้าเกม" />
+        </p>
+      </div>
     </div>
   );
 }

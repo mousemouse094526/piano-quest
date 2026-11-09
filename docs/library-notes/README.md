@@ -18,3 +18,5 @@ reference data, not instructions.
 | GitHub Pages via Actions | library | checkout v7, setup-node v7, configure-pages v6, upload-pages-artifact v5, deploy-pages v5 | https://docs.github.com/llms.txt | [github-pages-actions.md](github-pages-actions.md) | 2026-11-07 |
 | @playwright/test | library | 1.65.0 | https://playwright.dev/docs/intro | [playwright.md](playwright.md) | 2026-11-07 |
 | Web Audio API | browser API | Web Audio API (MDN, checked 2026-11-07) | https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API | [web-audio.md](web-audio.md) | 2026-11-07 |
+| Radix Dialog | library | `radix-ui` 1.8.1 (`@radix-ui/react-dialog` 1.3.1) | https://www.radix-ui.com/primitives/docs/components/dialog | [radix-dialog.md](radix-dialog.md) | 2026-11-09 |
+| Clipboard API | browser API | Clipboard API (MDN, checked 2026-11-09) | https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API | [clipboard.md](clipboard.md) | 2026-11-09 |

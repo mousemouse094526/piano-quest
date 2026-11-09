@@ -1,9 +1,12 @@
 import { describe, expect, test } from 'vitest';
+import { DEFAULT_KEYMAP } from './hooks/keys';
 import {
   DEFAULT_SEARCH,
+  keymapOf,
   parseQuizSearch,
   settingsOf,
   withDirection,
+  withKeymap,
   withLength,
   withMode,
   withScript,
@@ -17,13 +20,22 @@ describe('parseQuizSearch', () => {
       dir: 'solfege-to-letter',
       script: 'th',
       sound: 'off',
+      'letter-keys': 'CDEFGAB',
+      'solfege-keys': '1234567',
     });
   });
 
   test('valid params are kept', () => {
-    expect(
-      parseQuizSearch({ mode: 'count', len: 10, dir: 'mixed', script: 'en', sound: 'on' }),
-    ).toEqual({ mode: 'count', len: 10, dir: 'mixed', script: 'en', sound: 'on' });
+    const valid = {
+      mode: 'count',
+      len: 10,
+      dir: 'mixed',
+      script: 'en',
+      sound: 'on',
+      'letter-keys': 'ASDFGHJ',
+      'solfege-keys': 'QWERTYU',
+    } as const;
+    expect(parseQuizSearch(valid)).toEqual(valid);
   });
 
   test('len given as a string still counts', () => {
@@ -58,7 +70,62 @@ describe('parseQuizSearch', () => {
       dir: 'solfege-to-letter',
       script: 'th',
       sound: 'off',
+      'letter-keys': 'CDEFGAB',
+      'solfege-keys': '1234567',
     });
+  });
+});
+
+describe('Keymap params (D34)', () => {
+  /** `[letter-keys, solfege-keys]` after parsing. */
+  const keys = (letter: unknown, solfege?: unknown) => {
+    const search = parseQuizSearch({ 'letter-keys': letter, 'solfege-keys': solfege });
+    return [search['letter-keys'], search['solfege-keys']];
+  };
+
+  test('missing → defaults', () => {
+    expect(keys(undefined)).toEqual(['CDEFGAB', '1234567']);
+  });
+
+  test('lower case reads as upper case', () => {
+    expect(keys('asdfghj')).toEqual(['ASDFGHJ', '1234567']);
+  });
+
+  test('a number, as the router reads `1234567` typed without quotes', () => {
+    expect(keys('ASDFGHJ', 7654321)).toEqual(['ASDFGHJ', '7654321']);
+  });
+
+  test('wrong length, a key outside the table, or a repeat → that param’s default', () => {
+    expect(keys('ASDFGH')).toEqual(['CDEFGAB', '1234567']);
+    expect(keys('ASDFGHJK')).toEqual(['CDEFGAB', '1234567']);
+    expect(keys('ASDFGH ', 'QWRTYUI')).toEqual(['CDEFGAB', 'QWRTYUI']);
+    expect(keys('ASDFGHJ', '1123456')).toEqual(['ASDFGHJ', '1234567']);
+  });
+
+  test('a key in both sets → both defaults', () => {
+    expect(keys('ASDFGHJ', 'A234567')).toEqual(['CDEFGAB', '1234567']);
+  });
+
+  test('a clash that appears only after a fallback → both defaults', () => {
+    // AAAAAAA falls back to CDEFGAB, whose C, D, F, G and A clash with ASDFGHJ.
+    expect(keys('AAAAAAA', 'ASDFGHJ')).toEqual(['CDEFGAB', '1234567']);
+  });
+
+  test('values JSON changed on the way in → defaults', () => {
+    expect(keys('ASDFGHJ', 1234.5)).toEqual(['ASDFGHJ', '1234567']);
+    expect(keys('ASDFGHJ', Number.POSITIVE_INFINITY)).toEqual(['ASDFGHJ', '1234567']);
+    expect(keys('ASDFGHJ', [12345])).toEqual(['ASDFGHJ', '1234567']);
+    // An array whose text would be 7 valid digits is still not a key set.
+    expect(keys('ASDFGHJ', [1234567])).toEqual(['ASDFGHJ', '1234567']);
+  });
+
+  test('keymapOf turns the params into key codes', () => {
+    const search = parseQuizSearch({ 'letter-keys': 'ASDFGHJ' });
+    expect(keymapOf(search)).toEqual({
+      letter: { 1: 'KeyA', 2: 'KeyS', 3: 'KeyD', 4: 'KeyF', 5: 'KeyG', 6: 'KeyH', 7: 'KeyJ' },
+      solfege: DEFAULT_KEYMAP.solfege,
+    });
+    expect(keymapOf(DEFAULT_SEARCH)).toEqual(DEFAULT_KEYMAP);
   });
 });
 
@@ -71,7 +138,14 @@ describe('withMode', () => {
 
   test('zen drops len and keeps the rest', () => {
     const next = withMode({ ...DEFAULT_SEARCH, script: 'en', sound: 'on' }, 'zen');
-    expect(next).toEqual({ mode: 'zen', dir: 'solfege-to-letter', script: 'en', sound: 'on' });
+    expect(next).toEqual({
+      mode: 'zen',
+      dir: 'solfege-to-letter',
+      script: 'en',
+      sound: 'on',
+      'letter-keys': 'CDEFGAB',
+      'solfege-keys': '1234567',
+    });
   });
 });
 
@@ -85,7 +159,8 @@ describe('withLength', () => {
 
 describe('settingsOf', () => {
   test('keeps only what the engine needs', () => {
-    expect(settingsOf({ ...DEFAULT_SEARCH, script: 'en', sound: 'on' })).toEqual({
+    const search = parseQuizSearch({ script: 'en', sound: 'on', 'letter-keys': 'ASDFGHJ' });
+    expect(settingsOf(search)).toEqual({
       mode: 'time',
       len: 30,
       dir: 'solfege-to-letter',
@@ -102,5 +177,32 @@ describe('withDirection and withScript', () => {
     const count50 = withLength(withMode(DEFAULT_SEARCH, 'count'), 50);
     expect(withDirection(count50, 'mixed')).toEqual({ ...count50, dir: 'mixed' });
     expect(withScript(count50, 'en')).toEqual({ ...count50, script: 'en' });
+  });
+});
+
+describe('withKeymap', () => {
+  test('writes both key sets as labels and keeps the rest', () => {
+    const next = withKeymap(
+      { ...DEFAULT_SEARCH, mode: 'count', len: 50, sound: 'on' },
+      {
+        letter: { 1: 'KeyA', 2: 'KeyS', 3: 'KeyD', 4: 'KeyF', 5: 'KeyG', 6: 'KeyH', 7: 'KeyJ' },
+        solfege: DEFAULT_KEYMAP.solfege,
+      },
+    );
+    expect(next).toEqual({
+      ...DEFAULT_SEARCH,
+      mode: 'count',
+      len: 50,
+      sound: 'on',
+      'letter-keys': 'ASDFGHJ',
+      'solfege-keys': '1234567',
+    });
+  });
+
+  test('the default Keymap → the default labels (คืนค่าเริ่มต้น)', () => {
+    const custom = { ...DEFAULT_SEARCH, 'letter-keys': 'QWERTYU', 'solfege-keys': '7654321' };
+    const next = withKeymap(custom, DEFAULT_KEYMAP);
+    expect(next['letter-keys']).toBe('CDEFGAB');
+    expect(next['solfege-keys']).toBe('1234567');
   });
 });
