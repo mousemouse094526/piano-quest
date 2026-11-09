@@ -1,8 +1,7 @@
 import { Check, Link } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-
-const SHOWN_MS = 2000;
+import { browserShareDeps, COPIED_SHOWN_MS, copyText } from '../hooks/shareOrCopy';
 
 type CopyStatus = 'idle' | 'copied' | 'failed';
 
@@ -18,21 +17,14 @@ export function CopyLinkButton() {
 
   useEffect(() => {
     if (shown.status === 'idle') return;
-    const id = window.setTimeout(() => setShown({ status: 'idle' }), SHOWN_MS);
+    const id = window.setTimeout(() => setShown({ status: 'idle' }), COPIED_SHOWN_MS);
     return () => window.clearTimeout(id);
   }, [shown]);
 
-  function copy() {
-    // Missing outside a secure context (http, some in-app browsers).
-    if (!navigator.clipboard) {
-      setShown({ status: 'failed' });
-      return;
-    }
-    // Inside the click: Safari and Firefox allow writing only on a user gesture.
-    navigator.clipboard
-      .writeText(window.location.href)
-      .then(() => setShown({ status: 'copied' }))
-      .catch(() => setShown({ status: 'failed' }));
+  async function copy() {
+    // share-results D7: the same copier as the share button, never a share sheet. Inside the
+    // click: Safari and Firefox allow writing only on a user gesture.
+    setShown({ status: await copyText(window.location.href, browserShareDeps().writeText) });
   }
 
   return (

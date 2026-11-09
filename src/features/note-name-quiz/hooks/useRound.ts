@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useEffectEvent, useReducer, useState } from 'react';
 import { answeredCount, answerOutcome, needsKeySetHint, reduce, startRound } from '../engine/round';
-import type { AnswerOutcome, Choice, Note, Prompt, Settings } from '../engine/types';
+import type { AnswerOutcome, Choice, Note, Prompt, RoundState, Settings } from '../engine/types';
 import { choiceFromCode, isIgnoredKey, type Keymap } from './keys';
 
 const TICK_MS = 100;
@@ -40,6 +40,14 @@ export type KeySetHint = { shown: boolean; flashes: number };
 
 const NO_KEY_SET_HINT: KeySetHint = { shown: false, flashes: 0 };
 
+/** What the Round tells its caller about. */
+export type RoundHandlers = {
+  /** Fired after the engine counts a right answer, with the note answered (D5, D20). */
+  onCorrect: (note: Note) => void;
+  /** `S` on Results, as a press of "แชร์ผล" (share-results D7). */
+  onShare: (finished: RoundState) => void;
+};
+
 /**
  * Runs one Round: engine state, the clock, and the single `window` key listener.
  * Settings and Keymap are read once; the caller remounts with a `key` to change them.
@@ -48,8 +56,7 @@ export function useRound(
   settings: Settings,
   keymap: Keymap,
   { modeBar, gameArea, keymapOpen }: KeyRouting,
-  /** Fired after the engine counts a right answer, with the note answered (D5, D20). */
-  onCorrect: (note: Note) => void,
+  { onCorrect, onShare }: RoundHandlers,
 ) {
   const [state, dispatch] = useReducer(reduce, settings, (s) => startRound(s, newSeed()));
   const [now, setNow] = useState(() => performance.now());
@@ -117,6 +124,12 @@ export function useRound(
     }
     if (e.code === 'Escape') {
       end();
+      return;
+    }
+    if (e.code === 'KeyS' && state.status === 'finished') {
+      // share-results D7: Results buttons take no focus (ADR-0009), so `S` is the keyboard's way to share.
+      e.preventDefault();
+      onShare(state);
       return;
     }
     const choice = choiceFromCode(e.code, keymap);

@@ -16,17 +16,24 @@
 
 ## Testing
 
-- Firefox and Safari do not support the `clipboard-read` / `clipboard-write` permissions, so Playwright WebKit cannot read the clipboard back. Stub `navigator.clipboard` with `addInitScript` to read what was copied on every project — `e2e/copy-link.spec.ts`
+- Firefox and Safari do not support the `clipboard-read` / `clipboard-write` permissions, so Playwright WebKit cannot read the clipboard back. Stub `navigator.clipboard` with `addInitScript` to read what was copied on every project — `stubShare` in `e2e/quiz.ts`
 - Headless Chromium without `permissions: ['clipboard-read', 'clipboard-write']` may refuse the write. Checked by hand with the permissions: the real write gives the full `location.href`.
 
 ## Pattern
 
 ```tsx
-// src/features/note-name-quiz/components/CopyLinkButton.tsx (shape)
-navigator.clipboard
-  .writeText(window.location.href)
-  .then(() => setCopied('copied'))
-  .catch(() => setCopied('failed'));
+// src/features/note-name-quiz/hooks/shareOrCopy.ts (shape): the one copier; no clipboard fails.
+export async function copyText(text, writeText) {
+  if (!writeText) return 'failed';
+  try {
+    await writeText(text);
+    return 'copied';
+  } catch {
+    return 'failed';
+  }
+}
+// CopyLinkButton.tsx: inside the click
+setShown({ status: await copyText(window.location.href, browserShareDeps().writeText) });
 ```
 
 ## Sources
