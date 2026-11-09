@@ -1,12 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** change request D31 (สีเน้นเขียวมิ้นต์ + animation) เปิด [PR #2](https://github.com/mousemouse094526/piano-quest/pull/2) เข้า `develop` แล้ว ; ยังเหลือ Blocked #1 (ตรวจเสียงบน iPhone)
+**Now:** merged — [PR #2](https://github.com/mousemouse094526/piano-quest/pull/2) (D31 สีเน้น + animation) เข้า `develop` ที่ `4faf1a9` ; ยังเหลือ Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`)
 
-**Next:**
-
-```
-/warroom next
-```
+**Next:** —
 
 ## Tickets
 
