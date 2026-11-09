@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** merged — [PR #2](https://github.com/mousemouse094526/piano-quest/pull/2) (D31 สีเน้น + animation) เข้า `develop` ที่ `4faf1a9` ; ยังเหลือ Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`)
+**Now:** change request Keymap (D32–D39) วางแผนแล้ว ticket 04–05 รอ build ; Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`) ยังค้าง
 
-**Next:** —
+**Next:** `/warroom-build note-name-quiz 04`
 
 ## Tickets
 
@@ -11,6 +11,8 @@
 | 01 | Scaffold + engine + deploy | done |
 | 02 | Mode bar + URL + Results ครบ | done |
 | 03 | มือถือ + เสียง + e2e | done |
+| 04 | Keymap ใน URL + ป้ายบนปุ่มคำตอบ | ready |
+| 05 | Dialog ตั้งปุ่มลัด | ready |
 
 ## Log
 

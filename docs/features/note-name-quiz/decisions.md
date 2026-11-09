@@ -356,7 +356,7 @@
 - ป้ายปุ่มลัดกระพริบเฉพาะทิศสลับ (`needsKeySetHint` ใน engine) ทิศคงที่กดปุ่มนอกชุดแล้วไม่มีอะไรเกิด (D14)
 - แถบล่างแสดง `Esc` เฉพาะ `zen` ตาม spec › Design ("`Esc` จบ (`zen`)")
 
-**From:** build ticket 02 · **Status:** active
+**From:** build ticket 02 · **Status:** changed by D35
 
 ## D27: URL ของ Mode bar
 
@@ -444,6 +444,142 @@
 
 **From:** change request 2026-11-07 · **Status:** active
 
+## D32: Keymap มี 2 Key set ชุดละ 7 ปุ่ม
+
+**Chosen:** Player ผูกปุ่มเองได้ทีละ Answer: Key set letter (C–B) 7 ปุ่ม กับ Key set solfège (โด–ที) 7 ปุ่ม รวม 14 ปุ่มไม่ซ้ำกัน ; แต่ละ Answer ผูกได้ปุ่มเดียว ; `Numpad{n}` นับเป็นปุ่มเดียวกับ `Digit{n}` เสมอ ; ค่าเริ่มต้นคือปุ่มเดิมใน spec.md › Data
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — ทิศสลับต้องรู้ว่าผู้เล่นตั้งใจตอบฝั่งไหนจากชุดที่กด (D20) แยก 2 ชุดจึงไม่ต้องแก้ engine และ `Choice`
+
+**Rejected:**
+- ชุดเดียว 7 ปุ่มใช้ทั้งสองฝั่ง — ทิศสลับไม่มี "กดผิดชุด" อีก ต้อง supersede D20 และแก้ engine
+- หลายปุ่มต่อ Answer — URL ยาว และหน้าตั้งปุ่มซับซ้อนเกินที่ขอ
+
+**Details:**
+- ผู้ใช้ขอให้ตั้งได้ว่าปุ่มไหนตอบอะไร ไม่ใช่เล่นด้วยเมาส์อย่างเดียว
+- Numpad กับแถวเลขเป็นปุ่มเดียวกันเพราะพิมพ์ตัวเดียวกัน คนใช้ numpad ตอบได้โดยไม่ต้องตั้ง
+
+**From:** change request · **Status:** active
+
+## D33: ปุ่มที่ผูกได้ 47 ปุ่ม
+
+**Chosen:** ผูกได้เฉพาะ `KeyA`–`KeyZ` `Digit0`–`Digit9` (รวม `Numpad0`–`Numpad9` ตาม D32) และเครื่องหมาย 11 ปุ่ม `Semicolon` `Quote` `Comma` `Period` `Slash` `BracketLeft` `BracketRight` `Backslash` `Minus` `Equal` `Backquote` ; ปุ่มอื่นทั้งหมดผูกไม่ได้ รวม `Tab` `Escape` `Enter` `Space` ลูกศร F-key และ modifier
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — พอสำหรับวางมือบนแถวกลาง (`A S D F J K L ;`) และ `Tab` `Esc` เป็นของเกมอยู่แล้ว (D14)
+
+**Rejected:**
+- อักษรกับตัวเลขเท่านั้น — ผูก `;` ไม่ได้ ทั้งที่อยู่บนแถวกลาง
+- ทุกปุ่มยกเว้นที่จองไว้ — `Space` เลื่อนหน้า ลูกศรกับ F-key มีงานของเบราว์เซอร์ และต้องมีป้ายเพิ่มอีกมาก
+
+**From:** change request · **Status:** active
+
+## D34: Keymap อยู่ใน URL เป็น 2 param เขียนครบเสมอ
+
+**Chosen:** param `letter-keys` (Answer C ถึง B) และ `solfege-keys` (Answer โด ถึง ที) ค่าละ 7 ตัวอักษรติดกัน ตัวละหนึ่งปุ่มตามป้ายใน D38 เช่น `letter-keys=CDEFGAB&solfege-keys=1234567` ; เขียนครบทุกครั้งตาม D27 ; ค่าผิดหรือไม่มี → ค่าเริ่มต้นของ param นั้นตาม ADR-0002 ; สอง param ตรวจคู่กัน: หลังแต่ละตัว fallback แล้ว ถ้าคู่ที่ได้มีปุ่มซ้ำข้ามชุด → ทั้งสองเป็นค่าเริ่มต้น (กติกาข้าม param ข้อเดียวของแอป)
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — ตาม D27 จึงไม่ต้อง supersede ; รูปตัวอักษรติดกันสั้นและอ่านใน bookmark ได้ ตัวอย่างในคำถามใช้ `,` คั่น แต่ router เขียน `,` เป็น `%2C`
+
+**Rejected:**
+- เขียนเฉพาะตอนต่างจากค่าเริ่มต้น — ต้อง supersede D27 และมีโค้ดเทียบค่า
+- param เดียว 14 ตัว — ผิดตัวเดียว fallback ทั้งสองชุด
+- `,` คั่นแต่ละปุ่ม — router เขียนเป็น `C%2CD%2C…` ยาวและอ่านยาก
+
+**Details:**
+- router ของ TanStack ใส่ `"` รอบค่าที่อ่านเป็น JSON ได้ เช่น `solfege-keys=%221234567%22` แล้วอ่านกลับเป็น string เดิม (ทดลองกับ `@tanstack/router-core` 1.170.46 ในเครื่อง 2026-11-09)
+- พิมพ์ URL เองโดยไม่มี `"` → router อ่านค่าที่ขึ้นต้นด้วยตัวเลขหรือ `-` เป็น JSON ; `1234567` มาเป็น number แล้ว parser แปลงเป็น string ก่อนตรวจ
+- ค่าที่ JSON เปลี่ยนรูป เช่น `1234.50` `1e23456` `[12345]` → ผิด ใช้ค่าเริ่มต้น (พิมพ์เองเท่านั้น ลิงก์ที่แอปเขียนมี `"` เสมอ)
+- ตรวจซ้ำข้ามชุดหลัง fallback เช่น `letter-keys=AAAAAAA&solfege-keys=ASDFGHJ` → letter เป็นค่าเริ่มต้นแล้วชนกับ `ASDFGHJ` → ทั้งสองเป็นค่าเริ่มต้น (red team)
+- ตรวจแต่ละ param: ยาว 7 ตัว ทุกตัวอยู่ในตาราง D38 ไม่ซ้ำในชุด ; อักษรเล็กอ่านเป็นอักษรใหญ่
+- ทั้งสองเป็นค่าเริ่มต้นแม้ชุดหนึ่งถูกต้อง เช่น `letter-keys=1SDFGHJ` กับ `solfege-keys` ที่ผิด — URL แบบนี้เกิดจากพิมพ์เองเท่านั้น Dialog สร้างไม่ได้ (D36)
+- ชื่อและรูปค่าของ param เป็นสัญญากับ bookmark (ADR-0002)
+
+**From:** change request · **Status:** active
+
+## D35: ตั้งปุ่มใน Dialog ที่เปิดจาก Mode bar
+
+**Chosen:** ปุ่มไอคอน `Keyboard` ชื่อ "ปุ่มลัด" ท้าย Mode bar ข้างปุ่มเสียง เปิด shadcn `Dialog` ที่มี 2 คอลัมน์ (Key set letter กับ Key set solfège) แถวละ Answer หนึ่งตัวพร้อมปุ่มที่ผูกอยู่ ; กดปุ่มในแถว → แถวนั้นรอปุ่มใหม่ ("กดปุ่มที่ต้องการ…") ; ปุ่ม "คืนค่าเริ่มต้น" ; ทุกการเปลี่ยนแทนที่ URL ทันที
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — เห็นทั้ง 14 ปุ่มในที่เดียว และไม่ปนกับการตอบบนแถวปุ่มคำตอบ
+
+**Rejected:**
+- แก้บนปุ่มคำตอบตรงๆ — เห็นทีละชุดตามทิศ และแยกจากการตอบยาก
+- หน้า route แยก `/keys` — ต้องพา search params ไปกลับสองหน้า
+
+**Details:**
+- ขณะ Dialog เปิด listener ของเกมไม่ทำอะไรเลย ปุ่มที่กดไม่ตอบ ไม่เริ่มรอบ ไม่จบรอบ
+- กลไก: listener ของเกมเลิกทันทีเมื่อ `e.defaultPrevented` ทุกกรณี (รวม `Esc`) และเมื่อ ref "Dialog เปิด" ที่ตั้งแบบ synchronous ตอนเปิดและปิด เป็นจริง ; Dialog เรียก `preventDefault` กับทุกปุ่มที่มันจัดการ — Radix ปิด Dialog จาก listener ช่วง capture ก่อน listener ของ `window` ทำงาน state ของ React อ่านว่าปิดแล้ว `Esc` จึงจบรอบ `zen` ได้ (red team)
+- เนื้อหา Dialog หยุด `mousedown` ไม่ให้ bubble ไปถึง `onMouseDown` ของ `<nav>` (React bubble ผ่าน portal) ; รอปุ่มด้วย listener บนเนื้อหา Dialog ไม่ใช่บนแถว (red team)
+- ขณะรอปุ่ม: ปุ่มที่ผูกได้ (D33) → ผูก ; `Esc` → เลิกรอ Dialog ยังเปิด ; ปุ่มอื่น → ข้อความ "ใช้ปุ่มนี้ไม่ได้" แล้วรอต่อ ; `Tab` ย้าย focus ตามปกติและเลิกรอ ; `repeat` หรือกด modifier ค้าง → ไม่สนใจ (D20)
+- ไม่ได้รอปุ่ม: `Esc` ปิด Dialog ; ปิดแล้ว focus กลับไปพื้นที่เกม ตอบได้ทันที (แบบเดียวกับ D26)
+- เปลี่ยน D26: Mode bar เปิด Dialog หนึ่งตัวที่ใช้ `Esc` เอง เหตุผล "ไม่มี popover จึงไม่แย่ง `Esc`" ของ D26 ไม่จริงอีก กติกา `Esc` อยู่ในข้อถัดไปแทน
+- Dialog ใช้ focus และ `Tab` ตามปกติ ปุ่มในนั้นไม่ใช่ปุ่มเกม ข้อ "ปุ่มไม่รับ focus" ของ D26 ไม่ใช้กับ Dialog
+
+**From:** change request · **Status:** active
+
+## D36: กดปุ่มที่ Answer อื่นใช้อยู่ → สลับปุ่มกัน
+
+**Chosen:** ผูกปุ่มที่ Answer อื่นใช้อยู่ (ชุดไหนก็ได้) → สอง Answer แลกปุ่มกัน และ Dialog แสดงข้อความสั้น เช่น "สลับกับ เร" ; ผูกปุ่มเดิมของตัวเอง → ไม่มีอะไรเปลี่ยน
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — Keymap ครบ 14 ปุ่มไม่ซ้ำเสมอ ไม่มีสถานะที่ Answer ไม่มีปุ่ม
+
+**Rejected:**
+- ไม่รับแล้วแสดงข้อความ — สลับสองปุ่มต้องผ่านปุ่มที่สาม
+- ย้ายมาแล้ว Answer เดิมว่าง — ตอบ Answer นั้นด้วยคีย์บอร์ดไม่ได้จนกว่าจะตั้งใหม่
+
+**From:** change request · **Status:** active
+
+## D37: เปลี่ยน Keymap แล้วเริ่มรอบใหม่
+
+**Chosen:** เปลี่ยน `letter-keys` หรือ `solfege-keys` เริ่มรอบใหม่เหมือนค่า Mode bar อื่นทุกตัว (D14) มีแค่ `sound` ที่รอบเดิมเล่นต่อ (D20)
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — รอบ `time` ไม่เดินเวลาค้างระหว่างตั้งปุ่ม และกติกาเดียวกับค่าอื่น
+
+**Rejected:**
+- รอบเดิมเล่นต่อแบบ `sound` — เวลาที่ใช้ใน Dialog นับเข้ารอบ `time`
+
+**From:** change request · **Status:** extended by D40
+
+## D38: ป้ายปุ่มตามแป้น US QWERTY
+
+**Chosen:** ป้ายของแต่ละปุ่มมาจากตารางตายตัวตามแป้น US QWERTY: `KeyC` → `C` `Digit1` → `1` `Semicolon` → `;` `Quote` → `'` `Comma` → `,` `Period` → `.` `Slash` → `/` `BracketLeft` → `[` `BracketRight` → `]` `Backslash` → `\` `Minus` → `-` `Equal` → `=` `Backquote` → `` ` `` ; ใช้ทั้งบนปุ่มคำตอบ ใน Dialog และเป็นตัวอักษรใน URL (D34)
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — เหมือนกันทุกเบราว์เซอร์ และคีย์บอร์ดไทยพิมพ์อักษรอังกฤษไว้บนแป้นเดียวกัน
+
+**Rejected:**
+- ป้ายตาม layout จริงด้วย `navigator.keyboard.getLayoutMap()` — มีแค่ Chromium ส่วน Safari กับ Firefox ต้องมี fallback อยู่ดี
+
+**Sources:** [Keyboard.getLayoutMap()](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/getLayoutMap)
+
+**From:** change request · **Status:** active
+
+## D39: ปุ่มตั้งปุ่มลัดและป้ายปุ่มแสดงทุกจอ
+
+**Chosen:** ปุ่ม "ปุ่มลัด" ใน Mode bar และป้ายปุ่มบนปุ่มคำตอบแสดงทุกขนาดจอ ; มือถือที่ไม่มีคีย์บอร์ดแตะปุ่มคำตอบได้เหมือนเดิม (D6) ; Dialog มีบรรทัด "ต้องใช้คีย์บอร์ดจริง แตะปุ่มคำตอบได้เสมอ"
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — เว็บรู้ไม่ได้แน่ว่ามีคีย์บอร์ดต่ออยู่ (iPad หรือมือถือต่อ Bluetooth)
+
+**Rejected:**
+- ซ่อนเมื่อ `(hover: none) and (pointer: coarse)` — iPad ต่อคีย์บอร์ดตั้งปุ่มไม่ได้
+
+**Details:**
+- มือถือแตะแถวใน Dialog แล้วไม่มีปุ่มให้กด → แถวรอจนแตะแถวเดิมซ้ำ แตะแถวอื่น หรือปิด Dialog
+
+**From:** change request · **Status:** active
+
+## D40: เปิด Dialog ปุ่มลัดแล้วเริ่มรอบใหม่
+
+**Chosen:** กดปุ่ม "ปุ่มลัด" เปิด Dialog → รอบปัจจุบันทิ้ง เริ่มรอบใหม่ในสถานะ `ready` เวลายังไม่เดิน แม้ปิดโดยไม่เปลี่ยนอะไร
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — red team พบว่า D37 เริ่มรอบใหม่เฉพาะตอนเปลี่ยน รอบ `time` จึงเดินเวลาและจบหลัง Dialog ได้ ขัดกับเหตุผลของ D37 ; engine ไม่ต้องมี pause
+
+**Rejected:**
+- เวลาเดินต่อ — เปิดดูเฉยๆ แล้วปิดอาจเจอหน้า Results
+- หยุดเวลาชั่วคราว — ต้องเพิ่ม pause ใน engine และแก้กติกา `deadline` (D20)
+
+**Details:**
+- ขยาย D37 ; เปิดจากหน้า Results ก็กลับเป็นรอบใหม่เหมือนกด `Tab` (D14)
+
+**From:** red team · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)
@@ -456,3 +592,5 @@
 - [musictheory.net exercises](https://www.musictheory.net/exercises) — ลำดับแบบฝึกหัดฟรี (accessed 2026-11-07)
 - [Musicca note identification](https://www.musicca.com/note-identification) — แบบฝึกชื่อโน้ตฟรี (accessed 2026-11-07)
 - [Audio Session API](https://w3c.github.io/audio-session/) — `navigator.audioSession.type` (accessed 2026-11-07)
+- [Radix Dialog](https://www.radix-ui.com/primitives/docs/components/dialog) — `Esc` ปิด, `onEscapeKeyDown`, `onCloseAutoFocus` (accessed 2026-11-09)
+- [Keyboard.getLayoutMap()](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/getLayoutMap) — มีเฉพาะบางเบราว์เซอร์ (accessed 2026-11-09)

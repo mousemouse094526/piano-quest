@@ -16,6 +16,7 @@
 - เลือกแบบรอบได้ ทั้งจับเวลา ครบจำนวนข้อ หรือ `zen` (D2)
 - เลือกตัวอักษร solfège ไทยหรืออังกฤษ (D3)
 - ตอบด้วยคีย์บอร์ด หรือแตะปุ่มบนมือถือ (D6, D14)
+- ตั้งเองได้ว่าปุ่มไหนบนคีย์บอร์ดตอบ Answer ไหน และ Keymap อยู่ใน URL (D32, D34, D35)
 - ดูผลและเฉลยข้อที่ผิดตอนจบรอบ (D7, D15)
 - เปิดเสียงโน้ตเมื่อตอบถูกได้ (D5)
 
@@ -30,6 +31,9 @@
 6. As a Player, I want to hear the note when I answer right, so that I link the name to the sound (D5)
 7. As a Player, I want to restart instantly with `Tab`, so that I can play again and again (D14)
 8. As a Player, I want my Mode bar settings kept in the URL, so that a bookmark opens my usual mode (D16)
+9. As a Player with a keyboard, I want to choose which key answers each note, so that I play with the keys my hands like (D32, D33, D35, D36)
+10. As a Player, I want each answer button to show the key bound to it, so that I know what to press without opening the settings (D38, D39)
+11. As a Player, I want my Keymap kept in the URL, so that a bookmark or a shared link plays with the same keys (D34)
 
 ## Design
 
@@ -37,8 +41,9 @@
 
 | Screen | User stories | Must show | Source |
 |---|---|---|---|
-| Game | 1, 2, 3, 5, 6, 7, 8 | Mode bar ด้านบน: Mode `time` `count` `zen` กับความยาวของ Mode ที่เลือก (D2), Direction โด→C C→โด สลับ (D2), Script ไทย อังกฤษ (D3), ปุ่มเสียงไอคอน `Volume2` `VolumeX` (D5); กลางจอ: Prompt ปัจจุบันตัวใหญ่ อีก 3 ข้อถัดไปจางๆ (D14, D20); ตัวนับเวลาที่เหลือ (`time`) หรือข้อที่ตอบ เช่น `7/25` (`count`) หรือจำนวนที่ตอบ (`zen`) พร้อมตัวนับผิดเล็กๆ (D20); แถวปุ่มตอบ 7 ปุ่มใต้ Prompt ป้ายเปลี่ยนตาม Direction ของข้อนั้น มีปุ่มลัดเล็กกำกับ (`C` หรือ `1`) (D6); ตอบผิด: Prompt สั่นและกระพริบแดง ปุ่มที่กดขึ้น `X` ชั่วครู่ ไม่บอกเฉลย (D7, D20); ทิศสลับแล้วกดปุ่มผิดชุด: แถวปุ่มกระพริบป้ายปุ่มลัด (D20); ปุ่มเริ่มใหม่ไอคอน `RotateCcw` (D14); ปุ่มจบ ใน `zen` เท่านั้น (D14); ก่อนตอบข้อแรก: ข้อความ "กดปุ่มคำตอบเพื่อเริ่ม" (D14); แถบล่าง: `Tab` เริ่มใหม่, `Esc` จบ (`zen`), `Shift+Tab` ไปที่ Mode bar (D20) | existing components |
+| Game | 1, 2, 3, 5, 6, 7, 8, 10 | Mode bar ด้านบน: Mode `time` `count` `zen` กับความยาวของ Mode ที่เลือก (D2), Direction โด→C C→โด สลับ (D2), Script ไทย อังกฤษ (D3), ปุ่มเสียงไอคอน `Volume2` `VolumeX` (D5), ปุ่มไอคอน `Keyboard` "ปุ่มลัด" ข้างปุ่มเสียง (D35, D39); กลางจอ: Prompt ปัจจุบันตัวใหญ่ อีก 3 ข้อถัดไปจางๆ (D14, D20); ตัวนับเวลาที่เหลือ (`time`) หรือข้อที่ตอบ เช่น `7/25` (`count`) หรือจำนวนที่ตอบ (`zen`) พร้อมตัวนับผิดเล็กๆ (D20); แถวปุ่มตอบ 7 ปุ่มใต้ Prompt ป้ายเปลี่ยนตาม Direction ของข้อนั้น มีป้ายปุ่มที่ผูกอยู่ใน Keymap เล็กกำกับ (`C` หรือ `1` ตอนเป็นค่าเริ่มต้น) (D6, D38); ตอบผิด: Prompt สั่นและกระพริบแดง ปุ่มที่กดขึ้น `X` ชั่วครู่ ไม่บอกเฉลย (D7, D20); ทิศสลับแล้วกดปุ่มผิดชุด: แถวปุ่มกระพริบป้ายปุ่มลัด (D20); ปุ่มเริ่มใหม่ไอคอน `RotateCcw` (D14); ปุ่มจบ ใน `zen` เท่านั้น (D14); ก่อนตอบข้อแรก: ข้อความ "กดปุ่มคำตอบเพื่อเริ่ม" (D14); แถบล่าง: `Tab` เริ่มใหม่, `Esc` จบ (`zen`), `Shift+Tab` ไปที่ Mode bar (D20) | existing components |
 | Results | 4, 7 | ถูก ผิด ความแม่น % โน้ตต่อนาที เวลาเฉลี่ยต่อข้อ หรือ `—` เมื่อตอบไม่ถึง 2 ข้อหรือเวลาที่ใช้เป็น 0 (D15, D20, D25); Mode Direction Script ที่เล่น; รายการข้อที่ผิด: Prompt สิ่งที่ตอบ คำตอบที่ถูก (D7); ไม่ผิดเลย → ข้อความ "ไม่ผิดสักข้อ"; ปุ่มเล่นอีกรอบไอคอน `RotateCcw` และ `Tab` (D14) | existing components |
+| Keymap dialog | 9, 11 | หัวเรื่อง "ปุ่มลัด" ; 2 คอลัมน์ Key set letter (C–B) กับ Key set solfège (ชื่อตาม Script ที่เลือก) แถวละ Answer หนึ่งตัวกับปุ่มที่ผูกอยู่ (D35, D38) ; แถวที่รอปุ่ม: "กดปุ่มที่ต้องการ…" (D35) ; ปุ่มที่ผูกไม่ได้: "ใช้ปุ่มนี้ไม่ได้" (D33, D35) ; สลับ: "สลับกับ {Answer}" (D36) ; ปุ่ม "คืนค่าเริ่มต้น" (D35) ; บรรทัด "ต้องใช้คีย์บอร์ดจริง แตะปุ่มคำตอบได้เสมอ" (D39) ; ปุ่มปิด | existing components |
 
 ## Expected Outcome
 
@@ -48,12 +53,15 @@
 - **ตอบผิด:** โจทย์ "เร" กด `E` → สั่น กระพริบแดง ตัวนับผิดเพิ่ม ไปข้อต่อไป Results แสดง "เร — ตอบ E — ถูก D"
 - **มือถือ:** แตะปุ่ม `G` บนจอ → เหมือนกด `G`
 - **คีย์บอร์ดภาษาไทย:** ปุ่มเดียวกับ `G` บนคีย์บอร์ดตอบเป็น `G` ได้ (D14)
+- **ตั้งปุ่มเอง:** เปิด "ปุ่มลัด" แตะแถว C กด `A` → แถว A กลายเป็น `C` (สลับ D36) ปุ่มคำตอบ C ขึ้นป้าย `A` URL มี `letter-keys=ADEFGCB` รอบเริ่มใหม่ ; bookmark แล้วเปิดใหม่ → ยังเป็น `A` (D34, D37)
+- **เปิด Dialog กลางรอบ `time`:** รอบเริ่มใหม่ เวลาไม่เดินระหว่างตั้งปุ่ม (D40)
+- **มือถือไม่มีคีย์บอร์ด:** Keymap ไหนก็แตะปุ่มคำตอบได้เหมือนเดิม (D39)
 
 **How success is judged:**
 - seam 1 และ seam 2 ผ่านใน CI
 - เปิด `https://mousemouse094526.github.io/piano-quest/` แล้วเล่นครบหนึ่งรอบได้ทั้ง Chrome เดสก์ท็อปและ Safari บน iPhone
 - iPhone เปิดโหมดเงียบ เปิดเสียงในเกม ตอบถูก → ได้ยินเสียงโน้ต (ตรวจด้วยมือ) (D20)
-- refresh หน้าที่มี search params แล้ว Mode bar ยังเป็นค่าเดิม (D16)
+- refresh หน้าที่มี search params แล้ว Mode bar และ Keymap ยังเป็นค่าเดิม (D16, D34)
 - DevTools › Application ไม่มีข้อมูลใน Local Storage Session Storage IndexedDB หรือ Cookies ของเว็บนี้ (D4)
 
 ## Implementation
@@ -70,6 +78,10 @@
   - Mode bar, Game, Results, ปุ่มตอบ 7 ปุ่ม
   - listener เดียวบน `window` แปลง `KeyboardEvent.code` เป็น `Choice` ตามกติกาปุ่มและ focus (D14, D20)
   - ปุ่มแตะส่ง `Choice` ทางเดียวกัน ปุ่มไม่รับ focus (D6, D20)
+  - `hooks/keys.ts` แปลง `code` เป็น `Choice` ตาม Keymap ที่ส่งเข้ามา และถือตารางปุ่มที่ผูกได้กับป้าย (D32, D33, D38) — pure มี unit test
+  - `search.ts` ตรวจ `letter-keys` `solfege-keys` และคืน Keymap ให้ `useRound` กับ `AnswerRow` (D34) — pure มี unit test
+  - Dialog ตั้ง Keymap เปิดจาก Mode bar (D35, D36) เปิดแล้วเริ่มรอบใหม่ (D40) ; listener ของเกมเลิกเมื่อ `e.defaultPrevented` หรือ ref "Dialog เปิด" เป็นจริง ; เนื้อหา Dialog หยุด `mousedown` bubble ไป `<nav>` และรอปุ่มด้วย listener บนเนื้อหา Dialog (D35) ใช้ shadcn `dialog` ที่เพิ่มด้วย `npx shadcn add dialog` ลง `src/components/ui/`
+  - engine ไม่เปลี่ยน `Choice` ยังเป็น `{ kind, note }` (ADR-0005)
 - **`src/features/note-name-quiz/sound`**
   - สร้าง `AudioContext` ตอนกดเปิดเสียง เล่นเสียงสั้นหลัง engine อัปเดต ความผิดพลาดทุกอย่างถูกกลืน (D5, D20)
 - **`src/routes`**
@@ -80,7 +92,7 @@
 
 ### Data
 
-ข้อมูลโน้ตตายตัว 7 ตัว (D12) ไม่มีข้อมูลที่เก็บ (D4)
+ข้อมูลโน้ตตายตัว 7 ตัว (D12) ไม่มีข้อมูลที่เก็บ (D4) คอลัมน์ปุ่มลัดเป็น Keymap ค่าเริ่มต้น Player เปลี่ยนได้ (D32)
 
 | Index | Letter | Thai | English | ปุ่มลัด letter | ปุ่มลัด solfège | Hz |
 |---|---|---|---|---|---|---|
@@ -92,8 +104,9 @@
 | 6 | A | ลา | La | `KeyA` | `Digit6` `Numpad6` | 440.00 |
 | 7 | B | ที | Ti | `KeyB` | `Digit7` `Numpad7` | 493.88 |
 
-- ทิศโด→C: Prompt เป็นชื่อ solfège ตาม Script ตอบด้วยปุ่มลัด letter
-- ทิศ C→โด: Prompt เป็นตัวอักษร ตอบด้วยปุ่มลัด solfège
+- ทิศโด→C: Prompt เป็นชื่อ solfège ตาม Script ตอบด้วย Key set letter
+- ทิศ C→โด: Prompt เป็นตัวอักษร ตอบด้วย Key set solfège
+- `Numpad{n}` นับเป็นปุ่มเดียวกับ `Digit{n}` ทุก Keymap (D32)
 - ทิศสลับ: สุ่มทิศทุกข้อ "ห้ามซ้ำข้อก่อนหน้า" หมายถึงโน้ตตัวเดียวกันไม่ว่าทิศไหน (D14) ปุ่มผิดชุดไม่นับ (D20)
 
 ### Search params
@@ -105,10 +118,18 @@
 | `dir` | `solfege-to-letter` `letter-to-solfege` `mixed` | `solfege-to-letter` |
 | `script` | `th` `en` | `th` |
 | `sound` | `on` `off` | `off` |
+| `letter-keys` | 7 ตัวอักษรจากตารางป้าย D38 ไม่ซ้ำกัน ตัวที่ 1–7 คือปุ่มของ Answer C D E F G A B | `CDEFGAB` |
+| `solfege-keys` | 7 ตัวอักษรจากตารางป้าย D38 ไม่ซ้ำกัน ตัวที่ 1–7 คือปุ่มของ Answer โด เร มี ฟา ซอล ลา ที | `1234567` |
 
 - `validateSearch` เขียน fallback เอง ค่าผิดหรือไม่มี → ค่าเริ่มต้นของ param นั้น ไม่แสดง error (D16, D21)
 - เปลี่ยนค่าใน Mode bar → `navigate` แบบ `replace` (ไม่เพิ่ม history) แล้วเริ่มรอบใหม่ (D14)
 - ยกเว้น `sound`: แทนที่ URL อย่างเดียว รอบเดิมเล่นต่อ (D20)
+- `letter-keys` `solfege-keys` (D34):
+  - รับ string หรือ number (router อ่าน `1234567` ที่ไม่มี `"` เป็น number) แปลงเป็น string แล้วเป็นอักษรใหญ่ก่อนตรวจ
+  - ยาวไม่ใช่ 7 มีตัวนอกตาราง หรือซ้ำในชุด → ค่าเริ่มต้นของ param นั้น
+  - หลัง fallback ของแต่ละตัว คู่ที่ได้มีปุ่มซ้ำข้ามชุด → ทั้งสองเป็นค่าเริ่มต้น
+  - ค่าที่ router อ่านเป็น JSON แล้วเปลี่ยนรูป (`1234.50` `1e23456` `[12345]`) → ค่าเริ่มต้น
+  - เปลี่ยนใน Dialog → `navigate` แบบ `replace` ทุกครั้งที่ผูก สลับ หรือคืนค่าเริ่มต้น แล้วเริ่มรอบใหม่ (D37)
 
 ### Engine contract
 
@@ -192,6 +213,9 @@ type Results = {
 | @biomejs/biome | ตอนติดตั้ง | `biome ci .` ตรวจ lint และ format | [Biome CI](https://biomejs.dev/recipes/continuous-integration/) |
 | Web Audio API | browser | `OscillatorNode` กับ `GainNode` เล่นเสียงสั้น `AudioContext` ต้องสร้างหรือ `resume()` หลัง user gesture | [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API), [Autoplay guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay) |
 | Audio Session API | browser | `navigator.audioSession.type = 'playback'` ให้เสียงดังตอน iPhone เปิดโหมดเงียบ ใช้เมื่อมี property นี้เท่านั้น | [Audio Session](https://w3c.github.io/audio-session/) |
+| radix-ui (Dialog) | 1.8.1 | `Dialog` ปิดด้วย `Esc` ยกเลิกได้ด้วย `onEscapeKeyDown` + `preventDefault` ; `onCloseAutoFocus` + `preventDefault` ให้เราย้าย focus เอง ; เนื้อหาอยู่ใน portal นอก `<nav>` ของ Mode bar | [Radix Dialog](https://www.radix-ui.com/primitives/docs/components/dialog) |
+| shadcn | 4.23.0 | `npx shadcn add dialog` สร้าง `dialog.tsx` บน `radix-ui` ที่ติดตั้งอยู่ | [shadcn/ui Dialog](https://ui.shadcn.com/docs/components/dialog) |
+| @tanstack/react-router | 1.170.46 | ค่า string ที่อ่านเป็น JSON ได้ถูกเขียนพร้อม `"` แล้วอ่านกลับเป็น string ส่วน `,` ถูกเขียนเป็น `%2C` (ทดลองในเครื่อง 2026-11-09) | [Search params › JSON-first](https://tanstack.com/router/latest/docs/framework/react/guide/search-params#json-first-search-params) |
 | KeyboardEvent | browser | `code` บอกปุ่มจริงไม่ขึ้นกับภาษาคีย์บอร์ด และมี `repeat` `isComposing` | [KeyboardEvent](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent) |
 
 ### Ops
@@ -231,10 +255,23 @@ engine ถือกติกาทั้งหมด ส่วน UI พิส�
    - เปลี่ยน Script เป็นอังกฤษ → URL มี `script=en` Prompt เป็น Do Re Mi ; refresh → ยังเป็นอังกฤษ
    - เปิด `sound=on` กลางรอบ → ตัวนับไม่รีเซ็ต ; ตอบถูก → ไม่มี error ใน console
    - จบรอบแล้ว Local Storage Session Storage และ Cookies ว่าง
+   - เปิด `/#/?letter-keys=ASDFGHJ` → ปุ่มคำตอบ C ขึ้นป้าย `A` ; Prompt ซอล กด `G` → นับถูก ; กด `C` → ไม่มีอะไรเกิด (D14, D32)
+   - Dialog: แถว โด รอปุ่ม กด `Q` → URL มี `solfege-keys` เป็น `Q234567` ปุ่มคำตอบ โด ขึ้น `Q` ; refresh → ยังเป็น `Q` (D34, D35)
+   - Dialog: แถว C รอปุ่ม กด `D` → C เป็น `D` และ D เป็น `C` มีข้อความ "สลับกับ D" (D36)
+   - Dialog ใน `zen`: แถวรอปุ่ม กด `Enter` → "ใช้ปุ่มนี้ไม่ได้" ; กด `Esc` → เลิกรอ Dialog ยังเปิด ; กด `Esc` อีกครั้ง → Dialog ปิด รอบ `zen` ยังไม่จบ ; กด `G` ทันที → ตอบได้ (D35)
+   - Dialog เปิดอยู่ กดปุ่มคำตอบ → ไม่ตอบ รอบยัง `ready` (D35)
+   - ตั้ง Keymap กลางรอบ `count` → รอบเริ่มใหม่ (D37)
+   - รอบ `time` เดินอยู่ เปิด Dialog แล้วปิดโดยไม่เปลี่ยน → รอบใหม่สถานะ `ready` ไม่ใช่หน้า Results (D40)
+   - "คืนค่าเริ่มต้น" → URL เป็น `CDEFGAB` กับ `1234567` (D35)
+   - เปิด `/#/?letter-keys=AAAAAAA` → ป้ายเป็นค่าเริ่มต้น ไม่มี error (D34)
+   - กด `Numpad5` ในทิศ C→โด → ตอบ ซอล (D32)
+   - viewport iPhone กับ `letter-keys=ASDFGHJ` แตะปุ่มคำตอบครบ 10 ข้อ → หน้า Results (D39)
 
 ## Testing decisions
 
 - **Copy:** ยังไม่มี test ในโปรเจกต์ ticket แรกตั้ง pattern ตาม conventions (D21)
+- **Copy (Keymap):** parse ของ `letter-keys` `solfege-keys` ทำตาม `src/features/note-name-quiz/search.test.ts` ; `keys.ts` ได้ test ใหม่ `hooks/keys.test.ts` แบบเดียวกัน ; e2e เพิ่มใน `e2e/play-round.spec.ts` ตาม D28
+- unit test ของ Keymap: ค่าเริ่มต้น ; อักษรเล็ก ; number `1234567` ; ยาวผิด ; ตัวนอกตาราง ; ซ้ำในชุด ; ซ้ำข้ามชุด ; ชนกันหลัง fallback (`AAAAAAA` กับ `ASDFGHJ`) ; `1234.50` `1e23456` `[12345]` ; `Numpad` ; สลับข้ามชุด
 - engine ทดสอบด้วย unit test เท่านั้น ส่ง `now` และ `seed` เข้าไป ไม่ใช้ timer จริง
 - e2e ฟังเสียงไม่ได้ ทดสอบแค่ว่าไม่มี error ใน console การได้ยินเสียงบน iPhone ตรวจด้วยมือ
 
@@ -245,6 +282,10 @@ engine ถือกติกาทั้งหมด ส่วน UI พิส�
 - สถิติข้ามรอบ คะแนนดีสุด บัญชี leaderboard (D4)
 - ปุ่มสลับธีม (D17)
 - Figma หรือ design แยก (D9)
+- ผูกหลายปุ่มต่อ Answer (D32)
+- ผูก `Tab` `Esc` `Space` ลูกศร หรือ F-key (D33)
+- ป้ายตาม layout คีย์บอร์ดจริงของเครื่อง (D38)
+- ปุ่ม copy link — แชร์ด้วย URL ในแถบที่อยู่ของเบราว์เซอร์ (D34)
 
 ## Open Questions
 
@@ -270,3 +311,6 @@ None.
 - [Autoplay guide](https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Autoplay) — เสียงต้องเริ่มหลัง user gesture (accessed 2026-11-07)
 - [Audio Session](https://w3c.github.io/audio-session/) — เสียงตอนโหมดเงียบ (accessed 2026-11-07)
 - [KeyboardEvent](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent) — `code` `repeat` `isComposing` (accessed 2026-11-07)
+- [Radix Dialog](https://www.radix-ui.com/primitives/docs/components/dialog) — `Esc` `onEscapeKeyDown` `onCloseAutoFocus` portal (accessed 2026-11-09)
+- [shadcn/ui Dialog](https://ui.shadcn.com/docs/components/dialog) — `npx shadcn add dialog` (accessed 2026-11-09)
+- [TanStack Router search params › JSON-first](https://tanstack.com/router/latest/docs/framework/react/guide/search-params#json-first-search-params) — ค่าอ่านเป็น JSON ก่อน (accessed 2026-11-09)
