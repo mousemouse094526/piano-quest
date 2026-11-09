@@ -1,7 +1,7 @@
 import { type RefObject, useEffect, useEffectEvent, useReducer, useState } from 'react';
 import { answeredCount, answerOutcome, needsKeySetHint, reduce, startRound } from '../engine/round';
 import type { AnswerOutcome, Choice, Note, Settings } from '../engine/types';
-import { choiceFromCode, isIgnoredKey } from './keys';
+import { choiceFromCode, isIgnoredKey, type Keymap } from './keys';
 
 const TICK_MS = 100;
 
@@ -29,10 +29,11 @@ export type LastAnswer = {
 
 /**
  * Runs one Round: engine state, the clock, and the single `window` key listener.
- * Settings are read once; the caller remounts with a `key` to play other settings.
+ * Settings and Keymap are read once; the caller remounts with a `key` to change them.
  */
 export function useRound(
   settings: Settings,
+  keymap: Keymap,
   { modeBar, gameArea }: FocusAreas,
   /** Fired after the engine counts a right answer, with the note answered (D5, D20). */
   onCorrect: (note: Note) => void,
@@ -89,7 +90,7 @@ export function useRound(
       end();
       return;
     }
-    const choice = choiceFromCode(e.code);
+    const choice = choiceFromCode(e.code, keymap);
     if (!choice) return;
     e.preventDefault();
     answer(choice);

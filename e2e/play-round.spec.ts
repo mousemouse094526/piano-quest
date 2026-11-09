@@ -1,6 +1,8 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 import { NOTES } from '../src/features/note-name-quiz/engine/notes';
 import type { Note } from '../src/features/note-name-quiz/engine/types';
+import { keySetOf } from '../src/features/note-name-quiz/hooks/keys';
+import type { KeymapSearch } from '../src/features/note-name-quiz/search';
 
 // spec.md › Seams › 2: one Round played through the real UI. Keys go through
 // `page.keyboard`, never synthetic events, so focus rules apply as for a Player.
@@ -8,8 +10,11 @@ import type { Note } from '../src/features/note-name-quiz/engine/types';
 const START_HINT = 'กดปุ่มคำตอบเพื่อเริ่ม';
 const ALL_NOTES = Object.keys(NOTES).map(Number) as Note[];
 
+/** spec.md › Data keys, as the URL writes them (D34). */
+const DEFAULT_KEYS: KeymapSearch = { 'letter-keys': 'CDEFGAB', 'solfege-keys': '1234567' };
+
 /** The Prompt on screen, the note that answers it, one that misses it, and their keys. */
-async function readPrompt(page: Page) {
+async function readPrompt(page: Page, keys: KeymapSearch = DEFAULT_KEYS) {
   const prompt = page.getByTestId('prompt');
   const label = (await prompt.textContent())?.trim() ?? '';
   const right = ALL_NOTES.find((n) => {
@@ -17,11 +22,13 @@ async function readPrompt(page: Page) {
     return [info.letter, info.th, info.en].includes(label);
   });
   if (!right) throw new Error(`unknown Prompt "${label}"`);
-  // spec.md › Data: a letter Prompt is answered with 1–7, a solfège Prompt with C–B.
+  // spec.md › Data: a letter Prompt is answered with the solfège keys, and the other way round.
   const askedLetter = NOTES[right].letter === label;
-  const keyOf = (n: Note) => (askedLetter ? `Digit${n}` : `Key${NOTES[n].letter}`);
+  const answerKeys = keySetOf(askedLetter ? keys['solfege-keys'] : keys['letter-keys']);
+  if (!answerKeys) throw new Error('not a valid Keymap');
+  const keyOf = (n: Note) => answerKeys[n];
   const wrong = ((right % 7) + 1) as Note; // the next note up, wrapping B → C
-  return { label, right, wrong, keyOf };
+  return { label, right, wrong, keyOf, askedLetter };
 }
 
 /** Each answer moves on to a new Prompt (never the same note twice in a row), or to Results. */
@@ -292,4 +299,87 @@ test('after a Round, storage and cookies stay empty', async ({ page, context }) 
   ]);
   expect(stored).toEqual([0, 0]);
   expect(await context.cookies()).toEqual([]);
+});
+
+test('no Keymap in the URL → the default Keymap is written in full', async ({ page }) => {
+  await page.goto('#/');
+  await expect(page).toHaveURL(/letter-keys=CDEFGAB/);
+  // The router quotes values JSON could read as a number (D34).
+  await expect(page).toHaveURL(/solfege-keys=%221234567%22/);
+});
+
+test('a bad Keymap falls back to the defaults, with no error', async ({ page }) => {
+  const errors = watchErrors(page);
+  // A repeated key, too short, and a key outside the table (a space).
+  for (const bad of ['letter-keys=AAAAAAA', 'letter-keys=ASDFGH', 'letter-keys=ASDFGH%20']) {
+    // A fresh load each time: the router writes the parsed URL back on load, not on a
+    // hash change within the page.
+    await page.goto('about:blank');
+    await page.goto(`#/?mode=count&len=10&${bad}`);
+    await expect(answerButtons(page)).toHaveText(['CC', 'DD', 'EE', 'FF', 'GG', 'AA', 'BB']);
+    await expect(page).toHaveURL(/letter-keys=CDEFGAB/);
+  }
+  expect(errors).toEqual([]);
+});
+
+test('letter-keys=ASDFGHJ: the bound keys answer and label the buttons', async ({ page }) => {
+  const keys = { ...DEFAULT_KEYS, 'letter-keys': 'ASDFGHJ' };
+  await page.goto(`#/?mode=count&len=10&letter-keys=${keys['letter-keys']}`);
+  // Each button reads its note, then the key that answers it.
+  await expect(answerButtons(page)).toHaveText(['CA', 'DS', 'ED', 'FF', 'GG', 'AH', 'BJ']);
+  const p = await readPrompt(page, keys);
+  await page.keyboard.press(p.keyOf(p.right));
+  await waitForNextPrompt(page, p.label);
+  await expect(page.getByTestId('answered')).toHaveText(/1\/10/);
+  await expect(page.getByTestId('miss-count')).toHaveText('ผิด 0');
+  // C is no longer bound to anything, so it does nothing.
+  await page.keyboard.press('KeyC');
+  await expect(page.getByTestId('answered')).toHaveText(/1\/10/);
+  await expect(page.getByTestId('miss-count')).toHaveText('ผิด 0');
+});
+
+test('symbol keys are labelled as on a US QWERTY keyboard', async ({ page }) => {
+  await page.goto(`#/?letter-keys=${encodeURIComponent(";',./[]")}`);
+  await expect(answerButtons(page)).toHaveText(['C;', "D'", 'E,', 'F.', 'G/', 'A[', 'B]']);
+  await page.goto(`#/?letter-keys=${encodeURIComponent('\\-=`QWE')}`);
+  await expect(answerButtons(page)).toHaveText(['C\\', 'D-', 'E=', 'F`', 'GQ', 'AW', 'BE']);
+});
+
+test('a Keymap typed without quotes reads, and survives a refresh', async ({ page }) => {
+  await page.goto('#/?dir=letter-to-solfege&solfege-keys=7654321');
+  const labels = ['โด7', 'เร6', 'มี5', 'ฟา4', 'ซอล3', 'ลา2', 'ที1'];
+  await expect(answerButtons(page)).toHaveText(labels);
+  await page.reload();
+  await expect(answerButtons(page)).toHaveText(labels);
+  await expect(page).toHaveURL(/solfege-keys=%227654321%22/);
+});
+
+test('Numpad answers as the digit row', async ({ page }) => {
+  await page.goto('#/?mode=count&len=10&dir=letter-to-solfege');
+  const p = await readPrompt(page);
+  await page.keyboard.press(`Numpad${p.right}`);
+  await waitForNextPrompt(page, p.label);
+  await expect(page.getByTestId('answered')).toHaveText(/1\/10/);
+  await expect(page.getByTestId('miss-count')).toHaveText('ผิด 0');
+});
+
+test('mixed: a key from the other bound set flashes the hint, no miss', async ({ page }) => {
+  await page.goto('#/?mode=count&len=10&dir=mixed&letter-keys=ASDFGHJ');
+  const p = await readPrompt(page, { ...DEFAULT_KEYS, 'letter-keys': 'ASDFGHJ' });
+  // A letter Prompt wants a solfège key, so a letter key (KeyA answers C) is the other set.
+  await page.keyboard.press(p.askedLetter ? 'KeyA' : 'Digit1');
+  await expect(answerButtons(page).first().locator('kbd')).toHaveCSS('animation-name', 'hint');
+  await expect(page.getByTestId('answered')).toHaveText(/0\/10/);
+  await expect(page.getByTestId('miss-count')).toHaveText('ผิด 0');
+});
+
+test('with a Keymap, tapping the buttons plays a whole Round', async ({ page, isMobile }) => {
+  await page.goto('#/?mode=count&len=10&letter-keys=ASDFGHJ');
+  for (let i = 0; i < 10; i++) {
+    const p = await readPrompt(page, { ...DEFAULT_KEYS, 'letter-keys': 'ASDFGHJ' });
+    await press(answerButton(page, p.right), isMobile);
+    await waitForNextPrompt(page, p.label);
+  }
+  await expect(resultsHeading(page)).toBeVisible();
+  await expect(stat(page, 'ถูก')).toHaveText('10');
 });

@@ -580,6 +580,21 @@
 
 **From:** red team · **Status:** active
 
+## D41: Keymap อยู่ใน search เป็นป้าย แปลงเป็น `code` ที่ `keymapOf`
+
+**Chosen:** `QuizSearch` เก็บ `letter-keys` `solfege-keys` เป็น string ป้าย 7 ตัวแบบเดียวกับใน URL ; `keymapOf(search)` แปลงเป็น `Keymap` (`Record<Side, Record<Note, code>>`) ให้ `useRound` และ `AnswerRow` ; ตารางปุ่มที่ผูกได้กับป้ายอยู่ที่ `hooks/keys.ts` ที่เดียว ; `roundKey` ของ `NoteNameQuiz` คือ search ทั้งหมดยกเว้น `sound`
+
+**Why:** `navigate` เขียน search ลง URL ตรงๆ จึงไม่ต้องแปลงกลับตอนเขียน ; `Record<Note, …>` แบบ `NOTES` อ่านด้วย `Note` ได้โดยไม่มี `undefined` (`noUncheckedIndexedAccess`) ; `roundKey` แบบตัดเฉพาะ `sound` ทำให้ param ใหม่เริ่มรอบใหม่เองตาม D14 D37
+
+**Rejected:**
+- เก็บ `code` ใน search แล้วแปลงตอน stringify — ต้องมี serializer ของ router เอง
+
+**Details:**
+- `solfege-keys=1234567.0` หรือ `1.234567e6` ที่พิมพ์เองมาถึงเป็น number `1234567` จึงอ่านได้ ไม่ใช่ค่าเริ่มต้น — แยกได้ต้องอ่าน hash ดิบ ไม่คุ้ม ; `1234.50` `1e23456` `[12345]` ยังเป็นค่าเริ่มต้นตาม D34
+- `hooks/keys.ts` ถือตารางปุ่มแม้ไม่มี React ตาม spec.md › Modules touched
+
+**From:** build ticket 04 · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

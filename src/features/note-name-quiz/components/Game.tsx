@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { hasLength, isEndedByPlayer } from '../engine/modes';
 import { answeredCount, answerKind, timeLeft } from '../engine/round';
 import type { Choice, RoundState } from '../engine/types';
+import type { Keymap } from '../hooks/keys';
 import type { LastAnswer } from '../hooks/useRound';
 import type { Script } from '../search';
 import { AnswerRow } from './AnswerRow';
@@ -15,6 +16,7 @@ export function Game({
   state,
   now,
   script,
+  keymap,
   keySetHints,
   lastAnswer,
   onAnswer,
@@ -24,6 +26,8 @@ export function Game({
   state: RoundState;
   now: number;
   script: Script;
+  /** Labels the answer buttons with the keys that answer them. */
+  keymap: Keymap;
   /** Bumped on each press from the other key set in `mixed`; replays the hint flash. */
   keySetHints: number;
   /** The button the last counted answer pressed and how it went. */
@@ -86,6 +90,7 @@ export function Game({
       <AnswerRow
         side={answerKind(state.current)}
         script={script}
+        keymap={keymap}
         hintFlashKey={keySetHints}
         lastAnswer={lastAnswer}
         onChoice={onAnswer}

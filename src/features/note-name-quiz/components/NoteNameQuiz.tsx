@@ -2,7 +2,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useRef } from 'react';
 import { NOTES } from '../engine/notes';
 import { type FocusAreas, useRound } from '../hooks/useRound';
-import { isSoundOn, type QuizSearch, settingsOf, withSound } from '../search';
+import { isSoundOn, keymapOf, type QuizSearch, roundKeyOf, settingsOf, withSound } from '../search';
 import { notePlayer } from '../sound/notePlayer';
 import { Game } from './Game';
 import { ModeBar } from './ModeBar';
@@ -28,9 +28,9 @@ export function NoteNameQuiz() {
     changeSettings(withSound(search, on));
   }
 
-  // Every Mode bar value except `sound` starts a new Round (D14, D20): a new key remounts it.
-  // Script only changes how notes read, but a Round keeps one Script from start to Results.
-  const roundKey = JSON.stringify([settingsOf(search), search.script]);
+  // A new Round key remounts the Round. Script only changes how notes read, but a Round
+  // keeps one Script from start to Results.
+  const roundKey = roundKeyOf(search);
 
   return (
     <div className="flex flex-1 flex-col gap-8">
@@ -55,8 +55,10 @@ export function NoteNameQuiz() {
 
 /** One Round with fixed settings; it exists so the parent can remount it by `key`. */
 function Round({ search, focus }: { search: QuizSearch; focus: FocusAreas }) {
+  const keymap = keymapOf(search);
   const { state, now, keySetHints, lastAnswer, restart, end, answer } = useRound(
     settingsOf(search),
+    keymap,
     focus,
     (note) => {
       if (isSoundOn(search)) notePlayer.play(NOTES[note].hz);
@@ -69,6 +71,7 @@ function Round({ search, focus }: { search: QuizSearch; focus: FocusAreas }) {
       state={state}
       now={now}
       script={search.script}
+      keymap={keymap}
       keySetHints={keySetHints}
       lastAnswer={lastAnswer}
       onAnswer={answer}

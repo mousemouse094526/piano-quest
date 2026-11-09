@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** change request Keymap (D32–D39) วางแผนแล้ว ticket 04–05 รอ build ; Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`) ยังค้าง
+**Now:** ticket 04 (Keymap ใน URL + ป้าย) done ; ticket 05 (Dialog ตั้งปุ่มลัด) ready ; Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`) ยังค้าง
 
-**Next:** `/warroom-build note-name-quiz 04`
+**Next:** `/warroom-build note-name-quiz 05`
 
 ## Tickets
 
@@ -11,10 +11,31 @@
 | 01 | Scaffold + engine + deploy | done |
 | 02 | Mode bar + URL + Results ครบ | done |
 | 03 | มือถือ + เสียง + e2e | done |
-| 04 | Keymap ใน URL + ป้ายบนปุ่มคำตอบ | ready |
+| 04 | Keymap ใน URL + ป้ายบนปุ่มคำตอบ | done |
 | 05 | Dialog ตั้งปุ่มลัด | ready |
 
 ## Log
+
+### 04: Keymap ใน URL + ป้ายบนปุ่มคำตอบ — done 2026-11-09
+
+**Built:**
+- `hooks/keys.ts`: ตาราง 47 ปุ่มที่ผูกได้พร้อมป้าย US QWERTY (D33 D38 ADR-0007) ; `Keymap` = `Record<Side, Record<Note, code>>` ; `choiceFromCode(code, keymap)` นับ `Numpad{n}` เป็น `Digit{n}` และไม่รับปุ่มนอกตาราง ; `keySetOf` `keySetLabels` `keyLabel`
+- `search.ts`: param `letter-keys` `solfege-keys` (ค่าเริ่มต้น `CDEFGAB` `1234567`) อักษรเล็กเป็นใหญ่ รับ number ; ยาวผิด นอกตาราง ซ้ำในชุด → ค่าเริ่มต้นของ param นั้น ; ซ้ำข้ามชุดหลัง fallback → ทั้งสองเป็นค่าเริ่มต้น ; `keymapOf` ; `roundKeyOf` (ทุกค่ายกเว้น `sound` จึงเปลี่ยน Keymap แล้วเริ่มรอบใหม่ตาม D37)
+- `useRound` ตอบตาม Keymap ; ปุ่มคำตอบขึ้นป้ายปุ่มที่ผูกทุกขนาดจอ (D39) ; `NOTES_IN_ORDER` ย้ายไป `engine/notes.ts`
+- unit test ใหม่ `hooks/keys.test.ts` (10) และ Keymap ใน `search.test.ts` (8) ; e2e ใหม่ 8 test × 2 project: URL เขียนครบ, Keymap ผิด fallback ไม่มี error, `ASDFGHJ` ตอบและป้าย, ป้ายเครื่องหมาย, `7654321` ไม่มี `"` + refresh, `Numpad`, ทิศสลับกดชุดอื่น, iPhone แตะครบรอบ
+- library note router: URL ถูกเขียนกลับตอนโหลดเท่านั้น ไม่ใช่ตอนเปลี่ยน hash ; รูปที่ `defaultStringifySearch` ใส่ `"`
+- ติดตั้ง browser ของ Playwright ในเครื่อง (ก่อนหน้านี้ e2e ในเครื่องรันไม่ได้เลย)
+
+**Decided:**
+- D41 — Keymap ใน search เป็นป้าย `keymapOf` แปลงเป็น `code` ; `roundKeyOf` = ทุกค่ายกเว้น `sound` ; `1234567.0` ที่พิมพ์เองอ่านได้ (ยอมรับ)
+
+**For the next ticket:**
+- Dialog (05) เขียน Keymap ด้วย `navigate` ผ่าน helper แบบ `withSound` ใน `search.ts` (ต้องเพิ่ม เช่น `withKeymap`) ; `keySetLabels` แปลง `KeySet` กลับเป็นป้ายให้ URL
+- listener ของเกมอยู่ใน `useRound.onKeyDown` — ticket 05 ต้องเพิ่มเงื่อนไข `e.defaultPrevented` และ ref "Dialog เปิด" ที่นี่ (D35)
+- `script` กับ `keymap` เดินคู่กัน `Round → Game → AnswerRow` เพื่อทำป้าย — ถ้า prop เพิ่มอีกรวมเป็นก้อนเดียว
+- e2e ของ D37 (ตั้ง Keymap กลางรอบแล้วเริ่มใหม่) อยู่กับ 05 ตาม Seam 2
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (61 passed), `npm run e2e` (50 passed), `npm run build` — all green
 
 ### Change request: สีเน้น + animation — done 2026-11-07
 

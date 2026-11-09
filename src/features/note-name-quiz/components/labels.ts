@@ -1,6 +1,7 @@
 import { hasLength } from '../engine/modes';
 import { NOTES } from '../engine/notes';
 import type { Direction, LengthMode, Mode, Note, Prompt, Settings, Side } from '../engine/types';
+import { type Keymap, keyLabel } from '../hooks/keys';
 import type { Script } from '../search';
 
 /** How a note reads on one side: a solfège name in the chosen Script, or its letter. */
@@ -13,9 +14,9 @@ export function promptLabel(prompt: Prompt, script: Script): string {
   return noteLabel(prompt.note, prompt.ask, script);
 }
 
-/** The key that answers `note` on `side` (spec.md › Data): `C` for letters, `1` for solfège. */
-export function shortcutLabel(note: Note, side: Side): string {
-  return side === 'letter' ? NOTES[note].letter : String(note);
+/** The key that answers `note` on `side` in the Player's Keymap, e.g. `C` or `1` (D38). */
+export function shortcutLabel(note: Note, side: Side, keymap: Keymap): string {
+  return keyLabel(keymap[side][note]);
 }
 
 /** Mode names stay in English on screen, as in the URL; the map lets a label change alone. */

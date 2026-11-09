@@ -7,6 +7,9 @@ export type NoteInfo = {
   hz: number;
 };
 
+/** C to B (โด to ที), the order of answer buttons and of a Keymap in the URL. */
+export const NOTES_IN_ORDER: readonly Note[] = [1, 2, 3, 4, 5, 6, 7];
+
 /** spec.md › Data. */
 export const NOTES: Record<Note, NoteInfo> = {
   1: { letter: 'C', th: 'โด', en: 'Do', hz: 261.63 },

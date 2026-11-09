@@ -55,6 +55,7 @@ question; the full entry is in the feature's decisions.md.
 | ผูกปุ่มที่ Answer อื่นใช้อยู่ → สลับปุ่มกัน | [note-name-quiz](features/note-name-quiz/decisions.md) | D36 | — | — | active |
 | เปลี่ยน Keymap แล้วเริ่มรอบใหม่ เหมือนค่า Mode bar อื่น | [note-name-quiz](features/note-name-quiz/decisions.md) | D37 | — | — | extended by D40 |
 | เปิด Dialog ปุ่มลัดแล้วเริ่มรอบใหม่ เวลาไม่เดินระหว่างเปิด | [note-name-quiz](features/note-name-quiz/decisions.md) | D40 | — | — | active |
+| Keymap ใน search เป็นป้าย `keymapOf` แปลงเป็น `code` ; รอบใหม่เมื่อทุก param ยกเว้น `sound` เปลี่ยน | [note-name-quiz](features/note-name-quiz/decisions.md) | D41 | — | [0007](adr/0007-key-labels-are-bookmark-format.md) | active |
 
 ## เนื้อหาดนตรี
 

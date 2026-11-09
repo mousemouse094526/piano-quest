@@ -1,13 +1,13 @@
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Choice, Note, Side } from '../engine/types';
+import { NOTES_IN_ORDER } from '../engine/notes';
+import type { Choice, Side } from '../engine/types';
+import type { Keymap } from '../hooks/keys';
 import type { LastAnswer } from '../hooks/useRound';
 import type { Script } from '../search';
 import { noteLabel, shortcutLabel } from './labels';
 import { noFocus } from './noFocus';
-
-const NOTES_IN_ORDER: Note[] = [1, 2, 3, 4, 5, 6, 7];
 
 /**
  * The 7 answer buttons for the key set the current Prompt wants (D6). Each new value
@@ -18,12 +18,14 @@ const NOTES_IN_ORDER: Note[] = [1, 2, 3, 4, 5, 6, 7];
 export function AnswerRow({
   side,
   script,
+  keymap,
   hintFlashKey,
   lastAnswer,
   onChoice,
 }: {
   side: Side;
   script: Script;
+  keymap: Keymap;
   hintFlashKey: number;
   lastAnswer: LastAnswer | null;
   onChoice: (choice: Choice) => void;
@@ -53,7 +55,7 @@ export function AnswerRow({
                 hintFlashKey > 0 && 'animate-hint',
               )}
             >
-              {shortcutLabel(note, side)}
+              {shortcutLabel(note, side, keymap)}
             </kbd>
             {last?.outcome === 'miss' && (
               // D20: the pressed button shows X for a moment; the animation ends hidden.
