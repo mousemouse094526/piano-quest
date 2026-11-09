@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** merged — [PR #2](https://github.com/mousemouse094526/piano-quest/pull/2) (D31 สีเน้น + animation) เข้า `develop` ที่ `4faf1a9` ; ยังเหลือ Blocked #1 (ตรวจเสียงบน iPhone หลัง deploy `main`)
+**Now:** user trial 2026-11-09 เสร็จ ([รายงาน](user-trials/2026-11-09.md)) — friction 8 ข้อรวมเป็น ticket 06 ; F2 (ส่งผลให้คนอื่น) ย้ายไปเป็นฟีเจอร์ใหม่ `share-results` ตามที่เจ้าของตัดสิน
 
-**Next:** —
+**Next:** `/warroom-build note-name-quiz 06`
 
 ## Tickets
 
@@ -11,6 +11,8 @@
 | 01 | Scaffold + engine + deploy | done |
 | 02 | Mode bar + URL + Results ครบ | done |
 | 03 | มือถือ + เสียง + e2e | done |
+| 04 | Keymap ใน URL + ป้ายบนปุ่มคำตอบ (แผนอยู่บน `feat/note-name-quiz`) | ready-for-agent |
+| 06 | Trial fixes 2026-11-09 | ready-for-agent |
 
 ## Log
 
@@ -126,3 +128,4 @@
 | # | Ticket | What | Needs | Status |
 |---|---|---|---|---|
 | 1 | 03 | ตรวจด้วยมือ: iPhone เปิดโหมดเงียบ เปิดเสียงในเกม ตอบถูก → ได้ยินเสียง (ต้องเป็นเว็บ HTTPS ที่ deploy แล้ว) | merge เข้า `main` แล้วตรวจบน iPhone จริง บันทึกผลที่นี่ | open |
+| 2 | — | user trial F2: ครูแพรส่งผลรอบให้ผู้ปกครองไม่ได้ — **เจ้าของตัดสิน 2026-11-09: ทำเป็นฟีเจอร์ใหม่ `share-results`** ไม่แก้ในฟีเจอร์นี้ | `/warroom share-results` | moved |
