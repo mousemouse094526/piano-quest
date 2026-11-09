@@ -1,6 +1,6 @@
 # Progress: share-results
 
-**Now:** วางแผนเสร็จ 2026-11-09 ticket 01 รอ note-name-quiz ticket 06 merge เข้า `develop` (D6)
+**Now:** note-name-quiz 06 merge แล้ว (PR #4) — กำลังสร้าง ticket 01
 
 **Next:**
 
@@ -20,4 +20,4 @@
 
 | # | Ticket | What | Needs | Status |
 |---|---|---|---|---|
-| 1 | 01 | รอ `note-name-quiz 06: Trial fixes 2026-11-09` merge เข้า `develop` (D6) | note-name-quiz 06 merged | open |
+| 1 | 01 | รอ `note-name-quiz 06: Trial fixes 2026-11-09` merge เข้า `develop` (D6) | note-name-quiz 06 merged | done (PR #4 merged 2026-11-09) |

@@ -1,9 +1,9 @@
 import { RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { answerKind, results } from '../engine/round';
+import { answerKind, countedUp, results } from '../engine/round';
 import type { Miss, RoundState } from '../engine/types';
-import { useCountUp } from '../hooks/useCountUp';
+import { useCountUpProgress } from '../hooks/useCountUpProgress';
 import type { Script } from '../search';
 import { Kbd } from './Kbd';
 import { noteLabel, promptLabel, roundLabel } from './labels';
@@ -20,7 +20,9 @@ export function ResultsScreen({
   script: Script;
   onRestart: () => void;
 }) {
-  const stats = results(state);
+  const final = results(state);
+  // D44: one count-up for every number, so no frame shows "ถูก 5" with 59% and no miss.
+  const shown = countedUp(final, useCountUpProgress());
   return (
     // D31: Results rise in, and their numbers count up.
     <div className="flex flex-1 animate-in flex-col items-center justify-center gap-8 fade-in slide-in-from-bottom-2 duration-300 motion-reduce:animate-none">
@@ -30,19 +32,20 @@ export function ResultsScreen({
       </div>
 
       <dl className="grid grid-cols-3 gap-x-8 gap-y-6 text-center sm:grid-cols-5">
-        <Stat label="ถูก" value={stats.correct} />
-        <Stat label="ผิด" value={stats.wrong} />
-        <Stat label="ความแม่น" value={stats.accuracy} format={asPercent} accent />
-        <Stat label="โน้ตต่อนาที" value={stats.notesPerMinute} accent />
-        <Stat label="เวลาเฉลี่ยต่อข้อ (วินาที)" value={stats.secondsPerAnswer} format={asSeconds} />
+        <Stat label="ถูก" value={shown.correct} />
+        <Stat label="ผิด" value={shown.wrong} />
+        <Stat label="ความแม่น" value={shown.accuracy} format={asPercent} accent />
+        <Stat label="โน้ตต่อนาที" value={shown.notesPerMinute} accent />
+        <Stat label="เวลาเฉลี่ยต่อข้อ (วินาที)" value={shown.secondsPerAnswer} format={asSeconds} />
       </dl>
 
-      <MissList misses={stats.misses} script={script} />
+      <MissList misses={final.misses} script={script} />
 
       <Button variant="outline" size="lg" className="min-h-11" {...noFocus} onClick={onRestart}>
         <RotateCcw aria-hidden="true" />
         เล่นอีกรอบ
-        <Kbd>Tab</Kbd>
+        {/* D44: no Tab hint on a touch screen. */}
+        <Kbd className="pointer-coarse:hidden">Tab</Kbd>
       </Button>
     </div>
   );
@@ -52,7 +55,7 @@ const asWhole = (n: number) => String(Math.round(n));
 const asPercent = (n: number) => `${Math.round(n)}%`;
 const asSeconds = (n: number) => n.toFixed(2);
 
-/** One Results number; `null` shows "—". `accent` marks the headline numbers (D31). */
+/** One Results number as it counts up; `null` shows "—". `accent` marks the headline numbers (D31). */
 function Stat({
   label,
   value,
@@ -64,12 +67,11 @@ function Stat({
   format?: (n: number) => string;
   accent?: boolean;
 }) {
-  const shown = useCountUp(value);
   return (
     <div>
       <dt className="text-muted-foreground text-sm">{label}</dt>
       <dd className={cn('font-bold font-mono text-4xl tabular-nums', accent && 'text-brand')}>
-        {shown === null ? NO_VALUE : format(shown)}
+        {value === null ? NO_VALUE : format(value)}
       </dd>
     </div>
   );

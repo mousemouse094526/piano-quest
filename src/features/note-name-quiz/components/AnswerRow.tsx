@@ -1,29 +1,32 @@
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Choice, Note, Side } from '../engine/types';
+import { NOTES_IN_ORDER } from '../engine/notes';
+import type { Choice, Side } from '../engine/types';
+import type { Keymap } from '../hooks/keys';
 import type { LastAnswer } from '../hooks/useRound';
 import type { Script } from '../search';
-import { noteLabel, shortcutLabel } from './labels';
+import { boundKeyLabel, noteLabel } from './labels';
 import { noFocus } from './noFocus';
-
-const NOTES_IN_ORDER: Note[] = [1, 2, 3, 4, 5, 6, 7];
 
 /**
  * The 7 answer buttons for the key set the current Prompt wants (D6). Each new value
- * of `hintFlashKey` (a counter, used as a React key) replays the shortcut flash once (D20).
+ * of `hintFlashKey` (a counter, used as a React key) replays the key hint flash once (D20).
  * The button of the last answer dips, flashes the accent when right, and shows `X` when
- * wrong (D20, D31). A 7-column grid keeps the row on one line down to a 375 px phone.
+ * wrong (D20, D31). A 7-column grid keeps the row on one line down to a 375 px phone;
+ * on a touch screen the buttons grow taller for a thumb (D44).
  */
 export function AnswerRow({
   side,
   script,
+  keymap,
   hintFlashKey,
   lastAnswer,
   onChoice,
 }: {
   side: Side;
   script: Script;
+  keymap: Keymap;
   hintFlashKey: number;
   lastAnswer: LastAnswer | null;
   onChoice: (choice: Choice) => void;
@@ -38,7 +41,7 @@ export function AnswerRow({
             key={last ? `${note}-${last.answerNumber}` : note}
             variant="outline"
             className={cn(
-              'relative h-auto min-h-11 min-w-0 flex-col gap-1 px-0 py-2',
+              'relative h-auto min-h-11 min-w-0 flex-col gap-1 px-0 py-2 pointer-coarse:min-h-16',
               last?.outcome === 'right' && 'animate-hit motion-reduce:animate-hit-still',
               last?.outcome === 'miss' && 'animate-press motion-reduce:animate-none',
             )}
@@ -53,14 +56,14 @@ export function AnswerRow({
                 hintFlashKey > 0 && 'animate-hint',
               )}
             >
-              {shortcutLabel(note, side)}
+              {boundKeyLabel(note, side, keymap)}
             </kbd>
             {last?.outcome === 'miss' && (
               // D20: the pressed button shows X for a moment; the animation ends hidden.
               <X
                 aria-hidden="true"
                 data-testid="miss-mark"
-                className="absolute inset-0 m-auto size-8! animate-miss-mark text-destructive"
+                className="absolute inset-0 m-auto size-8! animate-miss-fade text-destructive"
               />
             )}
           </Button>

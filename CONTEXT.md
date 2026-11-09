@@ -17,7 +17,7 @@ _Avoid_: Game, session, test
 _Avoid_: Level, difficulty
 
 **Mode bar**:
-แถบตั้งค่าด้านบนหน้าจอ ใช้เลือก Mode ความยาว Direction Script และเสียง
+แถบตั้งค่าด้านบนหน้าจอ ใช้เลือก Mode ความยาว Direction Script เสียง และเปิด Dialog ตั้ง Keymap ; บนจอผู้เล่นเห็นคำว่า "การตั้งค่า" (D44) ส่วนโค้ดและเอกสารใช้ Mode bar
 _Avoid_: Settings, toolbar, menu
 
 **Direction**:
@@ -35,6 +35,14 @@ _Avoid_: Question, card, note
 **Answer**:
 ชื่อโน้ตที่ Player เลือกตอบ Prompt ด้วยปุ่มลัดหรือปุ่มแตะ
 _Avoid_: Input, guess
+
+**Key set**:
+ปุ่มบนคีย์บอร์ด 7 ปุ่มที่ตอบฝั่งเดียวกัน คือชุด letter (C–B) หรือชุด solfège (โด–ที)
+_Avoid_: Key group, row
+
+**Keymap**:
+การผูกปุ่มบนคีย์บอร์ดกับแต่ละ Answer ทั้ง 2 Key set รวม 14 ปุ่มไม่ซ้ำกัน ตั้งเองได้และอยู่ใน URL
+_Avoid_: Key bindings, hotkeys, shortcuts, controls
 
 **Results**:
 หน้าสรุปตอนจบ Round แสดงความแม่น ความเร็ว และเฉลยทุก Prompt ที่ตอบผิด
