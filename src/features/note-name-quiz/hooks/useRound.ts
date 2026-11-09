@@ -1,6 +1,6 @@
 import { type RefObject, useEffect, useEffectEvent, useReducer, useState } from 'react';
 import { answeredCount, answerOutcome, needsKeySetHint, reduce, startRound } from '../engine/round';
-import type { AnswerOutcome, Choice, Note, Settings } from '../engine/types';
+import type { AnswerOutcome, Choice, Note, Prompt, Settings } from '../engine/types';
 import { choiceFromCode, isIgnoredKey, type Keymap } from './keys';
 
 const TICK_MS = 100;
@@ -26,9 +26,19 @@ export type KeyRouting = {
  */
 export type LastAnswer = {
   note: Note;
+  /** The Prompt this answer was for; after a miss it stays beside the next one (D44). */
+  prompt: Prompt;
   outcome: Exclude<AnswerOutcome, 'ignored'>;
   answerNumber: number;
 };
+
+/**
+ * D20, D44: a press from the other key set in `mixed`. `shown` holds until the Prompt is
+ * answered; each press bumps `flashes`, used as a React key to replay the flash.
+ */
+export type KeySetHint = { shown: boolean; flashes: number };
+
+const NO_KEY_SET_HINT: KeySetHint = { shown: false, flashes: 0 };
 
 /**
  * Runs one Round: engine state, the clock, and the single `window` key listener.
@@ -43,12 +53,12 @@ export function useRound(
 ) {
   const [state, dispatch] = useReducer(reduce, settings, (s) => startRound(s, newSeed()));
   const [now, setNow] = useState(() => performance.now());
-  // Counts presses that need the key-set hint; each bump replays the flash (D20).
-  const [keySetHints, setKeySetHints] = useState(0);
+  const [keySetHint, setKeySetHint] = useState(NO_KEY_SET_HINT);
   const [lastAnswer, setLastAnswer] = useState<LastAnswer | null>(null);
 
   function restart() {
     setLastAnswer(null);
+    setKeySetHint((h) => ({ ...h, shown: false }));
     dispatch({ type: 'start', settings: state.settings, seed: newSeed() });
   }
 
@@ -58,7 +68,9 @@ export function useRound(
   }
 
   function answer(choice: Choice) {
-    if (needsKeySetHint(state, choice)) setKeySetHints((n) => n + 1);
+    if (needsKeySetHint(state, choice)) {
+      setKeySetHint((h) => ({ shown: true, flashes: h.flashes + 1 }));
+    }
     const t = performance.now();
     const event = { type: 'answer', choice, now: t } as const;
     // The reducer is pure, so running it here as well tells this press's outcome now,
@@ -69,7 +81,13 @@ export function useRound(
     dispatch(event);
     const outcome = answerOutcome(state, next);
     if (outcome === 'ignored') return;
-    setLastAnswer({ note: choice.note, outcome, answerNumber: answeredCount(next) });
+    setKeySetHint((h) => ({ ...h, shown: false }));
+    setLastAnswer({
+      note: choice.note,
+      prompt: state.current,
+      outcome,
+      answerNumber: answeredCount(next),
+    });
     if (outcome === 'right') onCorrect(choice.note);
   }
 
@@ -118,5 +136,5 @@ export function useRound(
     return () => window.clearInterval(id);
   }, [running]);
 
-  return { state, now, keySetHints, lastAnswer, restart, end, answer };
+  return { state, now, keySetHint, lastAnswer, restart, end, answer };
 }

@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** feature review (Keymap 04–05) เสร็จ ; user trial 2026-11-09 ([รายงาน](user-trials/2026-11-09.md)) เพิ่ม ticket 06 จาก friction 8 ข้อ ; F2 ย้ายไปเป็นฟีเจอร์ใหม่ `share-results` ; Blocked #1 (ตรวจเสียงบน iPhone) รอหลัง merge เข้า `main`
+**Now:** ticket 06 (แก้ตาม user trial 2026-11-09) เสร็จ ทุก ticket done ; รอ feature review ; Blocked #1 (ตรวจเสียงบน iPhone) รอหลัง merge เข้า `main`
 
-**Next:** `/warroom-build note-name-quiz 06`
+**Next:** `/warroom-build note-name-quiz --review-feature`
 
 ## Tickets
 
@@ -13,9 +13,35 @@
 | 03 | มือถือ + เสียง + e2e | done |
 | 04 | Keymap ใน URL + ป้ายบนปุ่มคำตอบ | done |
 | 05 | Dialog ตั้งปุ่มลัด | done |
-| 06 | Trial fixes 2026-11-09 | ready-for-agent |
+| 06 | Trial fixes 2026-11-09 | done |
 
 ## Log
+
+### 06: Trial fixes 2026-11-09 — done 2026-11-09
+
+**Built:**
+- F3: ก่อนข้อแรกขึ้นว่า Mode จบเมื่อไรพร้อมหน่วย (`modeHowTo`) และ "กดปุ่มบนคีย์บอร์ดตามป้ายเล็กใต้ปุ่มคำตอบ หรือแตะปุ่ม" ; ซ่อนแบบ `invisible` ตอนรอบเริ่ม Prompt ไม่ขยับ ; แถบล่าง "ไปที่การตั้งค่า"
+- F6: Prompt ใหม่ไม่แดงแล้ว ; ข้อที่เพิ่งตอบผิด (`LastAnswer.prompt`) ค้างทางซ้าย สีแดง สั่น แล้วจาง (`animate-missed-prompt`) ; keyframe `miss-mark` → `miss-fade`
+- F9: `useRound` คืน `keySetHint` (`shown` `flashes`) แทน `keySetHints` ; บรรทัด "ข้อนี้ตอบด้วยปุ่ม {keySetLabel}" จนกว่าจะตอบข้อนั้น
+- F8: focus อยู่ใน Mode bar → แถบล่างเหลือ "`Esc` กลับเข้าเกม" (CSS `group/quiz` + `group-has-[nav:focus-within]`)
+- F5: `pointer-coarse:` ซ่อนแถบล่างและ `Tab` บนปุ่มเล่นอีกรอบ (`Kbd` รับ `className`) ; ปุ่มตอบ `min-h-16`
+- F14: `directionLabel(dir, script)` แทน `DIRECTION_LABELS` ; Mode bar และ Results
+- F12: `CopyLinkButton` (`Link`/`Check`) หน้าปุ่มเสียง ปุ่มไอคอนสามตัวอยู่กลุ่มเดียว Mode bar `lg:gap-x-2` ยังบรรทัดเดียวที่ 1024 px ; "คัดลอกแล้ว"/"คัดลอกไม่ได้" ใต้ปุ่มแบบ absolute
+- F11: engine `accuracyOf` `countedUp(results, progress)` + `hooks/useCountUpProgress.ts` (เดิม `useCountUp.ts`)
+- unit test ใหม่ 5 ข้อ (`accuracyOf` `countedUp`) ; e2e ใหม่ใน `play-round.spec.ts` (วิธีเล่น, กดผิดชุด, คำใบ้ Esc, จอสัมผัส, ป้าย Direction อังกฤษ, Results นับขึ้น 8/0 และ 6/2) และ `e2e/copy-link.spec.ts` (stub clipboard) ; test ตอบผิดเดิมเปลี่ยนเป็นข้อที่ค้าง
+- library note ใหม่ `clipboard.md` ; `tailwindcss.md` เพิ่ม `pointer-coarse:` และ `group-has-[…]/name` ; `rules/testing.md` เพิ่ม copy-link
+- ตรวจด้วยตาที่ 1024 px และ iPhone: Mode bar บรรทัดเดียว ข้อที่ผิดสีแดงทางซ้าย ข้อความกดผิดชุด ไม่มีแถบล่างบนมือถือ ; clipboard จริงใน Chromium (ให้ permission) ได้ URL ครบ
+
+**Decided:**
+- D44 — วิธีทำทั้ง 8 ข้อ (auto mode เลือก Recommended ทุกข้อ: ข้อที่ผิดค้างสีแดง, ข้อความใต้ปุ่ม, ปุ่มคัดลอกใน Mode bar, ซ่อนตาม `pointer: coarse`) ; D31 และ D39 → changed by D44
+- ทิ้งจาก review: รวมตารางป้ายต่อ Mode เป็นตารางเดียว
+
+**For the next ticket:**
+- F3 "แต่ละ Mode": เห็นคำอธิบายเฉพาะ Mode ที่เลือก ต้องกดดูทีละ Mode — เจ้าของควรดูว่าพอไหม
+- clipboard ใน e2e เป็น stub ; ตรวจปุ่มคัดลอกลิงก์บน iPhone Safari จริงพร้อม Blocked #1
+- iPad ต่อคีย์บอร์ดไม่เห็นแถบล่าง (D44 ยอมรับ)
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (74 passed), `npm run e2e` (96 passed, 4 skipped), `npm run build` — all green
 
 ### Feature review (Keymap) — done 2026-11-09
 

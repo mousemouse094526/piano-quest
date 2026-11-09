@@ -31,15 +31,21 @@ test('count 10 with 2 misses → miss counter 2, Results list 2 answers', async 
   await expect(page.getByTestId('miss-list').locator('tbody tr')).toHaveCount(2);
 });
 
-test('a miss shakes the Prompt and marks the pressed button with X', async ({ page }) => {
+test('a miss shakes the missed Prompt beside the new one and marks the button with X', async ({
+  page,
+}) => {
   await page.goto('#/?mode=count&len=10');
-  const prompt = page.getByTestId('prompt');
-  await expect(prompt).toHaveCSS('animation-name', 'none');
-  const { wrong } = await readPrompt(page);
+  const { label, wrong } = await readPrompt(page);
   await answerButton(page, wrong).click();
-  // The shake (or, with reduced motion, the red flash) plays on the new Prompt.
-  await expect(prompt).toHaveCSS('animation-name', /^miss/);
+  await waitForNextPrompt(page, label);
+  // D44: the miss reads as the old Prompt's; the new Prompt looks as any other.
+  const missed = page.getByTestId('missed-prompt');
+  await expect(missed).toHaveText(label);
+  await expect(missed).toHaveCSS('animation-name', /^miss/);
+  await expect(page.getByTestId('prompt')).toHaveCSS('animation-name', 'none');
   await expect(answerButton(page, wrong).getByTestId('miss-mark')).toBeVisible();
+  // It fades out, so a long look at the new Prompt shows no red beside it.
+  await expect(missed).toHaveCSS('opacity', '0');
 });
 
 test('a right answer flashes the pressed button, with no X', async ({ page }) => {
@@ -214,3 +220,111 @@ test('after a Round, storage and cookies stay empty', async ({ page, context }) 
   expect(stored).toEqual([0, 0]);
   expect(await context.cookies()).toEqual([]);
 });
+
+test('before the first answer, the Game says how the Mode ends and how to answer', async ({
+  page,
+}) => {
+  const howToAnswer = page.getByText('กดปุ่มบนคีย์บอร์ดตามป้ายเล็กใต้ปุ่มคำตอบ หรือแตะปุ่ม');
+  await page.goto('#/?mode=time&len=30');
+  await expect(page.getByText('ตอบให้ได้มากที่สุดก่อนหมดเวลา (30 วินาที)')).toBeVisible();
+  await expect(howToAnswer).toBeVisible();
+  await page.goto('#/?mode=count&len=10');
+  await expect(page.getByText('ตอบให้ครบทุกข้อ เร็วที่สุด (10 ข้อ)')).toBeVisible();
+  await page.goto('#/?mode=zen');
+  await expect(page.getByText('ไม่จับเวลา เล่นไปจนกดจบรอบ')).toBeVisible();
+  // "Mode bar" is the team's word, never the Player's (D44).
+  await expect(page.getByText('Mode bar')).toHaveCount(0);
+  await answer(page, true);
+  await expect(howToAnswer).toBeHidden();
+});
+
+test('mixed: a key from the other set says which keys answer, no miss', async ({ page }) => {
+  await page.goto('#/?mode=count&len=10&dir=mixed');
+  const p = await readPrompt(page);
+  await page.keyboard.press(p.askedLetter ? 'KeyC' : 'Digit1');
+  // A letter Prompt is answered with the solfège keys, and the other way round.
+  const keys = p.askedLetter ? '1 2 3 4 5 6 7' : 'C D E F G A B';
+  const hint = page.getByRole('status').filter({ hasText: 'ข้อนี้ตอบด้วยปุ่ม' });
+  await expect(hint).toHaveText(`ข้อนี้ตอบด้วยปุ่ม ${keys}`);
+  await expect(page.getByTestId('miss-count')).toHaveText('ผิด 0');
+  await page.keyboard.press(p.keyOf(p.right));
+  await waitForNextPrompt(page, p.label);
+  await expect(hint).toHaveCount(0);
+});
+
+test('focus in the settings → the bottom bar says Esc goes back to the game', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(isMobile, 'no keyboard hints on a touch screen (D44)');
+  await page.goto('#/?mode=count&len=10');
+  const backHint = page.getByText('กลับเข้าเกม');
+  await expect(page.getByText('ไปที่การตั้งค่า')).toBeVisible();
+  await expect(backHint).toBeHidden();
+  await page.keyboard.press('Shift+Tab');
+  await expect(backHint).toBeVisible();
+  await expect(page.getByText('ไปที่การตั้งค่า')).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('region', { name: 'พื้นที่เกม' })).toBeFocused();
+  await expect(backHint).toBeHidden();
+});
+
+test('touch screen: no keyboard hints, and answer buttons tall enough for a thumb', async ({
+  page,
+  isMobile,
+}) => {
+  test.skip(!isMobile, 'a phone only');
+  await page.goto('#/?mode=zen');
+  await expect(page.getByTestId('prompt')).toBeVisible();
+  await expect(page.getByText('ไปที่การตั้งค่า')).toBeHidden();
+  await expect(page.getByText('Shift+Tab')).toBeHidden();
+  // `pointer-coarse:min-h-16` in AnswerRow (D44).
+  for (const button of await answerButtons(page).all()) {
+    expect((await button.boundingBox())?.height).toBeGreaterThanOrEqual(64);
+  }
+  await answer(page, true);
+  await page.getByRole('button', { name: 'จบรอบ' }).tap();
+  const again = page.getByRole('button', { name: 'เล่นอีกรอบ' });
+  await expect(again).toBeVisible();
+  await expect(again.locator('kbd')).toBeHidden();
+});
+
+test('English Script → Direction labels read in English too', async ({ page }) => {
+  await page.goto('#/?mode=count&len=10&script=en');
+  for (const name of ['Do→C', 'C→Do', 'สลับ']) {
+    await expect(page.getByRole('radio', { name })).toBeVisible();
+  }
+  await page.getByRole('radio', { name: 'ไทย' }).click();
+  await expect(page.getByRole('radio', { name: 'โด→C' })).toBeVisible();
+});
+
+for (const { right, wrong, accuracy } of [
+  { right: 8, wrong: 0, accuracy: 100 },
+  { right: 6, wrong: 2, accuracy: 75 },
+]) {
+  test(`Results ${right} right, ${wrong} wrong count up with numbers that agree on every frame`, async ({
+    page,
+  }) => {
+    // A fake clock steps the count-up frame by frame; between steps the screen holds still,
+    // so each frame is read once rather than through a retrying assertion.
+    await page.clock.install();
+    await page.goto('#/?mode=zen');
+    for (let i = 0; i < right + wrong; i++) await answer(page, i >= wrong);
+    await page.keyboard.press('Escape');
+    await expect(resultsHeading(page)).toBeVisible();
+    const read = async () => {
+      const [r, w, a] = await Promise.all(
+        ['ถูก', 'ผิด', 'ความแม่น'].map((label) => stat(page, label).textContent()),
+      );
+      return { right: Number(r), wrong: Number(w), accuracy: a };
+    };
+    for (let t = 0; t < 700; t += 50) {
+      const shown = await read();
+      const answered = shown.right + shown.wrong;
+      const agrees = answered === 0 ? 0 : Math.round((shown.right / answered) * 100);
+      expect(shown.accuracy).toBe(`${agrees}%`);
+      await page.clock.runFor(50);
+    }
+    expect(await read()).toEqual({ right, wrong, accuracy: `${accuracy}%` });
+  });
+}

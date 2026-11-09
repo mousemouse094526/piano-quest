@@ -44,7 +44,8 @@ export function NoteNameQuiz() {
   const roundKey = `${roundKeyOf(search)}#${keymapOpenings}`;
 
   return (
-    <div className="flex flex-1 flex-col gap-8">
+    // `group/quiz`: Game's bottom bar reads whether focus is in the Mode bar (D44).
+    <div className="group/quiz flex flex-1 flex-col gap-8">
       <ModeBar
         ref={modeBar}
         search={search}
@@ -69,7 +70,7 @@ export function NoteNameQuiz() {
 /** One Round with fixed settings; it exists so the parent can remount it by `key`. */
 function Round({ search, keyRouting }: { search: QuizSearch; keyRouting: KeyRouting }) {
   const keymap = keymapOf(search);
-  const { state, now, keySetHints, lastAnswer, restart, end, answer } = useRound(
+  const { state, now, keySetHint, lastAnswer, restart, end, answer } = useRound(
     settingsOf(search),
     keymap,
     keyRouting,
@@ -85,7 +86,7 @@ function Round({ search, keyRouting }: { search: QuizSearch; keyRouting: KeyRout
       now={now}
       script={search.script}
       keymap={keymap}
-      keySetHints={keySetHints}
+      keySetHint={keySetHint}
       lastAnswer={lastAnswer}
       onAnswer={answer}
       onRestart={restart}

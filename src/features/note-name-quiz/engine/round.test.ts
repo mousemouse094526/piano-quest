@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'vitest';
 import {
+  accuracyOf,
   answeredCount,
   answerOutcome,
+  countedUp,
   needsKeySetHint,
   reduce,
   results,
@@ -224,6 +226,49 @@ describe('selectors', () => {
     const fixed = startRound(count10, 3);
     const digit: Choice = { kind: 'solfege', note: 1 };
     expect(needsKeySetHint(fixed, digit)).toBe(false);
+  });
+});
+
+describe('accuracyOf', () => {
+  test('a whole percent of all answers; 0 before any answer', () => {
+    expect(accuracyOf(0, 0)).toBe(0);
+    expect(accuracyOf(5, 0)).toBe(100);
+    expect(accuracyOf(2, 1)).toBe(67);
+    expect(accuracyOf(0, 3)).toBe(0);
+  });
+});
+
+describe('countedUp', () => {
+  const final = {
+    correct: 8,
+    wrong: 2,
+    accuracy: 80,
+    notesPerMinute: 40,
+    secondsPerAnswer: 1.5,
+    misses: [],
+  };
+
+  test('0 → nothing counted yet; 1 → the final Results', () => {
+    expect(countedUp(final, 0)).toMatchObject({ correct: 0, wrong: 0, accuracy: 0 });
+    expect(countedUp(final, 1)).toEqual(final);
+  });
+
+  test('part way: accuracy and notes per minute follow the counts shown (D44)', () => {
+    const half = countedUp(final, 0.5);
+    expect(half).toMatchObject({ correct: 4, wrong: 1, accuracy: 80, notesPerMinute: 20 });
+    expect(half.secondsPerAnswer).toBe(1.5);
+  });
+
+  test('no miss → 100% as soon as one right answer shows', () => {
+    const clean = { ...final, wrong: 0, accuracy: 100 };
+    for (const p of [0.1, 0.3, 0.6, 0.9]) {
+      const shown = countedUp(clean, p);
+      expect(shown.accuracy).toBe(shown.correct === 0 ? 0 : 100);
+    }
+  });
+
+  test('a speed shown as "—" stays "—"', () => {
+    expect(countedUp({ ...final, notesPerMinute: null }, 0.5).notesPerMinute).toBeNull();
   });
 });
 

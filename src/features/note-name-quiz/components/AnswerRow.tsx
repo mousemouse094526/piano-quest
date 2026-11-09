@@ -13,7 +13,8 @@ import { noFocus } from './noFocus';
  * The 7 answer buttons for the key set the current Prompt wants (D6). Each new value
  * of `hintFlashKey` (a counter, used as a React key) replays the key hint flash once (D20).
  * The button of the last answer dips, flashes the accent when right, and shows `X` when
- * wrong (D20, D31). A 7-column grid keeps the row on one line down to a 375 px phone.
+ * wrong (D20, D31). A 7-column grid keeps the row on one line down to a 375 px phone;
+ * on a touch screen the buttons grow taller for a thumb (D44).
  */
 export function AnswerRow({
   side,
@@ -40,7 +41,7 @@ export function AnswerRow({
             key={last ? `${note}-${last.answerNumber}` : note}
             variant="outline"
             className={cn(
-              'relative h-auto min-h-11 min-w-0 flex-col gap-1 px-0 py-2',
+              'relative h-auto min-h-11 min-w-0 flex-col gap-1 px-0 py-2 pointer-coarse:min-h-16',
               last?.outcome === 'right' && 'animate-hit motion-reduce:animate-hit-still',
               last?.outcome === 'miss' && 'animate-press motion-reduce:animate-none',
             )}
@@ -62,7 +63,7 @@ export function AnswerRow({
               <X
                 aria-hidden="true"
                 data-testid="miss-mark"
-                className="absolute inset-0 m-auto size-8! animate-miss-mark text-destructive"
+                className="absolute inset-0 m-auto size-8! animate-miss-fade text-destructive"
               />
             )}
           </Button>

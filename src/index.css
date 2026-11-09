@@ -122,14 +122,14 @@
 }
 
 /*
- * Wrong-answer feedback that does not rely on colour alone (D20): the Prompt
- * shakes as it flashes red. With reduced motion only the colour flash stays.
+ * Wrong-answer feedback that does not rely on colour alone (D20, D44): the
+ * Prompt just missed stays in red beside the new one, shakes, then fades out.
+ * With reduced motion it only fades.
  */
 @theme {
-  --animate-miss: miss 400ms ease-out;
-  --animate-miss-still: miss-color 400ms ease-out;
+  --animate-missed-prompt: miss 400ms ease-out, miss-fade 600ms ease-out forwards;
   --animate-hint: hint 700ms ease-out;
-  --animate-miss-mark: miss-mark 600ms ease-out forwards;
+  --animate-miss-fade: miss-fade 600ms ease-out forwards;
   --animate-prompt-in: prompt-in 160ms ease-out;
   --animate-press: press 180ms ease-out;
   --animate-hit: hit 450ms ease-out;
@@ -158,15 +158,11 @@
     }
   }
 
-  @keyframes miss-color {
-    0%,
-    60% {
-      color: var(--destructive);
-    }
-  }
-
-  /* A wrong answer marks the pressed button with X, then fades it out. */
-  @keyframes miss-mark {
+  /*
+   * A miss holds its marks (the X on the pressed button, the missed Prompt) a moment, then
+   * fades them out. On its own it is also the reduced-motion form of `missed-prompt`.
+   */
+  @keyframes miss-fade {
     0%,
     60% {
       opacity: 1;
