@@ -57,6 +57,7 @@ question; the full entry is in the feature's decisions.md.
 | เปิด Dialog ปุ่มลัดแล้วเริ่มรอบใหม่ เวลาไม่เดินระหว่างเปิด | [note-name-quiz](features/note-name-quiz/decisions.md) | D40 | — | — | active |
 | Keymap ใน search เป็นป้าย `keymapOf` แปลงเป็น `code` ; รอบใหม่เมื่อทุก param ยกเว้น `sound` เปลี่ยน | [note-name-quiz](features/note-name-quiz/decisions.md) | D41 | — | [0007](adr/0007-key-labels-are-bookmark-format.md) | active |
 | Dialog ปุ่มลัดอยู่ใน Mode bar ; จำนวนครั้งที่เปิดต่อท้าย Round key ; ref Dialog เปิดผ่าน `KeyRouting` | [note-name-quiz](features/note-name-quiz/decisions.md) | D42 | — | — | active |
+| Dialog ปุ่มลัด: modifier ที่กดเดี่ยวขณะรอปุ่ม ไม่มีอะไรเกิด ; `Shift` + ปุ่ม ผูกปุ่มนั้น | [note-name-quiz](features/note-name-quiz/decisions.md) | D43 | — | — | active |
 
 ## เนื้อหาดนตรี
 

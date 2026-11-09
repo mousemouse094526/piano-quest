@@ -10,9 +10,10 @@ import {
   rebind,
 } from './keys';
 
+// Written out by hand, not built with `keySetOf`, so a fault there can't hide here.
 const HOME_ROW: Keymap = {
   ...DEFAULT_KEYMAP,
-  letter: keySetOf('ASDFGHJ') ?? DEFAULT_KEYMAP.letter,
+  letter: { 1: 'KeyA', 2: 'KeyS', 3: 'KeyD', 4: 'KeyF', 5: 'KeyG', 6: 'KeyH', 7: 'KeyJ' },
 };
 
 describe('choiceFromCode', () => {
@@ -28,7 +29,7 @@ describe('choiceFromCode', () => {
     expect(choiceFromCode('Numpad5', DEFAULT_KEYMAP)).toEqual({ kind: 'solfege', note: 5 });
     const numpadZero = {
       ...DEFAULT_KEYMAP,
-      solfege: keySetOf('0234567') ?? DEFAULT_KEYMAP.solfege,
+      solfege: { ...DEFAULT_KEYMAP.solfege, 1: 'Digit0' },
     };
     expect(choiceFromCode('Numpad0', numpadZero)).toEqual({ kind: 'solfege', note: 1 });
   });
@@ -41,8 +42,8 @@ describe('choiceFromCode', () => {
 
   test('keys swapped across sets answer for the set they are bound in', () => {
     const swapped = {
-      letter: keySetOf('1234567') ?? DEFAULT_KEYMAP.letter,
-      solfege: keySetOf('CDEFGAB') ?? DEFAULT_KEYMAP.solfege,
+      letter: DEFAULT_KEYMAP.solfege,
+      solfege: DEFAULT_KEYMAP.letter,
     };
     expect(choiceFromCode('Digit5', swapped)).toEqual({ kind: 'letter', note: 5 });
     expect(choiceFromCode('Numpad5', swapped)).toEqual({ kind: 'letter', note: 5 });

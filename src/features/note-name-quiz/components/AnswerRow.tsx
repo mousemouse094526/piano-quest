@@ -6,12 +6,12 @@ import type { Choice, Side } from '../engine/types';
 import type { Keymap } from '../hooks/keys';
 import type { LastAnswer } from '../hooks/useRound';
 import type { Script } from '../search';
-import { noteLabel, shortcutLabel } from './labels';
+import { boundKeyLabel, noteLabel } from './labels';
 import { noFocus } from './noFocus';
 
 /**
  * The 7 answer buttons for the key set the current Prompt wants (D6). Each new value
- * of `hintFlashKey` (a counter, used as a React key) replays the shortcut flash once (D20).
+ * of `hintFlashKey` (a counter, used as a React key) replays the key hint flash once (D20).
  * The button of the last answer dips, flashes the accent when right, and shows `X` when
  * wrong (D20, D31). A 7-column grid keeps the row on one line down to a 375 px phone.
  */
@@ -55,7 +55,7 @@ export function AnswerRow({
                 hintFlashKey > 0 && 'animate-hint',
               )}
             >
-              {shortcutLabel(note, side, keymap)}
+              {boundKeyLabel(note, side, keymap)}
             </kbd>
             {last?.outcome === 'miss' && (
               // D20: the pressed button shows X for a moment; the animation ends hidden.

@@ -130,7 +130,8 @@ export function withScript(search: QuizSearch, script: Script): QuizSearch {
 
 /**
  * What a Round is played by: every value except `sound`, which a Round plays on through
- * (D14, D20, D37). A new param restarts the Round unless it is added here as well.
+ * (D14, D20, D37). A new param restarts the Round when it changes; to keep it from doing
+ * so, leave it out here the way `sound` is.
  */
 export function roundKeyOf(search: QuizSearch): string {
   const { sound: _sound, ...round } = search;

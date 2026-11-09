@@ -14,8 +14,8 @@ export function promptLabel(prompt: Prompt, script: Script): string {
   return noteLabel(prompt.note, prompt.ask, script);
 }
 
-/** The key that answers `note` on `side` in the Player's Keymap, e.g. `C` or `1` (D38). */
-export function shortcutLabel(note: Note, side: Side, keymap: Keymap): string {
+/** The label of the key that answers `note` on `side` in the Keymap, e.g. `C` or `1` (D38). */
+export function boundKeyLabel(note: Note, side: Side, keymap: Keymap): string {
   return keyLabel(keymap[side][note]);
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { DEFAULT_KEYMAP, keySetOf } from './hooks/keys';
+import { DEFAULT_KEYMAP } from './hooks/keys';
 import {
   DEFAULT_SEARCH,
   keymapOf,
@@ -122,7 +122,7 @@ describe('Keymap params (D34)', () => {
   test('keymapOf turns the params into key codes', () => {
     const search = parseQuizSearch({ 'letter-keys': 'ASDFGHJ' });
     expect(keymapOf(search)).toEqual({
-      letter: keySetOf('ASDFGHJ'),
+      letter: { 1: 'KeyA', 2: 'KeyS', 3: 'KeyD', 4: 'KeyF', 5: 'KeyG', 6: 'KeyH', 7: 'KeyJ' },
       solfege: DEFAULT_KEYMAP.solfege,
     });
     expect(keymapOf(DEFAULT_SEARCH)).toEqual(DEFAULT_KEYMAP);
@@ -185,7 +185,7 @@ describe('withKeymap', () => {
     const next = withKeymap(
       { ...DEFAULT_SEARCH, mode: 'count', len: 50, sound: 'on' },
       {
-        letter: keySetOf('ASDFGHJ') ?? DEFAULT_KEYMAP.letter,
+        letter: { 1: 'KeyA', 2: 'KeyS', 3: 'KeyD', 4: 'KeyF', 5: 'KeyG', 6: 'KeyH', 7: 'KeyJ' },
         solfege: DEFAULT_KEYMAP.solfege,
       },
     );

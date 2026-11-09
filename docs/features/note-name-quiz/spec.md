@@ -270,7 +270,7 @@ engine ถือกติกาทั้งหมด ส่วน UI พิส�
 ## Testing decisions
 
 - **Copy:** ยังไม่มี test ในโปรเจกต์ ticket แรกตั้ง pattern ตาม conventions (D21)
-- **Copy (Keymap):** parse ของ `letter-keys` `solfege-keys` ทำตาม `src/features/note-name-quiz/search.test.ts` ; `keys.ts` ได้ test ใหม่ `hooks/keys.test.ts` แบบเดียวกัน ; e2e เพิ่มใน `e2e/play-round.spec.ts` ตาม D28
+- **Copy (Keymap):** parse ของ `letter-keys` `solfege-keys` ทำตาม `src/features/note-name-quiz/search.test.ts` ; `keys.ts` ได้ test ใหม่ `hooks/keys.test.ts` แบบเดียวกัน ; e2e อยู่ใน `e2e/keymap.spec.ts` (แยกจาก `play-round.spec.ts` ตอน feature review) ตาม D28
 - unit test ของ Keymap: ค่าเริ่มต้น ; อักษรเล็ก ; number `1234567` ; ยาวผิด ; ตัวนอกตาราง ; ซ้ำในชุด ; ซ้ำข้ามชุด ; ชนกันหลัง fallback (`AAAAAAA` กับ `ASDFGHJ`) ; `1234.50` `1e23456` `[12345]` ; `Numpad` ; สลับข้ามชุด
 - engine ทดสอบด้วย unit test เท่านั้น ส่ง `now` และ `seed` เข้าไป ไม่ใช้ timer จริง
 - e2e ฟังเสียงไม่ได้ ทดสอบแค่ว่าไม่มี error ใน console การได้ยินเสียงบน iPhone ตรวจด้วยมือ

@@ -10,6 +10,9 @@ export type KeySet = Readonly<Record<Note, string>>;
 /** Both key sets, 14 distinct keys (D32). */
 export type Keymap = Readonly<Record<Side, KeySet>>;
 
+/** The two key sets of a Keymap, in the order the Keymap dialog shows them. */
+export const SIDES: readonly Side[] = ['letter', 'solfege'];
+
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const DIGITS = '0123456789';
 
@@ -64,14 +67,17 @@ export function choiceFromCode(code: string, keymap: Keymap): Choice | null {
   return bound ? answerOfCode(bound, keymap) : null;
 }
 
-/** The code a Keymap stores for a pressed key's code, or null when it can't be bound (D33). */
+/**
+ * The code a Keymap holds for a pressed key: `Numpad{n}` reads as `Digit{n}` (D32), and
+ * a key outside the D33 table gives null. Both answering and binding go through it.
+ */
 export function bindableCode(code: string): string | null {
-  const bound = numpadAsDigit(code);
-  return bound in KEY_LABELS ? bound : null;
+  const normalized = numpadAsDigit(code);
+  return normalized in KEY_LABELS ? normalized : null;
 }
 
 function answerOfCode(code: string, keymap: Keymap): Choice | null {
-  for (const kind of ['letter', 'solfege'] as const) {
+  for (const kind of SIDES) {
     const note = NOTES_IN_ORDER.find((n) => keymap[kind][n] === code);
     if (note) return { kind, note };
   }
@@ -122,4 +128,11 @@ export function keySetOf(labels: string): KeySet | null {
 /** D20: key repeat, browser shortcuts and IME composition never answer. */
 export function isIgnoredKey(e: KeyboardEvent): boolean {
   return e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.isComposing;
+}
+
+const MODIFIER_KEYS = new Set(['Shift', 'Control', 'Alt', 'AltGraph', 'Meta']);
+
+/** A modifier pressed on its own, e.g. the Shift before Shift+Q (D43). */
+export function isModifierKey(e: KeyboardEvent): boolean {
+  return MODIFIER_KEYS.has(e.key);
 }

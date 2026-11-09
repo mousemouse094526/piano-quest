@@ -12,23 +12,23 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { NOTES_IN_ORDER } from '../engine/notes';
-import type { Choice, Side } from '../engine/types';
+import type { Choice } from '../engine/types';
 import {
   bindableCode,
   DEFAULT_KEYMAP,
   isIgnoredKey,
+  isModifierKey,
   isSameAnswer,
   type Keymap,
   rebind,
+  SIDES,
 } from '../hooks/keys';
 import { keymapOf, type QuizSearch, withKeymap } from '../search';
 import { Kbd } from './Kbd';
-import { noteLabel, shortcutLabel } from './labels';
+import { boundKeyLabel, noteLabel } from './labels';
 
 /** What the line under the rows says after the last key pressed while waiting. */
 type Notice = { kind: 'not-bindable' } | { kind: 'swapped'; with: Choice } | null;
-
-const SIDES: readonly Side[] = ['letter', 'solfege'];
 
 /**
  * The "ปุ่มลัด" button and its Dialog (D35): pick an Answer's row, press a key, and the
@@ -70,14 +70,15 @@ export function KeymapDialog({
     setNotice(null);
   }
 
-  function change(next: Keymap) {
+  function commitKeymap(next: Keymap) {
     onChange(withKeymap(search, next));
   }
 
   // On the content, not the rows, so the key counts wherever focus is in the Dialog (D35).
   // React handles it before the event bubbles to the game's `window` listener.
   function onKeyDown(e: KeyboardEvent) {
-    if (!waiting || isIgnoredKey(e.nativeEvent)) return;
+    // A modifier alone is the start of a chord such as Shift+Q, not a key to bind (D43).
+    if (!waiting || isIgnoredKey(e.nativeEvent) || isModifierKey(e.nativeEvent)) return;
     // Tab moves focus as usual and stops waiting; Escape is handled by onEscapeKeyDown.
     if (e.code === 'Tab') {
       setWaiting(null);
@@ -93,7 +94,7 @@ export function KeymapDialog({
     const result = rebind(keymap, waiting, code);
     setWaiting(null);
     setNotice(result.swappedWith && { kind: 'swapped', with: result.swappedWith });
-    if (result.keymap !== keymap) change(result.keymap);
+    if (result.keymap !== keymap) commitKeymap(result.keymap);
   }
 
   return (
@@ -119,8 +120,9 @@ export function KeymapDialog({
           e.preventDefault();
           returnFocusTo.current?.focus();
         }}
-        // React bubbles through the portal to the Mode bar, whose onMouseDown keeps focus
-        // off its controls; the Dialog's rows need focus (D35).
+        // React bubbles events through the portal to its React parent, the Mode bar, whose
+        // onMouseDown stops its controls taking focus (D26). The Dialog's rows need focus,
+        // so a press inside the Dialog stops here (D35).
         onMouseDown={(e) => e.stopPropagation()}
       >
         <DialogHeader>
@@ -148,7 +150,7 @@ export function KeymapDialog({
                     {isWaiting ? (
                       <span className="text-brand text-xs">กดปุ่มที่ต้องการ…</span>
                     ) : (
-                      <Kbd>{shortcutLabel(note, side, keymap)}</Kbd>
+                      <Kbd>{boundKeyLabel(note, side, keymap)}</Kbd>
                     )}
                   </Button>
                 );
@@ -166,7 +168,7 @@ export function KeymapDialog({
             variant="outline"
             onClick={() => {
               stopWaiting();
-              change(DEFAULT_KEYMAP);
+              commitKeymap(DEFAULT_KEYMAP);
             }}
           >
             คืนค่าเริ่มต้น

@@ -606,6 +606,17 @@
 
 **From:** build ticket 05 · **Status:** active
 
+## D43: ขณะรอปุ่ม modifier ที่กดเดี่ยวไม่ใช่ปุ่มที่จะผูก
+
+**Chosen:** ใน Dialog ปุ่มลัด ขณะแถวรอปุ่ม กด `Shift` `Control` `Alt` `AltGraph` หรือ `Meta` เดี่ยวๆ → ไม่มีอะไรเกิด ไม่ขึ้น "ใช้ปุ่มนี้ไม่ได้" แถวยังรอ ; `Shift` + ปุ่มที่ผูกได้ ผูกปุ่มนั้น (`code` ไม่ขึ้นกับ Shift) ; `Ctrl` `Cmd` `Alt` + ปุ่ม ยังไม่สนใจตาม D20
+
+**Why:** D35 ว่า "กด modifier ค้าง → ไม่สนใจ" ; กด `Shift+Q` ปุ่ม Shift ลงก่อน เดิมขึ้น "ใช้ปุ่มนี้ไม่ได้" แวบหนึ่งก่อนผูก `Q` ทำให้งง
+
+**Rejected:**
+- ขึ้น "ใช้ปุ่มนี้ไม่ได้" เมื่อกด modifier เดี่ยว (ตาม D33 ที่ผูก modifier ไม่ได้) — ข้อความขึ้นทุกครั้งที่กด chord
+
+**From:** feature review · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)

@@ -39,8 +39,8 @@ export function NoteNameQuiz() {
   }
 
   // A new Round key remounts the Round. Script only changes how notes read, but a Round
-  // keeps one Script from start to Results. Opening the Keymap dialog counts too, so the
-  // Player comes back to a Round that hasn't started, changed keys or not (D40).
+  // keeps one Script from start to Results. Opening the Keymap dialog counts too, changed
+  // keys or not: otherwise a `time` Round would run out while the Dialog is open (D40).
   const roundKey = `${roundKeyOf(search)}#${keymapOpenings}`;
 
   return (
