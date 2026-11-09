@@ -22,8 +22,8 @@ question; the full entry is in the feature's decisions.md.
 | Biome ตรวจเฉพาะ code รูปแบบ code และห้าม browser storage ด้วย lint กับ test | [note-name-quiz](features/note-name-quiz/decisions.md) | D24 | — | [0001](adr/0001-no-player-data.md) | active |
 | Mode bar เป็น `ToggleGroup` เห็นทุกค่า ไม่มี popover ปุ่มเกมไม่รับ focus | [note-name-quiz](features/note-name-quiz/decisions.md) | D26 | share-results | [0009](adr/0009-game-buttons-need-shortcuts.md) | changed by D35 |
 | สีเน้นเขียวมิ้นต์ของเราเอง (`--brand`) และ animation ตอบ เลื่อน Prompt นับผล เวลาใกล้หมด | [note-name-quiz](features/note-name-quiz/decisions.md) | D31 | — | [0006](adr/0006-own-content-only.md) | changed by D44 |
-| แก้ตาม user trial 2026-11-09: วิธีเล่นก่อนข้อแรก ข้อที่ตอบผิดค้างสีแดง ข้อความกดผิดชุด คำใบ้ `Esc` ซ่อนคำใบ้คีย์บอร์ดบนจอสัมผัส ป้าย Direction ตาม Script ปุ่มคัดลอกลิงก์ ตัวเลข Results นับขึ้นพร้อมกัน | [note-name-quiz](features/note-name-quiz/decisions.md) | D44 | — | — | active |
-| ปุ่มคัดลอกลิงก์: ไม่มี clipboard → "คัดลอกไม่ได้" ; กดซ้ำนับ 2 วินาทีใหม่ | [note-name-quiz](features/note-name-quiz/decisions.md) | D45 | — | — | active |
+| แก้ตาม user trial 2026-11-09: วิธีเล่นก่อนข้อแรก ข้อที่ตอบผิดค้างสีแดง ข้อความกดผิดชุด คำใบ้ `Esc` ซ่อนคำใบ้คีย์บอร์ดบนจอสัมผัส ป้าย Direction ตาม Script ปุ่มคัดลอกลิงก์ ตัวเลข Results นับขึ้นพร้อมกัน | [note-name-quiz](features/note-name-quiz/decisions.md) | D44 | share-results | — | active |
+| ปุ่มคัดลอกลิงก์: ไม่มี clipboard → "คัดลอกไม่ได้" ; กดซ้ำนับ 2 วินาทีใหม่ | [note-name-quiz](features/note-name-quiz/decisions.md) | D45 | share-results | — | active |
 | ตั้งปุ่มลัดใน Dialog จากปุ่ม `Keyboard` ท้าย Mode bar ปุ่มเกมไม่ทำงานขณะเปิด ปิดแล้ว focus กลับเกม | [note-name-quiz](features/note-name-quiz/decisions.md) | D35 | — | — | active |
 | ป้ายปุ่มลัดตามแป้น US QWERTY ตายตัว | [note-name-quiz](features/note-name-quiz/decisions.md) | D38 | — | [0007](adr/0007-key-labels-are-bookmark-format.md) | active |
 | ปุ่มตั้งปุ่มลัดและป้ายปุ่มแสดงทุกจอ ไม่ตรวจว่ามีคีย์บอร์ด | [note-name-quiz](features/note-name-quiz/decisions.md) | D39 | — | — | changed by D44 |
@@ -55,7 +55,7 @@ question; the full entry is in the feature's decisions.md.
 | `X` บนปุ่มที่ผิดจนกว่าจะตอบข้อถัดไป ตัวเล่นเสียงตัวเดียวทั้งแอป ปุ่มแตะเป็น grid 7 ช่อง | [note-name-quiz](features/note-name-quiz/decisions.md) | D29 | — | — | active |
 | กติกาต่อ Mode อยู่ใน `engine/modes.ts` ; Mode bar บรรทัดเดียวจาก `lg` (`main` `max-w-4xl`) | [note-name-quiz](features/note-name-quiz/decisions.md) | D30 | — | — | active |
 | Keymap 2 Key set ชุดละ 7 ปุ่มไม่ซ้ำ `Numpad` เท่ากับ `Digit` | [note-name-quiz](features/note-name-quiz/decisions.md) | D32 | — | — | active |
-| ผูกได้ 47 ปุ่ม: A–Z 0–9 และเครื่องหมาย 11 ปุ่ม ห้าม `Tab` `Esc` `Enter` `Space` | [note-name-quiz](features/note-name-quiz/decisions.md) | D33 | — | [0007](adr/0007-key-labels-are-bookmark-format.md) | active |
+| ผูกได้ 47 ปุ่ม: A–Z 0–9 และเครื่องหมาย 11 ปุ่ม ห้าม `Tab` `Esc` `Enter` `Space` | [note-name-quiz](features/note-name-quiz/decisions.md) | D33 | share-results | [0007](adr/0007-key-labels-are-bookmark-format.md) | active |
 | ผูกปุ่มที่ Answer อื่นใช้อยู่ → สลับปุ่มกัน | [note-name-quiz](features/note-name-quiz/decisions.md) | D36 | — | — | active |
 | เปลี่ยน Keymap แล้วเริ่มรอบใหม่ เหมือนค่า Mode bar อื่น | [note-name-quiz](features/note-name-quiz/decisions.md) | D37 | — | — | extended by D40 |
 | เปิด Dialog ปุ่มลัดแล้วเริ่มรอบใหม่ เวลาไม่เดินระหว่างเปิด | [note-name-quiz](features/note-name-quiz/decisions.md) | D40 | — | — | active |
@@ -66,6 +66,7 @@ question; the full entry is in the feature's decisions.md.
 | มือถือ (`pointer: coarse`) เปิด share sheet จอใหญ่คัดลอกข้อความ | [share-results](features/share-results/decisions.md) | D3 | — | — | changed by D7 |
 | share-results เริ่มสร้างหลัง note-name-quiz ticket 06 merge | [share-results](features/share-results/decisions.md) | D6 | — | — | active |
 | แก้จาก red team: share ล้มแสดงกล่องข้อความ ข้อผิดไม่เกิน 20 แถว ปุ่มลัด `S` seam share หรือคัดลอก | [share-results](features/share-results/decisions.md) | D7 | — | [0009](adr/0009-game-buttons-need-shortcuts.md) | active |
+| ticket 01: share ล้มบอก "แชร์ไม่ได้" `S` ผ่าน `RoundHandlers.onShare` ผลแชร์ผูกกับ Round ปุ่มคัดลอกลิงก์ใช้ `shareOrCopy` | [share-results](features/share-results/decisions.md) | D8 | — | — | active |
 
 ## เนื้อหาดนตรี
 

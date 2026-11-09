@@ -93,6 +93,37 @@ export function stat(page: Page, label: string) {
     .locator('dd');
 }
 
+export type ShareSpy = { copied: string[]; shared: ShareData[] };
+
+/**
+ * Replaces `navigator.clipboard` and `navigator.share` with stubs that record what left the
+ * page, so both projects read it back (WebKit has no clipboard permission to grant).
+ */
+export async function stubShare(page: Page, { copyWorks = true, shareHangs = false } = {}) {
+  await page.addInitScript(
+    ({ copyWorks, shareHangs }) => {
+      const spy: ShareSpy = { copied: [], shared: [] };
+      (window as unknown as { spy: ShareSpy }).spy = spy;
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: async (text: string) => {
+            if (!copyWorks) throw new DOMException('denied', 'NotAllowedError');
+            spy.copied.push(text);
+          },
+        },
+      });
+      Object.defineProperty(navigator, 'share', {
+        value: (data: ShareData) => {
+          spy.shared.push(data);
+          return shareHangs ? new Promise(() => {}) : Promise.resolve();
+        },
+      });
+    },
+    { copyWorks, shareHangs },
+  );
+  return () => page.evaluate(() => (window as unknown as { spy: ShareSpy }).spy);
+}
+
 /** Fails the test on any console error or uncaught page error. */
 export function watchErrors(page: Page): string[] {
   const errors: string[] = [];

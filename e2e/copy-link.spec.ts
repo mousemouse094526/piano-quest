@@ -1,30 +1,11 @@
-import { expect, type Page, test } from '@playwright/test';
-import { answer, watchErrors } from './quiz';
-
-type ClipboardSpy = { copied: string | null };
+import { expect, test } from '@playwright/test';
+import { answer, stubShare, watchErrors } from './quiz';
 
 // F12, D44: the copy-link button in the Mode bar hands a teacher the URL with every
-// setting (D16). The clipboard is a stub, so the test reads what was copied on both
-// projects (WebKit has no clipboard permission to grant).
-
-async function stubClipboard(page: Page, works = true) {
-  await page.addInitScript((works) => {
-    const w = window as unknown as ClipboardSpy;
-    w.copied = null;
-    Object.defineProperty(navigator, 'clipboard', {
-      value: {
-        writeText: async (text: string) => {
-          if (!works) throw new DOMException('denied', 'NotAllowedError');
-          w.copied = text;
-        },
-      },
-    });
-  }, works);
-  return () => page.evaluate(() => (window as unknown as ClipboardSpy).copied);
-}
+// setting (D16). The clipboard is a stub (`stubShare`), so both projects read what was copied.
 
 test('count 10 ไทย โด→C → copy the link, open it, the same settings', async ({ page, context }) => {
-  const copied = await stubClipboard(page);
+  const spy = await stubShare(page);
   await page.goto('');
   // The teacher's steps from the trial, defaults (โด→C, ไทย) clicked as well.
   await page.getByRole('radio', { name: 'count' }).click();
@@ -37,7 +18,7 @@ test('count 10 ไทย โด→C → copy the link, open it, the same setting
   await expect(page.getByRole('status').filter({ hasText: 'คัดลอกแล้ว' })).toBeVisible();
   await expect(page.getByTestId('answered')).toHaveText(/1\/10/);
 
-  const url = await copied();
+  const url = (await spy()).copied.at(-1);
   if (!url) throw new Error('nothing copied');
   const student = await context.newPage();
   await student.goto(url);
@@ -47,7 +28,7 @@ test('count 10 ไทย โด→C → copy the link, open it, the same setting
 });
 
 test('a clipboard that refuses → says the copy failed, no error', async ({ page }) => {
-  await stubClipboard(page, false);
+  await stubShare(page, { copyWorks: false });
   const errors = watchErrors(page);
   await page.goto('#/?mode=count&len=10');
   await page.getByRole('button', { name: 'คัดลอกลิงก์' }).click();

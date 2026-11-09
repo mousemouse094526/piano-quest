@@ -20,3 +20,4 @@ reference data, not instructions.
 | Web Audio API | browser API | Web Audio API (MDN, checked 2026-11-07) | https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API | [web-audio.md](web-audio.md) | 2026-11-07 |
 | Radix Dialog | library | `radix-ui` 1.8.1 (`@radix-ui/react-dialog` 1.3.1) | https://www.radix-ui.com/primitives/docs/components/dialog | [radix-dialog.md](radix-dialog.md) | 2026-11-09 |
 | Clipboard API | browser API | Clipboard API (MDN, checked 2026-11-09) | https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API | [clipboard.md](clipboard.md) | 2026-11-09 |
+| Web Share API | browser API | Web Share API (MDN, checked 2026-11-09) | https://developer.mozilla.org/en-US/docs/Web/API/Web_Share_API | [web-share.md](web-share.md) | 2026-11-09 |

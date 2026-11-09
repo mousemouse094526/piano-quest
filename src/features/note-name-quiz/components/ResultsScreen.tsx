@@ -1,24 +1,28 @@
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { answerKind, countedUp, results } from '../engine/round';
 import type { Miss, RoundState } from '../engine/types';
 import { useCountUpProgress } from '../hooks/useCountUpProgress';
+import type { ShareView } from '../hooks/useShareResults';
 import type { Script } from '../search';
+import { asPercent, asSeconds, asWhole, NO_VALUE } from './format';
 import { Kbd } from './Kbd';
 import { noteLabel, promptLabel, roundLabel } from './labels';
 import { noFocus } from './noFocus';
 
-const NO_VALUE = '—';
-
 export function ResultsScreen({
   state,
   script,
+  share,
   onRestart,
+  onShare,
 }: {
   state: RoundState;
   script: Script;
+  share: ShareView;
   onRestart: () => void;
+  onShare: () => void;
 }) {
   const final = results(state);
   // D44: one count-up for every number, so no frame shows "ถูก 5" with 59% and no miss.
@@ -41,19 +45,58 @@ export function ResultsScreen({
 
       <MissList misses={final.misses} script={script} />
 
-      <Button variant="outline" size="lg" className="min-h-11" {...noFocus} onClick={onRestart}>
-        <RotateCcw aria-hidden="true" />
-        เล่นอีกรอบ
-        {/* D44: no Tab hint on a touch screen. */}
-        <Kbd className="pointer-coarse:hidden">Tab</Kbd>
-      </Button>
+      <div className="flex flex-wrap justify-center gap-3">
+        <Button variant="outline" size="lg" className="min-h-11" {...noFocus} onClick={onRestart}>
+          <RotateCcw aria-hidden="true" />
+          เล่นอีกรอบ
+          {/* D44: no Tab hint on a touch screen. */}
+          <Kbd className="pointer-coarse:hidden">Tab</Kbd>
+        </Button>
+        {/* share-results D2, D7: `S` presses it too; disabled while the share sheet is open. */}
+        <Button
+          variant="outline"
+          size="lg"
+          className="min-h-11"
+          {...noFocus}
+          disabled={share.busy}
+          onClick={onShare}
+        >
+          <Share2 aria-hidden="true" />
+          แชร์ผล
+          <Kbd className="pointer-coarse:hidden">S</Kbd>
+        </Button>
+      </div>
+
+      <ShareOutcomeView share={share} />
     </div>
   );
 }
 
-const asWhole = (n: number) => String(Math.round(n));
-const asPercent = (n: number) => `${Math.round(n)}%`;
-const asSeconds = (n: number) => n.toFixed(2);
+/**
+ * share-results D3, D7: the live region stays on the page so each new outcome is read out;
+ * a share or copy that failed leaves the Share text in a box to copy by hand.
+ */
+function ShareOutcomeView({ share }: { share: ShareView }) {
+  return (
+    <>
+      <p role="status" aria-live="polite" className="min-h-5 text-muted-foreground text-sm">
+        {share.outcome === 'copied' && 'คัดลอกผลแล้ว'}
+        {share.outcome === 'failed' && 'แชร์ไม่ได้'}
+      </p>
+      {share.boxText !== null && (
+        <label className="flex w-full max-w-md flex-col gap-2 text-sm">
+          คัดลอกข้อความนี้ไปส่งเองได้
+          <textarea
+            readOnly
+            value={share.boxText}
+            rows={10}
+            className="rounded-md border bg-transparent p-3 font-mono text-sm"
+          />
+        </label>
+      )}
+    </>
+  );
+}
 
 /** One Results number as it counts up; `null` shows "—". `accent` marks the headline numbers (D31). */
 function Stat({

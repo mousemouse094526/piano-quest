@@ -1,12 +1,15 @@
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { NOTES } from '../engine/notes';
+import type { RoundState } from '../engine/types';
 import { type KeyRouting, useRound } from '../hooks/useRound';
+import { useShareResults } from '../hooks/useShareResults';
 import { isSoundOn, keymapOf, type QuizSearch, roundKeyOf, settingsOf, withSound } from '../search';
 import { notePlayer } from '../sound/notePlayer';
 import { Game } from './Game';
 import { ModeBar } from './ModeBar';
 import { ResultsScreen } from './ResultsScreen';
+import { buildShareText } from './shareText';
 
 export function NoteNameQuiz() {
   const search = useSearch({ from: '/' });
@@ -70,16 +73,30 @@ export function NoteNameQuiz() {
 /** One Round with fixed settings; it exists so the parent can remount it by `key`. */
 function Round({ search, keyRouting }: { search: QuizSearch; keyRouting: KeyRouting }) {
   const keymap = keymapOf(search);
+  const sharing = useShareResults();
+  // share-results D4: the link is the page's address now, which holds every setting (D27).
+  function shareRound(finished: RoundState) {
+    sharing.share(finished, buildShareText(finished, search.script, window.location.href));
+  }
   const { state, now, keySetHint, lastAnswer, restart, end, answer } = useRound(
     settingsOf(search),
     keymap,
     keyRouting,
-    (note) => {
-      if (isSoundOn(search)) notePlayer.play(NOTES[note].hz);
+    {
+      onCorrect: (note) => {
+        if (isSoundOn(search)) notePlayer.play(NOTES[note].hz);
+      },
+      onShare: shareRound,
     },
   );
   return state.status === 'finished' ? (
-    <ResultsScreen state={state} script={search.script} onRestart={restart} />
+    <ResultsScreen
+      state={state}
+      script={search.script}
+      share={sharing.viewFor(state)}
+      onRestart={restart}
+      onShare={() => shareRound(state)}
+    />
   ) : (
     <Game
       state={state}

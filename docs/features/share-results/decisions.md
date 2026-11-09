@@ -107,6 +107,20 @@
 
 **From:** red team · **Status:** active
 
+## D8: รายละเอียดจากการสร้าง ticket 01
+
+**Chosen:** ทางเลือกเล็กที่ spec ไม่ได้กำหนด ตามรายการด้านล่าง
+
+**Details:**
+- **ข้อความใน region บอกผลเมื่อ `'failed'`:** "แชร์ไม่ได้" อยู่คู่กับกล่องข้อความจนเริ่มรอบใหม่ — คนใช้ screen reader รู้ว่ามีกล่องขึ้นมา ส่วนหัวกล่องยังเป็น "คัดลอกข้อความนี้ไปส่งเองได้" ตาม spec › Design
+- **`S` ผ่าน key listener ตัวเดียวของเกม:** `useRound` รับ `onShare` ใน `RoundHandlers` คู่กับ `onCorrect` และเรียกเมื่อกด `KeyS` ตอน Round จบแล้ว ปุ่มคำตอบที่ผูกกับ `S` ไม่มีผลบน Results อยู่แล้ว จึงไม่ชนกับ Keymap (note-name-quiz D33)
+- **ผลของการแชร์ผูกกับ Round:** `useShareResults` จำว่าผลเป็นของ `RoundState` ไหน เริ่มรอบใหม่ (`Tab`) แล้วกล่องและข้อความหายเองโดยไม่ต้องล้าง ; กดซ้ำหลังล้ม กล่องเดิมอยู่ต่อระหว่างรอและหลังจากนั้น (D7 "อยู่จนเริ่มรอบใหม่")
+- **`shareOrCopy` อยู่ `src/lib` ตาม spec › Implementation:** ผู้ใช้ทั้งสองยังอยู่ใน note-name-quiz ซึ่งขัดกับ "Where shared code goes" ใน conventions ที่ให้ย้ายเมื่อมีผู้ใช้ feature ที่สอง ทำตาม spec ที่อนุมัติแล้ว และฝากให้ feature review ตัดสินว่าจะย้ายกลับหรือแก้กติกา
+- **ตัวคัดลอกของปุ่มคัดลอกลิงก์:** เรียก `shareOrCopy` ด้วย `browserShareDeps()` ที่ตัด `share` ออก ผลที่ไม่ใช่ `'copied'` แสดง "คัดลอกไม่ได้" เหมือนเดิม (note-name-quiz D45)
+- **seed ใน test ตัวอย่างแรกของ sketch:** seed 1 ถามซอลเป็นข้อแรกและทีเป็นข้อที่สี่ test ตอบผิดสองข้อนั้น
+
+**From:** build ticket 01 · **Status:** active
+
 ## Sources
 
 - [MDN `Navigator.share()`](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share) — share sheet, `AbortError` (accessed 2026-11-09)
