@@ -1,8 +1,8 @@
 # Progress: note-name-quiz
 
-**Now:** ticket 06 (แก้ตาม user trial 2026-11-09) เสร็จ ทุก ticket done ; รอ feature review ; Blocked #1 (ตรวจเสียงบน iPhone) รอหลัง merge เข้า `main`
+**Now:** feature review (trial fixes) เสร็จ ; พร้อม merge ; Blocked #1 (ตรวจเสียงและปุ่มคัดลอกลิงก์บน iPhone) รอหลัง merge เข้า `main`
 
-**Next:** `/warroom-build note-name-quiz --review-feature`
+**Next:** `/pr-open`
 
 ## Tickets
 
@@ -16,6 +16,24 @@
 | 06 | Trial fixes 2026-11-09 | done |
 
 ## Log
+
+### Feature review (trial fixes) — done 2026-11-09
+
+**Built:**
+- e2e F11 (Results นับขึ้น) flaky 5/40: อ่าน 3 ตัวเลขแยกกัน React commit frame ใหม่ระหว่างอ่านได้ (fake clock ไม่คุม scheduler ของ React) ; อ่านทีเดียวใน `evaluate` → 60/60
+- `CopyLinkButton`: ไม่มี `navigator.clipboard` → "คัดลอกไม่ได้" ; กดซ้ำนับ 2 วินาทีใหม่ (D45) + e2e ไม่มี clipboard
+- `modeHowTo` ใช้ `lengthLabel` ; `DO` แทน `NOTES[1]` ; `missed` → `missedPrompt` ; `hideKeySetHint` ; keyframe `miss` ไม่ใส่สีซ้ำ ; คอมเมนต์ `share` ใน `countedUp`
+- e2e: ข้อที่ผิดอยู่ในจอ (`toBeInViewport`) ; `animation-name` ตรงตัว `miss, miss-fade` ; copy-link ใช้ `watchErrors` และ `ClipboardSpy` ; ชื่อ test "Mode bar"
+- spec.md › Seams Testing decisions Out of Scope (ลบ "ไม่มีปุ่ม copy link") ; flow.md ข้อที่ผิด ; CONTEXT.md "การตั้งค่า" บนจอ = Mode bar
+
+**Decided:**
+- D45 — ปุ่มคัดลอกลิงก์เมื่อไม่มี clipboard และเมื่อกดซ้ำ
+- ทิ้งตามตัวเลือก Recommended (auto mode): e2e F11 คิดความแม่นจากตัวเลขบนจอ (AC F11 ขอให้ทุก frame ตรงกัน) ; export `accuracyOf` เพื่อ unit test ; review บอกว่า 375 px กับจอสัมผัสไม่ได้ตรวจคู่กัน — ผิด test 375 px รันใน project `iphone` ด้วย
+
+**For the next ticket:**
+- —
+
+**Checks:** `npx biome ci .`, `npm run typecheck`, `npm test` (74 passed), `npm run e2e` (98 passed, 4 skipped), `npm run build` — all green ที่ `2390861`
 
 ### 06: Trial fixes 2026-11-09 — done 2026-11-09
 
