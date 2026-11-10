@@ -17,7 +17,9 @@ test('count 10, all correct → finished, accuracy 100', () => {
 
 ## Rules
 
-- Unit: Vitest, `*.test.ts` next to the engine file it tests.
+- Unit: Vitest, `*.test.ts` next to the engine file it tests — or next to any other pure
+  function that takes its browser parts as arguments (`components/shareText.ts`,
+  `hooks/shareOrCopy.ts`).
 - e2e: Playwright in `e2e/`, projects Chromium desktop and WebKit `iPhone`;
   `webServer` runs the production build with `vite preview`.
 - Lint and format: Biome; CI runs `biome ci .`.
@@ -30,5 +32,8 @@ test('count 10, all correct → finished, accuracy 100', () => {
 - Biome checks code only; Markdown is excluded (D24).
 - `src/no-player-data.test.ts` — app-wide guard for ADR-0001; app-wide rule tests sit at `src/` root.
 - `e2e/play-round.spec.ts` — one test per Seam 2 bullet; keys only through `page.keyboard`; waits for the Prompt before the first key; reads the right Answer from the Prompt text and the engine's `NOTES`.
+- `e2e/keymap.spec.ts` — the Keymap flow (URL and Keymap dialog) in its own file, one file per user flow; shared helpers (`readPrompt`, `answerButtons`, `expectNoSidewaysScroll`) live in `e2e/quiz.ts`.
+- `e2e/copy-link.spec.ts`, `e2e/share-results.spec.ts` — `stubShare` (`e2e/quiz.ts`) replaces `navigator.clipboard` and `navigator.share` with `addInitScript` so both projects read what left the page (WebKit cannot grant clipboard permissions).
+- `src/features/note-name-quiz/hooks/shareOrCopy.test.ts` — browser parts passed in as `vi.fn` fakes that reject with named `DOMException`s, one test per path.
 - `playwright.config.ts` — own port (4317), always a fresh build, never reuse a running server (D28).
 - `src/features/note-name-quiz/sound/notePlayer.test.ts` — a fake `AudioContext` via a factory argument; failure paths must not throw.

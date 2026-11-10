@@ -4,4 +4,5 @@ Where every feature stands. Detail per feature in `progress/{slug}/`.
 
 | Feature | Manual | Stage | UI | Build | Left | Next |
 |---|---|---|---|---|---|---|
-| [note-name-quiz](note-name-quiz/progress.md) | false | review | 🎨 2/2 | 3/3 | [PR #1](https://github.com/mousemouse094526/piano-quest/pull/1) ; iPhone silent-mode check after deploy (Blocked #1) | — |
+| [note-name-quiz](note-name-quiz/progress.md) | false | done | 🎨 3/3 | ✅ b921026 | ตรวจเสียง + ปุ่มคัดลอกบน iPhone จริง (Blocked #1) หลัง deploy `main` | — |
+| [share-results](share-results/progress.md) | false | done | 🎨 1/1 | ✅ a4ecc4e | ตรวจ share sheet บน iPhone จริงหลัง deploy `main` | — |

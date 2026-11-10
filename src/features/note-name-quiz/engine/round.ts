@@ -70,10 +70,37 @@ export function results(state: RoundState): Results {
   return {
     correct: state.correct,
     wrong,
-    accuracy: answered === 0 ? 0 : Math.round((state.correct / answered) * 100),
+    accuracy: accuracyOf(state.correct, wrong),
     notesPerMinute: hasPace ? Math.round(state.correct / (elapsed / 60_000)) : null,
     secondsPerAnswer: hasPace ? Math.round((elapsed / 1000 / answered) * 100) / 100 : null,
     misses: state.misses,
+  };
+}
+
+/** Right answers as a whole percent of all answers; 0 before any answer. */
+export function accuracyOf(correct: number, wrong: number): number {
+  const answered = correct + wrong;
+  return answered === 0 ? 0 : Math.round((correct / answered) * 100);
+}
+
+/**
+ * D31, D44: Results as they read `progress` (0–1) of the way through counting up. Right
+ * and wrong step in whole answers and every other number follows from them, so the
+ * numbers on screen agree on every frame: accuracy from the counts shown, notes per minute
+ * in step with the right answers shown. Seconds per answer has no count to follow, so it
+ * shows its final value from the start.
+ */
+export function countedUp(final: Results, progress: number): Results {
+  const correct = Math.round(final.correct * progress);
+  const wrong = Math.round(final.wrong * progress);
+  // No right answers means no notes per minute to count up; any share keeps it at 0.
+  const share = final.correct === 0 ? 1 : correct / final.correct;
+  return {
+    ...final,
+    correct,
+    wrong,
+    accuracy: accuracyOf(correct, wrong),
+    notesPerMinute: final.notesPerMinute === null ? null : Math.round(final.notesPerMinute * share),
   };
 }
 

@@ -13,6 +13,7 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --color-brand: var(--brand);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -48,6 +49,8 @@
 
 :root {
   --radius: 0.625rem;
+  /* D31: our own mint accent (not Monkeytype's colours, ADR-0006). Darker on light for contrast. */
+  --brand: oklch(0.52 0.11 170);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -83,6 +86,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    --brand: oklch(0.83 0.13 168);
     --background: oklch(0.145 0 0);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
@@ -118,14 +122,19 @@
 }
 
 /*
- * Wrong-answer feedback that does not rely on colour alone (D20): the Prompt
- * shakes as it flashes red. With reduced motion only the colour flash stays.
+ * Wrong-answer feedback that does not rely on colour alone (D20, D44): the
+ * Prompt just missed stays in red beside the new one, shakes, then fades out.
+ * With reduced motion it only fades.
  */
 @theme {
-  --animate-miss: miss 400ms ease-out;
-  --animate-miss-still: miss-color 400ms ease-out;
+  --animate-missed-prompt: miss 400ms ease-out, miss-fade 600ms ease-out forwards;
   --animate-hint: hint 700ms ease-out;
-  --animate-miss-mark: miss-mark 600ms ease-out forwards;
+  --animate-miss-fade: miss-fade 600ms ease-out forwards;
+  --animate-prompt-in: prompt-in 160ms ease-out;
+  --animate-press: press 180ms ease-out;
+  --animate-hit: hit 450ms ease-out;
+  --animate-hit-still: hit-color 450ms ease-out;
+  --animate-tick: tick 300ms ease-out;
 
   @keyframes miss {
     0%,
@@ -134,36 +143,77 @@
     }
     15% {
       transform: translateX(-10px);
-      color: var(--destructive);
     }
     35% {
       transform: translateX(10px);
-      color: var(--destructive);
     }
     55% {
       transform: translateX(-6px);
-      color: var(--destructive);
     }
     75% {
       transform: translateX(6px);
     }
   }
 
-  @keyframes miss-color {
-    0%,
-    60% {
-      color: var(--destructive);
-    }
-  }
-
-  /* A wrong answer marks the pressed button with X, then fades it out. */
-  @keyframes miss-mark {
+  /*
+   * A miss holds its marks (the X on the pressed button, the missed Prompt) a moment, then
+   * fades them out. On its own it is also the reduced-motion form of `missed-prompt`.
+   */
+  @keyframes miss-fade {
     0%,
     60% {
       opacity: 1;
     }
     100% {
       opacity: 0;
+    }
+  }
+
+  /* D31: each answer slides the Prompt row in from the right, short enough for fast play. */
+  @keyframes prompt-in {
+    from {
+      transform: translateX(0.75rem);
+      opacity: 0.4;
+    }
+  }
+
+  /* D31: the pressed answer button dips, by tap or by key. */
+  @keyframes press {
+    40% {
+      transform: scale(0.92);
+    }
+  }
+
+  /* D31: a right answer dips the button and flashes it in the accent. */
+  @keyframes hit {
+    0% {
+      transform: scale(0.92);
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+    40% {
+      transform: scale(1.04);
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+    60% {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+  }
+
+  @keyframes hit-color {
+    0%,
+    60% {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+  }
+
+  /* D31: the last 5 s of a `time` Round, the clock beats once a second. */
+  @keyframes tick {
+    40% {
+      transform: scale(1.15);
     }
   }
 

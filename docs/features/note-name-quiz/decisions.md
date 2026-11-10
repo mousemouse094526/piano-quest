@@ -356,7 +356,7 @@
 - ป้ายปุ่มลัดกระพริบเฉพาะทิศสลับ (`needsKeySetHint` ใน engine) ทิศคงที่กดปุ่มนอกชุดแล้วไม่มีอะไรเกิด (D14)
 - แถบล่างแสดง `Esc` เฉพาะ `zen` ตาม spec › Design ("`Esc` จบ (`zen`)")
 
-**From:** build ticket 02 · **Status:** active
+**From:** build ticket 02 · **Status:** changed by D35
 
 ## D27: URL ของ Mode bar
 
@@ -422,6 +422,236 @@
 
 **From:** feature review · **Status:** active
 
+## D31: สีเน้นเขียวมิ้นต์ และ animation
+
+**Chosen:** เพิ่มสีเน้นของเราเองหนึ่งสี (token `--brand`) เป็นเขียวมิ้นต์ บนธีมของ shadcn/ui: พื้นสว่างใช้ `oklch(0.52 0.11 170)` ส่วนพื้นมืดใช้ `oklch(0.83 0.13 168)` สีนี้ใช้กับค่าที่เลือกใน Mode bar ตัวนับเวลาหรือข้อ ปุ่มที่ตอบถูก (กระพริบ) และตัวเลขความแม่นกับโน้ตต่อนาทีในหน้า Results ; animation ที่เพิ่ม:
+- แถว Prompt เลื่อนเข้าจากขวาทุกครั้งที่ตอบ (160 ms)
+- ปุ่มที่ตอบยุบแล้วเด้งกลับ ทั้งตอนแตะและตอนกดคีย์
+- หน้า Results ค่อยๆ โผล่ ตัวเลขนับขึ้นจาก 0 (600 ms)
+- `time` 5 วินาทีสุดท้าย ตัวเลขเวลาเต้นทุกวินาที
+
+**Why:** ผู้ใช้อยากได้ความรู้สึกแบบ Monkeytype คือพื้นเรียบกับสีเน้นสีเดียว และให้เกมมีชีวิตชีวาขึ้น ; เลือกสีเองตาม ADR-0006 และ legal ข้อ 2 (ห้ามใช้ชุดสีของ Monkeytype)
+
+**Rejected:**
+- เหลือง หรือส้มอำพัน — ใกล้กับชุดสีของ Monkeytype
+- ม่วง หรือชมพู — ผู้ใช้เลือกเขียวมิ้นต์
+
+**Details:**
+- ตัวอักษรสีเน้นมี contrast ตามเกณฑ์ WCAG AA: บนพื้นขาว 5.1:1 บนพื้น muted 4.7:1 และบนพื้นมืด 12.3:1
+- ทุก animation ปิดเมื่อเครื่องตั้ง `prefers-reduced-motion` แต่สีกระพริบตอนตอบถูกยังอยู่ (เหมือนสีแดงตอนตอบผิด ตาม D20)
+- `useRound` คืน `lastAnswer` (ปุ่ม ผล และลำดับข้อ) แทน `missMark` ; `X` ยังขึ้นจนกว่าจะมีคำตอบที่นับครั้งถัดไป (D29)
+- ตอนนี้ Prompt สั่นเฉพาะข้อที่ขึ้นมาหลังตอบผิด เหมือนเดิม แต่ remount ด้วยจำนวนข้อที่ตอบแล้วแทนจำนวนข้อผิด
+
+**From:** change request 2026-11-07 · **Status:** changed by D44 (สัญญาณผิดอยู่ที่ข้อที่เพิ่งตอบ ; ตัวเลข Results นับขึ้นพร้อมกัน)
+
+## D32: Keymap มี 2 Key set ชุดละ 7 ปุ่ม
+
+**Chosen:** Player ผูกปุ่มเองได้ทีละ Answer: Key set letter (C–B) 7 ปุ่ม กับ Key set solfège (โด–ที) 7 ปุ่ม รวม 14 ปุ่มไม่ซ้ำกัน ; แต่ละ Answer ผูกได้ปุ่มเดียว ; `Numpad{n}` นับเป็นปุ่มเดียวกับ `Digit{n}` เสมอ ; ค่าเริ่มต้นคือปุ่มเดิมใน spec.md › Data
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — ทิศสลับต้องรู้ว่าผู้เล่นตั้งใจตอบฝั่งไหนจากชุดที่กด (D20) แยก 2 ชุดจึงไม่ต้องแก้ engine และ `Choice`
+
+**Rejected:**
+- ชุดเดียว 7 ปุ่มใช้ทั้งสองฝั่ง — ทิศสลับไม่มี "กดผิดชุด" อีก ต้อง supersede D20 และแก้ engine
+- หลายปุ่มต่อ Answer — URL ยาว และหน้าตั้งปุ่มซับซ้อนเกินที่ขอ
+
+**Details:**
+- ผู้ใช้ขอให้ตั้งได้ว่าปุ่มไหนตอบอะไร ไม่ใช่เล่นด้วยเมาส์อย่างเดียว
+- Numpad กับแถวเลขเป็นปุ่มเดียวกันเพราะพิมพ์ตัวเดียวกัน คนใช้ numpad ตอบได้โดยไม่ต้องตั้ง
+
+**From:** change request · **Status:** active
+
+## D33: ปุ่มที่ผูกได้ 47 ปุ่ม
+
+**Chosen:** ผูกได้เฉพาะ `KeyA`–`KeyZ` `Digit0`–`Digit9` (รวม `Numpad0`–`Numpad9` ตาม D32) และเครื่องหมาย 11 ปุ่ม `Semicolon` `Quote` `Comma` `Period` `Slash` `BracketLeft` `BracketRight` `Backslash` `Minus` `Equal` `Backquote` ; ปุ่มอื่นทั้งหมดผูกไม่ได้ รวม `Tab` `Escape` `Enter` `Space` ลูกศร F-key และ modifier
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — พอสำหรับวางมือบนแถวกลาง (`A S D F J K L ;`) และ `Tab` `Esc` เป็นของเกมอยู่แล้ว (D14)
+
+**Rejected:**
+- อักษรกับตัวเลขเท่านั้น — ผูก `;` ไม่ได้ ทั้งที่อยู่บนแถวกลาง
+- ทุกปุ่มยกเว้นที่จองไว้ — `Space` เลื่อนหน้า ลูกศรกับ F-key มีงานของเบราว์เซอร์ และต้องมีป้ายเพิ่มอีกมาก
+
+**From:** change request · **Status:** active
+
+## D34: Keymap อยู่ใน URL เป็น 2 param เขียนครบเสมอ
+
+**Chosen:** param `letter-keys` (Answer C ถึง B) และ `solfege-keys` (Answer โด ถึง ที) ค่าละ 7 ตัวอักษรติดกัน ตัวละหนึ่งปุ่มตามป้ายใน D38 เช่น `letter-keys=CDEFGAB&solfege-keys=1234567` ; เขียนครบทุกครั้งตาม D27 ; ค่าผิดหรือไม่มี → ค่าเริ่มต้นของ param นั้นตาม ADR-0002 ; สอง param ตรวจคู่กัน: หลังแต่ละตัว fallback แล้ว ถ้าคู่ที่ได้มีปุ่มซ้ำข้ามชุด → ทั้งสองเป็นค่าเริ่มต้น (กติกาข้าม param ข้อเดียวของแอป)
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — ตาม D27 จึงไม่ต้อง supersede ; รูปตัวอักษรติดกันสั้นและอ่านใน bookmark ได้ ตัวอย่างในคำถามใช้ `,` คั่น แต่ router เขียน `,` เป็น `%2C`
+
+**Rejected:**
+- เขียนเฉพาะตอนต่างจากค่าเริ่มต้น — ต้อง supersede D27 และมีโค้ดเทียบค่า
+- param เดียว 14 ตัว — ผิดตัวเดียว fallback ทั้งสองชุด
+- `,` คั่นแต่ละปุ่ม — router เขียนเป็น `C%2CD%2C…` ยาวและอ่านยาก
+
+**Details:**
+- router ของ TanStack ใส่ `"` รอบค่าที่อ่านเป็น JSON ได้ เช่น `solfege-keys=%221234567%22` แล้วอ่านกลับเป็น string เดิม (ทดลองกับ `@tanstack/router-core` 1.170.46 ในเครื่อง 2026-11-09)
+- พิมพ์ URL เองโดยไม่มี `"` → router อ่านค่าที่ขึ้นต้นด้วยตัวเลขหรือ `-` เป็น JSON ; `1234567` มาเป็น number แล้ว parser แปลงเป็น string ก่อนตรวจ
+- ค่าที่ JSON เปลี่ยนรูป เช่น `1234.50` `1e23456` `[12345]` → ผิด ใช้ค่าเริ่มต้น (พิมพ์เองเท่านั้น ลิงก์ที่แอปเขียนมี `"` เสมอ)
+- ตรวจซ้ำข้ามชุดหลัง fallback เช่น `letter-keys=AAAAAAA&solfege-keys=ASDFGHJ` → letter เป็นค่าเริ่มต้นแล้วชนกับ `ASDFGHJ` → ทั้งสองเป็นค่าเริ่มต้น (red team)
+- ตรวจแต่ละ param: ยาว 7 ตัว ทุกตัวอยู่ในตาราง D38 ไม่ซ้ำในชุด ; อักษรเล็กอ่านเป็นอักษรใหญ่
+- ทั้งสองเป็นค่าเริ่มต้นแม้ชุดหนึ่งถูกต้อง เช่น `letter-keys=1SDFGHJ` กับ `solfege-keys` ที่ผิด — URL แบบนี้เกิดจากพิมพ์เองเท่านั้น Dialog สร้างไม่ได้ (D36)
+- ชื่อและรูปค่าของ param เป็นสัญญากับ bookmark (ADR-0002)
+
+**From:** change request · **Status:** active
+
+## D35: ตั้งปุ่มใน Dialog ที่เปิดจาก Mode bar
+
+**Chosen:** ปุ่มไอคอน `Keyboard` ชื่อ "ปุ่มลัด" ท้าย Mode bar ข้างปุ่มเสียง เปิด shadcn `Dialog` ที่มี 2 คอลัมน์ (Key set letter กับ Key set solfège) แถวละ Answer หนึ่งตัวพร้อมปุ่มที่ผูกอยู่ ; กดปุ่มในแถว → แถวนั้นรอปุ่มใหม่ ("กดปุ่มที่ต้องการ…") ; ปุ่ม "คืนค่าเริ่มต้น" ; ทุกการเปลี่ยนแทนที่ URL ทันที
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — เห็นทั้ง 14 ปุ่มในที่เดียว และไม่ปนกับการตอบบนแถวปุ่มคำตอบ
+
+**Rejected:**
+- แก้บนปุ่มคำตอบตรงๆ — เห็นทีละชุดตามทิศ และแยกจากการตอบยาก
+- หน้า route แยก `/keys` — ต้องพา search params ไปกลับสองหน้า
+
+**Details:**
+- ขณะ Dialog เปิด listener ของเกมไม่ทำอะไรเลย ปุ่มที่กดไม่ตอบ ไม่เริ่มรอบ ไม่จบรอบ
+- กลไก: listener ของเกมเลิกทันทีเมื่อ `e.defaultPrevented` ทุกกรณี (รวม `Esc`) และเมื่อ ref "Dialog เปิด" ที่ตั้งแบบ synchronous ตอนเปิดและปิด เป็นจริง ; Dialog เรียก `preventDefault` กับทุกปุ่มที่มันจัดการ — Radix ปิด Dialog จาก listener ช่วง capture ก่อน listener ของ `window` ทำงาน state ของ React อ่านว่าปิดแล้ว `Esc` จึงจบรอบ `zen` ได้ (red team)
+- เนื้อหา Dialog หยุด `mousedown` ไม่ให้ bubble ไปถึง `onMouseDown` ของ `<nav>` (React bubble ผ่าน portal) ; รอปุ่มด้วย listener บนเนื้อหา Dialog ไม่ใช่บนแถว (red team)
+- ขณะรอปุ่ม: ปุ่มที่ผูกได้ (D33) → ผูก ; `Esc` → เลิกรอ Dialog ยังเปิด ; ปุ่มอื่น → ข้อความ "ใช้ปุ่มนี้ไม่ได้" แล้วรอต่อ ; `Tab` ย้าย focus ตามปกติและเลิกรอ ; `repeat` หรือกด modifier ค้าง → ไม่สนใจ (D20)
+- ไม่ได้รอปุ่ม: `Esc` ปิด Dialog ; ปิดแล้ว focus กลับไปพื้นที่เกม ตอบได้ทันที (แบบเดียวกับ D26)
+- เปลี่ยน D26: Mode bar เปิด Dialog หนึ่งตัวที่ใช้ `Esc` เอง เหตุผล "ไม่มี popover จึงไม่แย่ง `Esc`" ของ D26 ไม่จริงอีก กติกา `Esc` อยู่ในข้อถัดไปแทน
+- Dialog ใช้ focus และ `Tab` ตามปกติ ปุ่มในนั้นไม่ใช่ปุ่มเกม ข้อ "ปุ่มไม่รับ focus" ของ D26 ไม่ใช้กับ Dialog
+
+**From:** change request · **Status:** active
+
+## D36: กดปุ่มที่ Answer อื่นใช้อยู่ → สลับปุ่มกัน
+
+**Chosen:** ผูกปุ่มที่ Answer อื่นใช้อยู่ (ชุดไหนก็ได้) → สอง Answer แลกปุ่มกัน และ Dialog แสดงข้อความสั้น เช่น "สลับกับ เร" ; ผูกปุ่มเดิมของตัวเอง → ไม่มีอะไรเปลี่ยน
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — Keymap ครบ 14 ปุ่มไม่ซ้ำเสมอ ไม่มีสถานะที่ Answer ไม่มีปุ่ม
+
+**Rejected:**
+- ไม่รับแล้วแสดงข้อความ — สลับสองปุ่มต้องผ่านปุ่มที่สาม
+- ย้ายมาแล้ว Answer เดิมว่าง — ตอบ Answer นั้นด้วยคีย์บอร์ดไม่ได้จนกว่าจะตั้งใหม่
+
+**From:** change request · **Status:** active
+
+## D37: เปลี่ยน Keymap แล้วเริ่มรอบใหม่
+
+**Chosen:** เปลี่ยน `letter-keys` หรือ `solfege-keys` เริ่มรอบใหม่เหมือนค่า Mode bar อื่นทุกตัว (D14) มีแค่ `sound` ที่รอบเดิมเล่นต่อ (D20)
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — รอบ `time` ไม่เดินเวลาค้างระหว่างตั้งปุ่ม และกติกาเดียวกับค่าอื่น
+
+**Rejected:**
+- รอบเดิมเล่นต่อแบบ `sound` — เวลาที่ใช้ใน Dialog นับเข้ารอบ `time`
+
+**From:** change request · **Status:** extended by D40
+
+## D38: ป้ายปุ่มตามแป้น US QWERTY
+
+**Chosen:** ป้ายของแต่ละปุ่มมาจากตารางตายตัวตามแป้น US QWERTY: `KeyC` → `C` `Digit1` → `1` `Semicolon` → `;` `Quote` → `'` `Comma` → `,` `Period` → `.` `Slash` → `/` `BracketLeft` → `[` `BracketRight` → `]` `Backslash` → `\` `Minus` → `-` `Equal` → `=` `Backquote` → `` ` `` ; ใช้ทั้งบนปุ่มคำตอบ ใน Dialog และเป็นตัวอักษรใน URL (D34)
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — เหมือนกันทุกเบราว์เซอร์ และคีย์บอร์ดไทยพิมพ์อักษรอังกฤษไว้บนแป้นเดียวกัน
+
+**Rejected:**
+- ป้ายตาม layout จริงด้วย `navigator.keyboard.getLayoutMap()` — มีแค่ Chromium ส่วน Safari กับ Firefox ต้องมี fallback อยู่ดี
+
+**Sources:** [Keyboard.getLayoutMap()](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/getLayoutMap)
+
+**From:** change request · **Status:** active
+
+## D39: ปุ่มตั้งปุ่มลัดและป้ายปุ่มแสดงทุกจอ
+
+**Chosen:** ปุ่ม "ปุ่มลัด" ใน Mode bar และป้ายปุ่มบนปุ่มคำตอบแสดงทุกขนาดจอ ; มือถือที่ไม่มีคีย์บอร์ดแตะปุ่มคำตอบได้เหมือนเดิม (D6) ; Dialog มีบรรทัด "ต้องใช้คีย์บอร์ดจริง แตะปุ่มคำตอบได้เสมอ"
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — เว็บรู้ไม่ได้แน่ว่ามีคีย์บอร์ดต่ออยู่ (iPad หรือมือถือต่อ Bluetooth)
+
+**Rejected:**
+- ซ่อนเมื่อ `(hover: none) and (pointer: coarse)` — iPad ต่อคีย์บอร์ดตั้งปุ่มไม่ได้
+
+**Details:**
+- มือถือแตะแถวใน Dialog แล้วไม่มีปุ่มให้กด → แถวรอจนแตะแถวเดิมซ้ำ แตะแถวอื่น หรือปิด Dialog
+
+**From:** change request · **Status:** changed by D44 (ป้ายบนปุ่มตอบยังอยู่ทุกจอ ; แถบล่างคำใบ้คีย์บอร์ดซ่อนบนจอสัมผัส)
+
+## D40: เปิด Dialog ปุ่มลัดแล้วเริ่มรอบใหม่
+
+**Chosen:** กดปุ่ม "ปุ่มลัด" เปิด Dialog → รอบปัจจุบันทิ้ง เริ่มรอบใหม่ในสถานะ `ready` เวลายังไม่เดิน แม้ปิดโดยไม่เปลี่ยนอะไร
+
+**Why:** เหตุผลของผู้วางแผน (auto mode เลือกตัวเลือก Recommended) — red team พบว่า D37 เริ่มรอบใหม่เฉพาะตอนเปลี่ยน รอบ `time` จึงเดินเวลาและจบหลัง Dialog ได้ ขัดกับเหตุผลของ D37 ; engine ไม่ต้องมี pause
+
+**Rejected:**
+- เวลาเดินต่อ — เปิดดูเฉยๆ แล้วปิดอาจเจอหน้า Results
+- หยุดเวลาชั่วคราว — ต้องเพิ่ม pause ใน engine และแก้กติกา `deadline` (D20)
+
+**Details:**
+- ขยาย D37 ; เปิดจากหน้า Results ก็กลับเป็นรอบใหม่เหมือนกด `Tab` (D14)
+
+**From:** red team · **Status:** active
+
+## D41: Keymap อยู่ใน search เป็นป้าย แปลงเป็น `code` ที่ `keymapOf`
+
+**Chosen:** `QuizSearch` เก็บ `letter-keys` `solfege-keys` เป็น string ป้าย 7 ตัวแบบเดียวกับใน URL ; `keymapOf(search)` แปลงเป็น `Keymap` (`Record<Side, Record<Note, code>>`) ให้ `useRound` และ `AnswerRow` ; ตารางปุ่มที่ผูกได้กับป้ายอยู่ที่ `hooks/keys.ts` ที่เดียว ; `roundKey` ของ `NoteNameQuiz` คือ search ทั้งหมดยกเว้น `sound`
+
+**Why:** `navigate` เขียน search ลง URL ตรงๆ จึงไม่ต้องแปลงกลับตอนเขียน ; `Record<Note, …>` แบบ `NOTES` อ่านด้วย `Note` ได้โดยไม่มี `undefined` (`noUncheckedIndexedAccess`) ; `roundKey` แบบตัดเฉพาะ `sound` ทำให้ param ใหม่เริ่มรอบใหม่เองตาม D14 D37
+
+**Rejected:**
+- เก็บ `code` ใน search แล้วแปลงตอน stringify — ต้องมี serializer ของ router เอง
+
+**Details:**
+- `solfege-keys=1234567.0` หรือ `1.234567e6` ที่พิมพ์เองมาถึงเป็น number `1234567` จึงอ่านได้ ไม่ใช่ค่าเริ่มต้น — แยกได้ต้องอ่าน hash ดิบ ไม่คุ้ม ; `1234.50` `1e23456` `[12345]` ยังเป็นค่าเริ่มต้นตาม D34
+- `hooks/keys.ts` ถือตารางปุ่มแม้ไม่มี React ตาม spec.md › Modules touched
+
+**From:** build ticket 04 · **Status:** active
+
+## D42: Dialog ปุ่มลัด อยู่ใน Mode bar และนับการเปิดเข้า Round key
+
+**Chosen:** `KeymapDialog` (ปุ่มเปิดกับ Dialog) อยู่ใน `<nav>` ของ Mode bar ถัดจากปุ่มเสียง ไม่มีเส้นคั่น ; `NoteNameQuiz` นับจำนวนครั้งที่เปิดไว้ต่อท้าย `roundKey` จึงเริ่มรอบใหม่ทุกครั้งที่เปิด (D40) ; ref `keymapOpen` ตั้งใน `onOpenChange` ก่อน React render แล้วส่งให้ `useRound` ผ่าน `KeyRouting` ; listener ของเกมเลิกเมื่อ `defaultPrevented` ทุกปุ่ม ; หัวคอลัมน์เป็น `C–B` กับชื่อ solfège ตาม Script (`โด–ที` หรือ `Do–Ti`) ; แตะแถวอื่นหรือคืนค่าเริ่มต้นล้างข้อความใต้แถว ; `ปุ่มปิด` ของ shadcn ใช้ป้าย sr-only "ปิด"
+
+**Why:** อยู่ใน `Dialog.Trigger` จึงได้ `aria-expanded` `aria-haspopup` ของ Radix เอง (D35 จึงหยุด `mousedown` ที่เนื้อหา Dialog) ; ตัวนับเป็นทางเดียวที่เริ่มรอบใหม่ได้โดยไม่ต้องให้ `Round` มี API restart จากข้างนอก ; ข้อความในหน้าจอเป็นถ้อยคำของเราเอง (ADR-0006)
+
+**Rejected:**
+- Dialog นอก `<nav>` กับปุ่มเปิดธรรมดา — ต้องใส่ `aria-expanded` เองและไม่มี Trigger ให้ Radix คืน focus
+
+**From:** build ticket 05 · **Status:** active
+
+## D43: ขณะรอปุ่ม modifier ที่กดเดี่ยวไม่ใช่ปุ่มที่จะผูก
+
+**Chosen:** ใน Dialog ปุ่มลัด ขณะแถวรอปุ่ม กด `Shift` `Control` `Alt` `AltGraph` หรือ `Meta` เดี่ยวๆ → ไม่มีอะไรเกิด ไม่ขึ้น "ใช้ปุ่มนี้ไม่ได้" แถวยังรอ ; `Shift` + ปุ่มที่ผูกได้ ผูกปุ่มนั้น (`code` ไม่ขึ้นกับ Shift) ; `Ctrl` `Cmd` `Alt` + ปุ่ม ยังไม่สนใจตาม D20
+
+**Why:** D35 ว่า "กด modifier ค้าง → ไม่สนใจ" ; กด `Shift+Q` ปุ่ม Shift ลงก่อน เดิมขึ้น "ใช้ปุ่มนี้ไม่ได้" แวบหนึ่งก่อนผูก `Q` ทำให้งง
+
+**Rejected:**
+- ขึ้น "ใช้ปุ่มนี้ไม่ได้" เมื่อกด modifier เดี่ยว (ตาม D33 ที่ผูก modifier ไม่ได้) — ข้อความขึ้นทุกครั้งที่กด chord
+
+**From:** feature review · **Status:** active
+
+## D44: แก้ตาม user trial 2026-11-09 (ticket 06)
+
+**Chosen:**
+- **วิธีเล่น (F3):** ก่อนตอบข้อแรก ใต้แถวปุ่มมี 2 บรรทัด: Mode จบเมื่อไร (`ตอบให้ได้มากที่สุดก่อนหมดเวลา (30 วินาที)` · `ตอบให้ครบทุกข้อ เร็วที่สุด (25 ข้อ)` · `ไม่จับเวลา เล่นไปจนกดจบรอบ`) และ "กดปุ่มบนคีย์บอร์ดตามป้ายเล็กใต้ปุ่มคำตอบ หรือแตะปุ่ม" ; พอรอบเริ่มซ่อนแต่ยังกินที่ ไม่ให้ Prompt ขยับ ; แถบล่างเขียน "ไปที่การตั้งค่า" แทน "ไปที่ Mode bar"
+- **ตอบผิด (F6):** Prompt ใหม่เลื่อนเข้าปกติ ไม่แดง ; ข้อที่เพิ่งตอบผิดค้างทางซ้ายของ Prompt ใหม่ สีแดง สั่น แล้วจางใน 600 ms (reduced motion: จางอย่างเดียว) ; `X` บนปุ่มเหมือนเดิม ; ไม่บอกเฉลย (D7)
+- **กดผิดชุด (F9):** บรรทัดใต้แถวปุ่มขึ้น "ข้อนี้ตอบด้วยปุ่ม {7 ป้ายตาม Keymap}" กระพริบ จนกว่าจะตอบข้อนั้น ; ป้ายเล็กยังกระพริบ ; ไม่นับผิด (D20)
+- **Esc (F8):** ขณะ focus อยู่ใน Mode bar แถบล่างเหลือ "`Esc` กลับเข้าเกม" อย่างเดียว (CSS `:has(nav:focus-within)` ไม่มี state)
+- **จอสัมผัส (F5):** `pointer: coarse` ซ่อนแถบล่าง (รวมคำใบ้ `Esc` ของ F8) และป้าย `Tab` บนปุ่มเล่นอีกรอบ ; ปุ่มตอบสูงอย่างน้อย 64 px ; ป้ายปุ่มลัดบนปุ่มตอบยังอยู่ (D39) ; 7 ปุ่มยังอยู่แถวเดียว (D29) ; ยอมรับว่า iPad ที่ต่อคีย์บอร์ดไม่เห็นแถบล่าง (ปุ่มยังใช้ได้ ป้ายบนปุ่มตอบยังอยู่)
+- **ป้าย Direction (F14):** ตาม Script: `โด→C` `C→โด` หรือ `Do→C` `C→Do` ; "สลับ" ไม่เปลี่ยน ; หน้า Results ก็เช่นกัน
+- **คัดลอกลิงก์ (F12):** ปุ่มไอคอน `Link` "คัดลอกลิงก์" ใน Mode bar หน้าปุ่มเสียง (ปุ่มไอคอนสามตัวอยู่กลุ่มเดียว) คัดลอก URL ทั้งหน้า ; สำเร็จ → ไอคอน `Check` และ "คัดลอกแล้ว" ใต้ปุ่ม 2 วินาที ; clipboard ปฏิเสธ → "คัดลอกไม่ได้" ; ไม่เริ่มรอบใหม่ ; Mode bar ห่างกัน 8 px จาก `lg` เพื่อยังอยู่บรรทัดเดียว (D30)
+- **Results นับขึ้น (F11):** selector `countedUp(results, progress)` ใน engine: ถูกและผิดขึ้นทีละข้อ ความแม่นคิดจากถูกและผิดที่เห็น (`accuracyOf`) โน้ตต่อนาทีขึ้นตามสัดส่วนข้อถูกที่เห็น ; เวลาเฉลี่ยต่อข้อแสดงค่าสุดท้ายตั้งแต่ต้น (นับขึ้นจาก 0 จะขัดกับจำนวนข้อ)
+
+**Why:** friction 8 ข้อจาก [user trial 2026-11-09](../../progress/note-name-quiz/user-trials/2026-11-09.md) ; ticket 06 กำหนดผลที่ต้องได้ ส่วนวิธีทำเลือกตัวเลือก Recommended (auto mode)
+
+**Rejected:**
+- F6: ย้ายสัญญาณผิดไปที่ปุ่มและตัวนับผิดอย่างเดียว — Prompt ไม่สั่นเลย ผู้เล่นที่ไม่ได้มองปุ่มไม่รู้ว่าผิด
+- F9: ป้ายเล็กใหญ่ขึ้นตอนกระพริบ โดยไม่มีข้อความ — ยังต้องตีความเอง
+- F12: ปุ่มที่หน้า Results เท่านั้น — ครูตั้งค่าแล้วส่งก่อนเล่น
+- F5: ซ่อนตามความกว้างจอ — แท็บเล็ตไม่มีคีย์บอร์ดยังเห็นป้าย
+
+- ไม่ทำ (review ticket 06): รวม `MODE_LABELS` `LENGTH_UNITS` `MODE_HOW_TO` เป็นตารางเดียว — ป้ายไม่ใช่กติกา ตารางเล็กแยกกันอ่านง่ายกว่า
+
+**From:** build ticket 06 · **Status:** active
+
+## D45: ปุ่มคัดลอกลิงก์เมื่อไม่มี clipboard และเมื่อกดซ้ำ
+
+**Chosen:** เบราว์เซอร์ไม่มี `navigator.clipboard` (หน้าไม่ใช่ https หรือ in-app browser บางตัว) → "คัดลอกไม่ได้" เหมือน clipboard ปฏิเสธ ; กดซ้ำภายใน 2 วินาที → ข้อความนับ 2 วินาทีใหม่จากการกดล่าสุด
+
+**Why:** feature review พบว่า `writeText` บน `navigator.clipboard` ที่ไม่มีโยน error ก่อนถึง `.catch` จอไม่บอกอะไรเลย ; กดซ้ำแล้วข้อความหายเร็วกว่าที่ผู้เล่นคาด
+
+**Rejected:**
+- ใช้ `document.execCommand('copy')` เป็นทางสำรอง — deprecated และ GitHub Pages เป็น https อยู่แล้ว
+
+**From:** feature review 2026-11-09 · **Status:** active
+
 ## Sources
 
 - [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits) — ฟรีสำหรับ public repo และ limit ของเว็บ (accessed 2026-11-07)
@@ -434,3 +664,5 @@
 - [musictheory.net exercises](https://www.musictheory.net/exercises) — ลำดับแบบฝึกหัดฟรี (accessed 2026-11-07)
 - [Musicca note identification](https://www.musicca.com/note-identification) — แบบฝึกชื่อโน้ตฟรี (accessed 2026-11-07)
 - [Audio Session API](https://w3c.github.io/audio-session/) — `navigator.audioSession.type` (accessed 2026-11-07)
+- [Radix Dialog](https://www.radix-ui.com/primitives/docs/components/dialog) — `Esc` ปิด, `onEscapeKeyDown`, `onCloseAutoFocus` (accessed 2026-11-09)
+- [Keyboard.getLayoutMap()](https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/getLayoutMap) — มีเฉพาะบางเบราว์เซอร์ (accessed 2026-11-09)

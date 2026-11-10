@@ -1,5 +1,5 @@
 import { Volume2, VolumeX } from 'lucide-react';
-import type { Ref } from 'react';
+import type { Ref, RefObject } from 'react';
 import { Toggle } from '@/components/ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { hasLength, MODE_LENGTHS, MODES } from '../engine/modes';
@@ -13,28 +13,37 @@ import {
   withMode,
   withScript,
 } from '../search';
-import { DIRECTION_LABELS, LENGTH_UNITS, MODE_LABELS, SCRIPT_LABELS } from './labels';
+import { CopyLinkButton } from './CopyLinkButton';
+import { KeymapDialog } from './KeymapDialog';
+import { directionLabel, LENGTH_UNITS, MODE_LABELS, SCRIPT_LABELS } from './labels';
 import { stopFocusOnMouseDown } from './noFocus';
 
 type Option<T extends string> = { value: T; label: string };
 
 /**
- * Mode bar (D1, D2, D3, D26): every change hands the next search to `onChange`.
- * Sound goes to `onSoundChange` instead: it must not start a new Round (D20).
+ * Mode bar (D1, D2, D3, D26, D35): every change, the Keymap dialog's too, hands the next
+ * search to `onChange`. Sound goes to `onSoundChange` instead: it must not start a new
+ * Round (D20). Copying the link changes nothing (D44).
  */
 export function ModeBar({
   search,
   onChange,
   onSoundChange,
+  onKeymapOpenChange,
+  gameArea,
   ref,
 }: {
   search: QuizSearch;
   onChange: (next: QuizSearch) => void;
   onSoundChange: (on: boolean) => void;
+  onKeymapOpenChange: (open: boolean) => void;
+  /** Where focus goes back to when the Keymap dialog closes. */
+  gameArea: RefObject<HTMLElement | null>;
   ref: Ref<HTMLElement>;
 }) {
   const soundOn = isSoundOn(search);
   return (
+    // Game's bottom bar shows the Esc hint while focus is in this `<nav>` (D44).
     <nav
       ref={ref}
       aria-label="ตั้งค่ารอบ"
@@ -42,7 +51,7 @@ export function ModeBar({
       // users still reach the bar with Shift+Tab (D20, D26). Set here because Radix drops
       // an item's own onMouseDown.
       onMouseDown={stopFocusOnMouseDown}
-      className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2"
+      className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 lg:gap-x-2"
     >
       <SettingToggle
         label="Mode"
@@ -68,7 +77,7 @@ export function ModeBar({
       <SettingToggle
         label="ทิศคำถาม"
         value={search.dir}
-        options={DIRECTIONS.map((d) => ({ value: d, label: DIRECTION_LABELS[d] }))}
+        options={DIRECTIONS.map((d) => ({ value: d, label: directionLabel(d, search.script) }))}
         onValue={(dir) => onChange(withDirection(search, dir))}
       />
       <Divider />
@@ -79,15 +88,29 @@ export function ModeBar({
         onValue={(script) => onChange(withScript(search, script))}
       />
       <Divider />
-      {/* Like every control here, keeps focus on the game area via the nav's onMouseDown. */}
-      <Toggle
-        aria-label="เสียง"
-        pressed={soundOn}
-        onPressedChange={onSoundChange}
-        className="size-11 text-muted-foreground"
-      >
-        {soundOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
-      </Toggle>
+      {/* The icon buttons stay together when the bar wraps, and keep it one line from `lg`. */}
+      <span className="flex">
+        {/*
+         * Shift+Tab from the game reaches the last button first, so the Keymap button stays
+         * last and the copy button goes before sound.
+         */}
+        <CopyLinkButton />
+        {/* Like every control here, keeps focus on the game area via the nav's onMouseDown. */}
+        <Toggle
+          aria-label="เสียง"
+          pressed={soundOn}
+          onPressedChange={onSoundChange}
+          className="size-11 text-muted-foreground data-[state=on]:text-brand"
+        >
+          {soundOn ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+        </Toggle>
+        <KeymapDialog
+          search={search}
+          onChange={onChange}
+          onOpenChange={onKeymapOpenChange}
+          returnFocusTo={gameArea}
+        />
+      </span>
     </nav>
   );
 }
@@ -115,7 +138,12 @@ function SettingToggle<T extends string>({
       }}
     >
       {options.map((o) => (
-        <ToggleGroupItem key={o.value} value={o.value} className="min-h-11 text-muted-foreground">
+        <ToggleGroupItem
+          key={o.value}
+          value={o.value}
+          // D31: the chosen value reads in the accent.
+          className="min-h-11 text-muted-foreground data-[state=on]:text-brand"
+        >
           {o.label}
         </ToggleGroupItem>
       ))}
@@ -124,7 +152,7 @@ function SettingToggle<T extends string>({
 }
 
 /**
- * Only from `lg` up, where the whole bar fits one line (~770 px of the 864 px `main`).
+ * Only from `lg` up, where the whole bar fits one line (~820 px of the 864 px `main`).
  * Below that the bar wraps, and a divider would hang at the end of a row.
  */
 function Divider() {
