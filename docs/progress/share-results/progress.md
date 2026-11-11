@@ -55,3 +55,5 @@
 | # | Ticket | What | Needs | Status |
 |---|---|---|---|---|
 | 1 | 01 | รอ `note-name-quiz 06: Trial fixes 2026-11-09` merge เข้า `develop` (D6) | note-name-quiz 06 merged | done (PR #4 merged 2026-11-09) |
+
+**2026-11-11:** เจ้าของตรวจ share sheet บน iPhone จริงแล้ว ใช้ได้ (Blocked #1 ปิด)
